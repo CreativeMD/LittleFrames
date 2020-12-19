@@ -1,0 +1,274 @@
+package team.creative.lf.block;
+
+import java.util.ArrayList;
+
+import com.creativemd.creativecore.client.rendering.RenderBox;
+import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
+import com.creativemd.creativecore.common.block.TileEntityState;
+import com.creativemd.creativecore.common.gui.container.SubContainer;
+import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.opener.GuiHandler;
+import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
+import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
+
+import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyDirection;
+import net.minecraft.block.state.BlockStateContainer;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.creativetab.CreativeTabs;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.Mirror;
+import net.minecraft.util.Rotation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.IBlockAccess;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.lf.LittleFrames;
+import team.creative.lf.gui.SubContainerPic;
+import team.creative.lf.gui.SubGuiPic;
+
+public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, ICreativeRendered {
+	
+	public static final PropertyDirection FACING = BlockDirectional.FACING;
+	
+	public BlockCreativeFrame() {
+		super(Material.WOOD);
+		setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.EAST));
+		setCreativeTab(CreativeTabs.DECORATIONS);
+		setResistance(2.5F);
+		setHardness(2.0F);
+	}
+	
+	@Override
+	public IBlockState getExtendedState(IBlockState state, IBlockAccess world, BlockPos pos) {
+		return new TileEntityState(state, world.getTileEntity(pos));
+	}
+	
+	/** Called by ItemBlocks just before a block is actually set in the world, to allow for adjustments to the
+	 * IBlockstate */
+	@Override
+	public IBlockState getStateForPlacement(World world, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer, EnumHand hand) {
+		return this.getDefaultState().withProperty(FACING, facing);
+	}
+	
+	/** Called by ItemBlocks after a block is set in the world, to allow post-place logic */
+	@Override
+	public void onBlockPlacedBy(World worldIn, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack) {
+		//worldIn.setBlockState(pos, state.withProperty(FACING, placer.getHorizontalFacing().getOpposite()), 2);
+		super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
+	}
+	
+	/** Convert the given metadata into a BlockState for this Block */
+	@Override
+	public IBlockState getStateFromMeta(int meta) {
+		return this.getDefaultState().withProperty(FACING, EnumFacing.getFront(meta));
+	}
+	
+	/** Convert the BlockState into the correct metadata value */
+	@Override
+	public int getMetaFromState(IBlockState state) {
+		return state.getValue(FACING).getIndex();
+	}
+	
+	/** Returns the blockstate with the given rotation from the passed blockstate. If inapplicable, returns the passed
+	 * blockstate. */
+	@Override
+	public IBlockState withRotation(IBlockState state, Rotation rot) {
+		return state.withProperty(FACING, rot.rotate(state.getValue(FACING)));
+	}
+	
+	/** Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
+	 * blockstate. */
+	@Override
+	public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+		return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
+	}
+	
+	@Override
+	protected BlockStateContainer createBlockState() {
+		return new BlockStateContainer(this, new IProperty[] { FACING });
+	}
+	
+	@Override
+	public EnumBlockRenderType getRenderType(IBlockState state) {
+		return EnumBlockRenderType.MODEL;
+	}
+	
+	/** Used to determine ambient occlusion and culling when rebuilding chunks for render */
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
+		return false;
+	}
+	
+	@Override
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+	
+	@Override
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+		AlignedBox cube = new AlignedBox(0, 0, 0, 0.05F, 1, 1);
+		EnumFacing direction = blockState.getValue(FACING);
+		return rotateCube(cube, direction).getBB(); //.offset(pos);
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+		TileEntity te = source.getTileEntity(pos);
+		if (te instanceof TileEntityCreativeFrame)
+			return ((TileEntityCreativeFrame) te).getBox().getBB();
+		
+		AlignedBox cube = new AlignedBox(0, 0, 0, 0.05F, 1, 1);
+		EnumFacing direction = state.getValue(FACING);
+		return rotateCube(cube, direction).getBB();//.offset(pos);
+	}
+	
+	@Override
+	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ) {
+		if (!world.isRemote && LittleFrames.CONFIG.canInteract(player, world))
+			GuiHandler.openGui(player, world, pos);
+		return true;
+	}
+	
+	@Override
+	public TileEntity createNewTileEntity(World world, int meta) {
+		return new TileEntityCreativeFrame();
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityCreativeFrame)
+			return new SubGuiPic((TileEntityCreativeFrame) te);
+		return null;
+	}
+	
+	@Override
+	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
+		TileEntity te = world.getTileEntity(pos);
+		if (te instanceof TileEntityCreativeFrame)
+			return new SubContainerPic((TileEntityCreativeFrame) te, player);
+		return null;
+	}
+	
+	@Override
+	@SideOnly(Side.CLIENT)
+	public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
+		ArrayList<RenderBox> cubes = new ArrayList<RenderBox>();
+		RenderBox cube = new RenderBox(0, 0, 0, 0.03F, 1, 1, Blocks.PLANKS);
+		if (te instanceof TileEntityCreativeFrame && ((TileEntityCreativeFrame) te).visibleFrame) {
+			cube = new RenderBox(rotateCube(cube, state.getValue(FACING)), cube);
+			cubes.add(cube);
+		} else if (!(te instanceof TileEntityCreativeFrame))
+			cubes.add(cube);
+		return cubes;
+	}
+	
+	public static AlignedBox rotateCube(AlignedBox cube, EnumFacing direction) {
+		return rotateCube(cube, direction, new Vec3d(0.5, 0.5, 0.5));
+	}
+	
+	public static AlignedBox rotateCube(AlignedBox cube, EnumFacing direction, Vec3d center) {
+		AlignedBox rotateCube = new AlignedBox(cube);
+		applyCubeRotation(rotateCube, direction, center);
+		return rotateCube;
+	}
+	
+	public static Vec3d applyVectorRotation(Vec3d vector, EnumFacing EnumFacing) {
+		double tempX = vector.x;
+		double tempY = vector.y;
+		double tempZ = vector.z;
+		
+		double posX = tempX;
+		double posY = tempY;
+		double posZ = tempZ;
+		
+		switch (EnumFacing) {
+		case UP:
+			posX = -tempY;
+			posY = tempX;
+			break;
+		case DOWN:
+			posX = tempY;
+			posY = -tempX;
+			break;
+		case SOUTH:
+			posX = -tempZ;
+			posZ = tempX;
+			break;
+		case NORTH:
+			posX = tempZ;
+			posZ = -tempX;
+			break;
+		case WEST:
+			posX = -tempX;
+			posZ = -tempZ;
+			break;
+		default:
+			break;
+		}
+		return new Vec3d(posX, posY, posZ);
+	}
+	
+	public static void applyCubeRotation(AlignedBox cube, EnumFacing EnumFacing, Vec3d center) {
+		float minX = cube.minX;
+		float minY = cube.minY;
+		float minZ = cube.minZ;
+		float maxX = cube.maxX;
+		float maxY = cube.maxY;
+		float maxZ = cube.maxZ;
+		if (center != null) {
+			minX -= center.x;
+			minY -= center.y;
+			minZ -= center.z;
+			maxX -= center.x;
+			maxY -= center.y;
+			maxZ -= center.z;
+		}
+		Vec3d min = applyVectorRotation(new Vec3d(minX, minY, minZ), EnumFacing);
+		Vec3d max = applyVectorRotation(new Vec3d(maxX, maxY, maxZ), EnumFacing);
+		
+		if (center != null) {
+			min = min.addVector(center.x, center.y, center.z);
+			max = max.addVector(center.x, center.y, center.z);
+		}
+		
+		if (min.x < max.x) {
+			cube.minX = (float) min.x;
+			cube.maxX = (float) max.x;
+		} else {
+			cube.minX = (float) max.x;
+			cube.maxX = (float) min.x;
+		}
+		if (min.y < max.y) {
+			cube.minY = (float) min.y;
+			cube.maxY = (float) max.y;
+		} else {
+			cube.minY = (float) max.y;
+			cube.maxY = (float) min.y;
+		}
+		if (min.z < max.z) {
+			cube.minZ = (float) min.z;
+			cube.maxZ = (float) max.z;
+		} else {
+			cube.minZ = (float) max.z;
+			cube.maxZ = (float) min.z;
+		}
+	}
+	
+}
