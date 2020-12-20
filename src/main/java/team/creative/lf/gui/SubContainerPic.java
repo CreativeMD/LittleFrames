@@ -39,7 +39,7 @@ public class SubContainerPic extends SubContainerTileEntity {
 			String url = nbt.getString("url");
 			if (LittleFrames.CONFIG.canUse(player, url)) {
 				frame.url = url;
-				frame.sizeX = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("x"));
+				/*frame.sizeX = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("x"));
 				frame.sizeY = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("y"));
 				
 				frame.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInteger("render"));
@@ -54,7 +54,7 @@ public class SubContainerPic extends SubContainerTileEntity {
 				frame.rotationY = nbt.getFloat("rotY");
 				
 				frame.transparency = nbt.getFloat("transparency");
-				frame.brightness = nbt.getFloat("brightness");
+				frame.brightness = nbt.getFloat("brightness");*/
 			}
 			
 			frame.updateBlock();

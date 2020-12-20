@@ -94,7 +94,7 @@ public class TextureSeeker extends Thread {
 			isVideo = true;
 		} catch (Exception e) {
 			exception = e;
-			LOGGER.error("An exception occurred while loading OPFrame image", e);
+			LOGGER.error("An exception occurred while loading LittleFrames image", e);
 		}
 		if (!isVideo && !processed) {
 			if (exception == null)
@@ -133,8 +133,9 @@ public class TextureSeeker extends Thread {
 		InputStream in = null;
 		try {
 			in = connection.getInputStream();
-			if (!connection.getContentType().startsWith("image"))
-				throw new FoundVideoException();
+			//String contentType = connection.getContentType();
+			//if (!contentType.startsWith("image"))
+			//throw new FoundVideoException();
 			String etag = connection.getHeaderField("ETag");
 			long lastModifiedTimestamp;
 			long expireTimestamp = -1;
@@ -179,6 +180,8 @@ public class TextureSeeker extends Thread {
 				}
 			}
 			byte[] data = IOUtils.toByteArray(in);
+			if (readType(data) == null)
+				throw new FoundVideoException();
 			TEXTURE_STORAGE.save(url, etag, lastModifiedTimestamp, expireTimestamp, data);
 			return data;
 		} finally {
@@ -200,7 +203,7 @@ public class TextureSeeker extends Thread {
 		ImageInputStream stream = ImageIO.createImageInputStream(input);
 		Iterator iter = ImageIO.getImageReaders(stream);
 		if (!iter.hasNext())
-			return "";
+			return null;
 		
 		ImageReader reader = (ImageReader) iter.next();
 		

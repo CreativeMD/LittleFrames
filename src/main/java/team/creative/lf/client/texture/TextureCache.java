@@ -104,6 +104,10 @@ public class TextureCache {
 		return new FramePictureDisplay(this);
 	}
 	
+	public String getError() {
+		return error;
+	}
+	
 	public void processFailed(String error) {
 		this.textures = null;
 		this.error = error;

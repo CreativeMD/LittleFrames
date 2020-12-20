@@ -1,25 +1,20 @@
 package team.creative.lf.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiAnalogeSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.lf.LittleFrames;
 import team.creative.lf.block.TileEntityCreativeFrame;
-import team.creative.lf.client.DownloadThread;
 
 @SideOnly(Side.CLIENT)
 public class SubGuiPic extends SubGui {
@@ -49,7 +44,7 @@ public class SubGuiPic extends SubGui {
 		url = new GuiUrlTextfield(this, "url", frame.url, 0, 0, 194, 16);
 		url.maxLength = 512;
 		controls.add(url);
-		controls.add(new GuiLabel(translate(frame.error != null ? frame.error : ""), 0, 20, ColorUtils.RED));
+		controls.add(new GuiLabel(translate(frame.cache != null && frame.cache.getError() != null ? frame.cache.getError() : ""), 0, 20, ColorUtils.RED));
 		controls.add(new GuiButton("in-size-x", "<", 49, 30, 5, 12) {
 			
 			@Override
@@ -116,22 +111,20 @@ public class SubGuiPic extends SubGui {
 			}
 		}.setRotation(90));
 		
-		controls.add(new GuiTextfield("sizeX", frame.sizeX + "", 0, 33, 40, 15).setFloatOnly());
-		controls.add(new GuiTextfield("sizeY", frame.sizeY + "", 96, 33, 40, 15).setFloatOnly());
+		controls.add(new GuiTextfield("sizeX", frame.getSizeX() + "", 0, 33, 40, 15).setFloatOnly());
+		controls.add(new GuiTextfield("sizeY", frame.getSizeY() + "", 96, 33, 40, 15).setFloatOnly());
 		
 		controls.add(new GuiButton("reX", "x->y", 62, 33, 25, 15) {
 			@Override
-			public void onClicked(int x, int y, int button) {
-			}
+			public void onClicked(int x, int y, int button) {}
 		});
 		
 		controls.add(new GuiButton("reY", "y->x", 158, 33, 25, 15) {
 			@Override
-			public void onClicked(int x, int y, int button) {
-			}
+			public void onClicked(int x, int y, int button) {}
 		});
 		
-		controls.add(new GuiCheckBox("flipX", "flip (x-axis)", 0, 50, frame.flippedX));
+		/*controls.add(new GuiCheckBox("flipX", "flip (x-axis)", 0, 50, frame.flippedX));
 		controls.add(new GuiCheckBox("flipY", "flip (y-axis)", 75, 50, frame.flippedY));
 		
 		controls.add(new GuiStateButton("posX", frame.posX, 0, 70, 70, "left (x)", "center (x)", "right (x)"));
@@ -172,14 +165,14 @@ public class SubGuiPic extends SubGui {
 					frame.error = null;
 				}
 			}
-		}.setCustomTooltip("Hold shift to reload all"));
+		}.setCustomTooltip("Hold shift to reload all"));*/
 		
 		save = new GuiButton("Save", 140, 174, 50) {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				NBTTagCompound nbt = new NBTTagCompound();
 				GuiTextfield url = (GuiTextfield) get("url");
-				GuiTextfield sizeX = (GuiTextfield) get("sizeX");
+				/*GuiTextfield sizeX = (GuiTextfield) get("sizeX");
 				GuiTextfield sizeY = (GuiTextfield) get("sizeY");
 				
 				GuiStateButton buttonPosX = (GuiStateButton) get("posX");
@@ -212,10 +205,10 @@ public class SubGuiPic extends SubGui {
 				nbt.setFloat("rotY", (float) rotY.value);
 				
 				nbt.setFloat("transparency", (float) transparency.value);
-				nbt.setFloat("brightness", (float) brightness.value);
+				nbt.setFloat("brightness", (float) brightness.value);*/
 				
 				nbt.setString("url", url.text);
-				float posX = 1;
+				/*float posX = 1;
 				float posY = 1;
 				try {
 					posX = Float.parseFloat(sizeX.text);
@@ -235,7 +228,7 @@ public class SubGuiPic extends SubGui {
 				if (editFacing) {
 					GuiStateButton facing = (GuiStateButton) get("facing");
 					nbt.setInteger("facing", facing.getState());
-				}
+				}*/
 				sendPacketToServer(nbt);
 			}
 		};
@@ -271,13 +264,13 @@ public class SubGuiPic extends SubGui {
 				y = 1;
 			}
 			
-			if (frame.texture != null) {
+			/*if (frame.texture != null) {
 				if (event.source.is("reX")) {
 					sizeYField.text = "" + (frame.texture.height / (frame.texture.width / x));
 				} else {
 					sizeXField.text = "" + (frame.texture.width / (frame.texture.height / y));
 				}
-			}
+			}*/
 		}
 	}
 	

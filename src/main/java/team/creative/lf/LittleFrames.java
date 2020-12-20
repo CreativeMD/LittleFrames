@@ -23,14 +23,14 @@ import team.creative.lf.block.TileEntityCreativeFrame;
 import team.creative.lf.client.LittleFramesClient;
 import team.creative.lf.packet.CreativeFramePacket;
 
-@Mod(modid = LittleFrames.modid, version = LittleFrames.version, name = "LittleFrames", acceptedMinecraftVersions = "", dependencies = "required-after:creativecore", guiFactory = "team.creative.LittleFramesSettings")
+@Mod(modid = LittleFrames.modid, version = LittleFrames.version, name = "LittleFrames", acceptedMinecraftVersions = "", dependencies = "required-after:creativecore", guiFactory = "team.creative.littleframes.LittleFramesSettings")
 @Mod.EventBusSubscriber
 public class LittleFrames {
 	
 	public static final String modid = "littleframes";
 	public static final String version = "1.0.0";
 	
-	public static Block frame = new BlockCreativeFrame().setUnlocalizedName("creativeFrame").setRegistryName("creativeFrame");
+	public static Block frame = new BlockCreativeFrame().setUnlocalizedName("creative_frame").setRegistryName("creative_frame");
 	
 	public static LittleFramesConfig CONFIG;
 	
