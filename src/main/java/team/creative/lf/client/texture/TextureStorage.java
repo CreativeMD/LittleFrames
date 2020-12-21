@@ -19,7 +19,7 @@ import net.minecraft.client.Minecraft;
 
 public class TextureStorage {
 	
-	private File cacheDirectory = new File(Minecraft.getMinecraft().mcDataDir, "opframe_cache");
+	private File cacheDirectory = new File(Minecraft.getMinecraft().mcDataDir, "littleframe_cache");
 	private File index = new File(cacheDirectory, "index");
 	
 	private Map<String, CacheEntry> entries = new HashMap<String, CacheEntry>();

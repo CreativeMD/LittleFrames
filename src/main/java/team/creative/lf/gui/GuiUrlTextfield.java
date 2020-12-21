@@ -24,9 +24,8 @@ public class GuiUrlTextfield extends GuiTextfield {
 	
 	@Override
 	protected void renderBackground(GuiRenderHelper helper, Style style) {
-		if (!canUse(true)) {
+		if (!canUse(true))
 			style = LittleFrames.CONFIG.whitelistEnabled ? DISABLED : WARNING;
-		}
 		super.renderBackground(helper, style);
 	}
 	
@@ -39,11 +38,10 @@ public class GuiUrlTextfield extends GuiTextfield {
 	
 	@Override
 	public ArrayList<String> getTooltip() {
-		if (!canUse(false)) {
-			return Lists.newArrayList(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + I18n.translateToLocal("label.opframe.not_whitelisted.name"));
-		} else if (!canUse(true)) {
-			return Lists.newArrayList(TextFormatting.GOLD + I18n.translateToLocal("label.opframe.whitelist_warning.name"));
-		}
+		if (!canUse(false))
+			return Lists.newArrayList(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + I18n.translateToLocal("label.littleframes.not_whitelisted.name"));
+		else if (!canUse(true))
+			return Lists.newArrayList(TextFormatting.GOLD + I18n.translateToLocal("label.littleframes.whitelist_warning.name"));
 		return Lists.newArrayList();
 	}
 	
