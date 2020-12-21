@@ -2,10 +2,19 @@ package team.creative.lf.client;
 
 import org.lwjgl.opengl.GL11;
 
+import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
+import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
+import com.creativemd.creativecore.common.utils.math.box.BoxFace;
+
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.lf.block.TileEntityCreativeFrame;
@@ -32,54 +41,32 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
 		int texture = display.texture();
 		GlStateManager.bindTexture(texture);
 		
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
+		GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+		GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
 		
 		GlStateManager.pushMatrix();
 		
-		GL11.glTranslated(x + 0.5, y + 0.5, z + 0.5);
+		GlStateManager.translate(x, y, z);
 		
-		EnumFacing direction = EnumFacing.getFront(frame.getBlockMetadata());
-		/*applyDirection(direction);
-		if (direction == EnumFacing.UP || direction == EnumFacing.DOWN)
-			GL11.glRotatef(90, 0, 1, 0);
+		EnumFacing facing = EnumFacing.getFront(frame.getBlockMetadata());
+		AlignedBox box = frame.getBox();
+		BoxFace face = BoxFace.get(facing);
 		
-		double posX = -0.5 + sizeX / 2D;
-		if (frame.posX == 1)
-			posX = 0;
-		else if (frame.posX == 2)
-			posX = -posX;
-		double posY = -0.5 + sizeY / 2D;
-		if (frame.posY == 1)
-			posY = 0;
-		else if (frame.posY == 2)
-			posY = -posY;
-		
-		if ((frame.rotation == 1 || frame.rotation == 3) && (frame.posX == 2 ^ frame.posY == 2))
-			GL11.glRotated(180, 1, 0, 0);
-		
-		GL11.glRotated(frame.rotation * 90, 1, 0, 0);
-		
-		GL11.glRotated(frame.rotationX, 0, 1, 0);
-		GL11.glRotated(frame.rotationY, 0, 0, 1);
-		
-		GL11.glTranslated(-0.945, posY, posX);*/
+		GlStateManager.translate(0.5, 0.5, 0.5);
+		GlStateManager.rotate(facing.getAxisDirection() == AxisDirection.POSITIVE ? -frame.rotation : frame.rotation, facing.getAxis() == Axis.X ? 1 : 0, facing.getAxis() == Axis.Y ? 1 : 0, facing.getAxis() == Axis.Z ? 1 : 0);
+		GlStateManager.translate(-0.5, -0.5, -0.5);
 		
 		GlStateManager.enableRescaleNormal();
-		GL11.glScaled(1, 1, 1);
 		
-		GL11.glBegin(GL11.GL_POLYGON);
-		GL11.glNormal3f(1.0f, 0.0F, 0.0f);
+		Tessellator tessellator = Tessellator.getInstance();
+		BufferBuilder builder = tessellator.getBuffer();
+		builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
 		
-		GL11.glTexCoord3f(frame.flipY ? 0 : 1, frame.flipX ? 0 : 1, 0);
-		GL11.glVertex3f(0.5F, -0.5f, -0.5f);
-		GL11.glTexCoord3f(frame.flipY ? 0 : 1, frame.flipX ? 1 : 0, 0);
-		GL11.glVertex3f(0.5f, 0.5f, -0.5f);
-		GL11.glTexCoord3f(frame.flipY ? 1 : 0, frame.flipX ? 1 : 0, 0);
-		GL11.glVertex3f(0.5f, 0.5f, 0.5f);
-		GL11.glTexCoord3f(frame.flipY ? 1 : 0, frame.flipX ? 0 : 1, 0);
-		GL11.glVertex3f(0.5f, -0.5f, 0.5f);
-		GL11.glEnd();
+		for (BoxCorner corner : face.corners) {
+			builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z)).tex(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+		}
+		
+		tessellator.draw();
 		
 		GlStateManager.popMatrix();
 		

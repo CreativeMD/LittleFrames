@@ -23,7 +23,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 	public Vector2f min = new Vector2f(0, 0);
 	public Vector2f max = new Vector2f(1, 1);
 	
-	public double rotation = 0;
+	public float rotation = 0;
 	public boolean flipX = false;
 	public boolean flipY = false;
 	
@@ -66,9 +66,9 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		EnumFacing facing = EnumFacing.getFront(getBlockMetadata());
 		if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
 			box.setMin(facing.getAxis(), 0F);
-			box.setMax(facing.getAxis(), 0.05F);
+			box.setMax(facing.getAxis(), 0.031F);
 		} else {
-			box.setMin(facing.getAxis(), 0.95F);
+			box.setMin(facing.getAxis(), 0.969F);
 			box.setMax(facing.getAxis(), 1F);
 		}
 		Axis one = RotationUtils.getOne(facing.getAxis());
@@ -113,7 +113,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		nbt.setFloat("miny", min.y);
 		nbt.setFloat("maxx", max.x);
 		nbt.setFloat("maxy", max.y);
-		nbt.setDouble("rotation", rotation);
+		nbt.setFloat("rotation", rotation);
 		nbt.setInteger("render", renderDistance);
 		nbt.setBoolean("visibleFrame", visibleFrame);
 		nbt.setBoolean("bothSides", bothSides);
@@ -140,7 +140,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		min.y = nbt.getFloat("miny");
 		max.x = nbt.getFloat("maxx");
 		max.y = nbt.getFloat("maxy");
-		rotation = nbt.getDouble("rotation");
+		rotation = nbt.getFloat("rotation");
 		renderDistance = nbt.getInteger("render");
 		visibleFrame = nbt.getBoolean("visibleFrame");
 		bothSides = nbt.getBoolean("bothSides");
@@ -186,8 +186,15 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 	}
 	
 	@Override
+	public void invalidate() {
+		super.invalidate();
+		if (isClientSide() && display != null)
+			display.release();
+	}
+	
+	@Override
 	public void onChunkUnload() {
-		if (isClientSide())
+		if (isClientSide() && display != null)
 			display.release();
 	}
 }
