@@ -1,4 +1,4 @@
-package team.creative.lf.block;
+package team.creative.littleframes.block;
 
 import javax.vecmath.Vector2f;
 
@@ -14,8 +14,8 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.lf.client.display.FrameDisplay;
-import team.creative.lf.client.texture.TextureCache;
+import team.creative.littleframes.client.display.FrameDisplay;
+import team.creative.littleframes.client.texture.TextureCache;
 
 public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
 	

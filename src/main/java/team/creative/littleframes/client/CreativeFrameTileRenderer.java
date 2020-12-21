@@ -1,4 +1,4 @@
-package team.creative.lf.client;
+package team.creative.littleframes.client;
 
 import org.lwjgl.opengl.GL11;
 
@@ -8,6 +8,7 @@ import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.GlStateManager.CullFace;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
@@ -17,8 +18,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.lf.block.TileEntityCreativeFrame;
-import team.creative.lf.client.display.FrameDisplay;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
+import team.creative.littleframes.client.display.FrameDisplay;
 
 @SideOnly(Side.CLIENT)
 public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEntityCreativeFrame> {
@@ -61,14 +62,21 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder builder = tessellator.getBuffer();
 		builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
-		
-		for (BoxCorner corner : face.corners) {
+		for (BoxCorner corner : face.corners)
 			builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z)).tex(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
-		}
-		
 		tessellator.draw();
 		
+		if (frame.bothSides) {
+			GlStateManager.cullFace(CullFace.FRONT);
+			builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
+			for (BoxCorner corner : face.corners)
+				builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z)).tex(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+			tessellator.draw();
+		}
+		
 		GlStateManager.popMatrix();
+		
+		GlStateManager.cullFace(CullFace.BACK);
 		
 		GlStateManager.disableRescaleNormal();
 		GlStateManager.disableBlend();

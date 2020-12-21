@@ -1,4 +1,4 @@
-package team.creative.lf.block;
+package team.creative.littleframes.block;
 
 import java.util.ArrayList;
 
@@ -36,9 +36,9 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.lf.LittleFrames;
-import team.creative.lf.gui.SubContainerPic;
-import team.creative.lf.gui.SubGuiPic;
+import team.creative.littleframes.LittleFrames;
+import team.creative.littleframes.gui.SubContainerPic;
+import team.creative.littleframes.gui.SubGuiPic;
 
 public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, ICreativeRendered {
 	

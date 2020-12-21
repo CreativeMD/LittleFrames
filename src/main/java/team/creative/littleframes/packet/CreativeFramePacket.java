@@ -1,4 +1,4 @@
-package team.creative.lf.packet;
+package team.creative.littleframes.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 
@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import team.creative.lf.block.TileEntityCreativeFrame;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
 
 public class CreativeFramePacket extends CreativeCorePacket {
 	

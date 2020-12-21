@@ -1,4 +1,4 @@
-package team.creative.lf;
+package team.creative.littleframes;
 
 import com.creativemd.creativecore.common.config.ConfigModGuiFactory;
 

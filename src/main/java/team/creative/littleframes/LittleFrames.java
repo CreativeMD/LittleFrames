@@ -1,4 +1,4 @@
-package team.creative.lf;
+package team.creative.littleframes;
 
 import com.creativemd.creativecore.common.config.holder.CreativeConfigRegistry;
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
@@ -18,10 +18,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.lf.block.BlockCreativeFrame;
-import team.creative.lf.block.TileEntityCreativeFrame;
-import team.creative.lf.client.LittleFramesClient;
-import team.creative.lf.packet.CreativeFramePacket;
+import team.creative.littleframes.block.BlockCreativeFrame;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
+import team.creative.littleframes.client.LittleFramesClient;
+import team.creative.littleframes.packet.CreativeFramePacket;
 
 @Mod(modid = LittleFrames.modid, version = LittleFrames.version, name = "LittleFrames", acceptedMinecraftVersions = "", dependencies = "required-after:creativecore", guiFactory = "team.creative.littleframes.LittleFramesSettings")
 @Mod.EventBusSubscriber

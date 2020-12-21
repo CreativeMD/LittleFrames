@@ -1,4 +1,4 @@
-package team.creative.lf.client.texture;
+package team.creative.littleframes.client.texture;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -27,7 +27,7 @@ import org.apache.logging.log4j.Logger;
 import com.madgag.gif.fmsware.GifDecoder;
 
 import net.minecraft.client.Minecraft;
-import team.creative.lf.LittleFrames;
+import team.creative.littleframes.LittleFrames;
 
 public class TextureSeeker extends Thread {
 	

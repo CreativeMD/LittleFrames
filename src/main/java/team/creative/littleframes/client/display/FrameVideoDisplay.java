@@ -1,4 +1,4 @@
-package team.creative.lf.client.display;
+package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
-import team.creative.lf.block.TileEntityCreativeFrame;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
@@ -16,8 +16,8 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class FrameVideoDisplay extends FrameDisplay {
 	
-	public int width;
-	public int height;
+	public int width = 1;
+	public int height = 1;
 	public CallbackMediaPlayerComponent player;
 	public ByteBuffer buffer;
 	public int texture;
@@ -98,6 +98,16 @@ public class FrameVideoDisplay extends FrameDisplay {
 	public void resume(TileEntityCreativeFrame frame) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	@Override
+	public int getWidth() {
+		return width;
+	}
+	
+	@Override
+	public int getHeight() {
+		return height;
 	}
 	
 }

@@ -1,9 +1,9 @@
-package team.creative.lf.client.display;
+package team.creative.littleframes.client.display;
 
 import com.creativemd.creativecore.common.utils.mc.TickUtils;
 
-import team.creative.lf.block.TileEntityCreativeFrame;
-import team.creative.lf.client.texture.TextureCache;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
+import team.creative.littleframes.client.texture.TextureCache;
 
 public class FramePictureDisplay extends FrameDisplay {
 	
@@ -37,6 +37,16 @@ public class FramePictureDisplay extends FrameDisplay {
 	@Override
 	public void release() {
 		texture.unuse();
+	}
+	
+	@Override
+	public int getWidth() {
+		return texture.getWidth();
+	}
+	
+	@Override
+	public int getHeight() {
+		return texture.getHeight();
 	}
 	
 }

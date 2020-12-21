@@ -1,4 +1,4 @@
-package team.creative.lf.client.texture;
+package team.creative.littleframes.client.texture;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
@@ -17,9 +17,9 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
-import team.creative.lf.client.display.FrameDisplay;
-import team.creative.lf.client.display.FramePictureDisplay;
-import team.creative.lf.client.display.FrameVideoDisplay;
+import team.creative.littleframes.client.display.FrameDisplay;
+import team.creative.littleframes.client.display.FramePictureDisplay;
+import team.creative.littleframes.client.display.FrameVideoDisplay;
 
 public class TextureCache {
 	
@@ -37,6 +37,11 @@ public class TextureCache {
 				}
 			}
 		}
+	}
+	
+	public static void reloadAll() {
+		for (TextureCache cache : cached.values())
+			cache.reload();
 	}
 	
 	@SubscribeEvent
@@ -147,6 +152,12 @@ public class TextureCache {
 			return true;
 		trySeek();
 		return false;
+	}
+	
+	public void reload() {
+		remove();
+		error = null;
+		trySeek();
 	}
 	
 	public void use() {

@@ -1,27 +1,30 @@
-package team.creative.lf.gui;
+package team.creative.littleframes.gui;
 
 import com.creativemd.creativecore.common.gui.container.SubGui;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiAnalogeSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.gui.event.gui.GuiControlClickEvent;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.n247s.api.eventapi.eventsystem.CustomEventSubscribe;
 
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.lf.LittleFrames;
-import team.creative.lf.block.TileEntityCreativeFrame;
+import team.creative.littleframes.LittleFrames;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
+import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.client.texture.TextureSeeker;
 
 @SideOnly(Side.CLIENT)
 public class SubGuiPic extends SubGui {
 	
 	public TileEntityCreativeFrame frame;
-	
-	public boolean editFacing;
 	
 	public float scaleMultiplier;
 	
@@ -35,7 +38,6 @@ public class SubGuiPic extends SubGui {
 	public SubGuiPic(TileEntityCreativeFrame frame, boolean editFacing, int scaleSize) {
 		super(200, editFacing ? 220 : 200);
 		this.frame = frame;
-		this.editFacing = editFacing;
 		this.scaleMultiplier = 1F / (scaleSize);
 	}
 	
@@ -124,69 +126,57 @@ public class SubGuiPic extends SubGui {
 			public void onClicked(int x, int y, int button) {}
 		});
 		
-		/*controls.add(new GuiCheckBox("flipX", "flip (x-axis)", 0, 50, frame.flippedX));
-		controls.add(new GuiCheckBox("flipY", "flip (y-axis)", 75, 50, frame.flippedY));
+		controls.add(new GuiCheckBox("flipX", "flip (x-axis)", 0, 54, frame.flipX));
+		controls.add(new GuiCheckBox("flipY", "flip (y-axis)", 75, 54, frame.flipY));
 		
-		controls.add(new GuiStateButton("posX", frame.posX, 0, 70, 70, "left (x)", "center (x)", "right (x)"));
-		controls.add(new GuiStateButton("posY", frame.posY, 80, 70, 70, "top (y)", "center (y)", "bottom (y)"));
+		controls.add(new GuiStateButton("posX", frame.min.x == 0 ? 0 : frame.max.x == 1 ? 2 : 1, 0, 68, 70, "left (x)", "center (x)", "right (x)"));
+		controls.add(new GuiStateButton("posY", frame.min.y == 0 ? 0 : frame.max.y == 1 ? 2 : 1, 80, 68, 70, "top (y)", "center (y)", "bottom (y)"));
 		
-		controls.add(new GuiStateButton("rotation", frame.rotation, 0, 93, 80, 10, "rotation: 0", "rotation: 1", "rotation: 2", "rotation: 3"));
+		controls.add(new GuiAnalogeSlider("rotation", 0, 93, 80, 10, frame.rotation, 0, 360));
 		
-		controls.add(new GuiCheckBox("visibleFrame", "visible Frame", 90, 91, frame.visibleFrame));
+		controls.add(new GuiCheckBox("visibleFrame", "visible frame", 90, 88, frame.visibleFrame));
+		controls.add(new GuiCheckBox("bothSides", "both sides", 90, 99, frame.bothSides));
 		
 		controls.add(new GuiLabel("transparency:", 0, 110));
-		controls.add(new GuiAnalogeSlider("transparency", 80, 112, 109, 5, frame.transparency, 0, 1));
+		controls.add(new GuiAnalogeSlider("transparency", 80, 112, 109, 5, frame.alpha, 0, 1));
 		
 		controls.add(new GuiLabel("brightness:", 0, 122));
 		controls.add(new GuiAnalogeSlider("brightness", 80, 124, 109, 5, frame.brightness, 0, 1));
 		
-		controls.add(new GuiLabel("rotation (h):", 0, 134));
-		controls.add(new GuiAnalogeSlider("rotX", 67, 136, 122, 5, frame.rotationX, -90, 90));
-		
-		controls.add(new GuiLabel("rotation (v):", 0, 146));
-		controls.add(new GuiAnalogeSlider("rotY", 67, 148, 122, 5, frame.rotationY, -90, 90));
-		
-		controls.add(new GuiLabel("render distance (blocks):", 0, 160));
-		controls.add(new GuiSteppedSlider("renderDistance", 0, 174, 80, 14, frame.renderDistance, 5, 1024));
+		controls.add(new GuiLabel("distance:", 0, 134));
+		controls.add(new GuiSteppedSlider("renderDistance", 80, 136, 109, 5, frame.renderDistance, 5, 1024));
 		
 		controls.add(new GuiButton("reload", 90, 174) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
-				synchronized (DownloadThread.LOCK) {
+				synchronized (TextureSeeker.LOCK) {
 					if (GuiScreen.isShiftKeyDown())
-						DownloadThread.loadedImages.clear();
-					else {
-						GuiTextfield url = (GuiTextfield) get("url");
-						DownloadThread.loadedImages.remove(url.text);
-					}
-					frame.failed = false;
-					frame.texture = null;
-					frame.error = null;
+						TextureCache.reloadAll();
+					else if (frame.cache != null)
+						frame.cache.reload();
 				}
 			}
-		}.setCustomTooltip("Hold shift to reload all"));*/
+		}.setCustomTooltip("Hold shift to reload all"));
 		
 		save = new GuiButton("Save", 140, 174, 50) {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				NBTTagCompound nbt = new NBTTagCompound();
 				GuiTextfield url = (GuiTextfield) get("url");
-				/*GuiTextfield sizeX = (GuiTextfield) get("sizeX");
+				GuiTextfield sizeX = (GuiTextfield) get("sizeX");
 				GuiTextfield sizeY = (GuiTextfield) get("sizeY");
 				
 				GuiStateButton buttonPosX = (GuiStateButton) get("posX");
 				GuiStateButton buttonPosY = (GuiStateButton) get("posY");
-				GuiStateButton rotation = (GuiStateButton) get("rotation");
+				GuiAnalogeSlider rotation = (GuiAnalogeSlider) get("rotation");
 				
 				GuiCheckBox flipX = (GuiCheckBox) get("flipX");
 				GuiCheckBox flipY = (GuiCheckBox) get("flipY");
 				GuiCheckBox visibleFrame = (GuiCheckBox) get("visibleFrame");
+				GuiCheckBox bothSides = (GuiCheckBox) get("bothSides");
 				
 				GuiSteppedSlider renderDistance = (GuiSteppedSlider) get("renderDistance");
-				
-				GuiAnalogeSlider rotX = (GuiAnalogeSlider) get("rotX");
-				GuiAnalogeSlider rotY = (GuiAnalogeSlider) get("rotY");
 				
 				GuiAnalogeSlider transparency = (GuiAnalogeSlider) get("transparency");
 				GuiAnalogeSlider brightness = (GuiAnalogeSlider) get("brightness");
@@ -194,21 +184,20 @@ public class SubGuiPic extends SubGui {
 				nbt.setByte("posX", (byte) buttonPosX.getState());
 				nbt.setByte("posY", (byte) buttonPosY.getState());
 				
-				nbt.setByte("rotation", (byte) rotation.getState());
+				nbt.setFloat("rotation", (float) rotation.value);
 				
-				nbt.setBoolean("flippedX", flipX.value);
-				nbt.setBoolean("flippedY", flipY.value);
+				nbt.setBoolean("flipX", flipX.value);
+				nbt.setBoolean("flipY", flipY.value);
 				nbt.setBoolean("visibleFrame", visibleFrame.value);
+				nbt.setBoolean("bothSides", bothSides.value);
 				
 				nbt.setInteger("render", (int) renderDistance.value);
-				nbt.setFloat("rotX", (float) rotX.value);
-				nbt.setFloat("rotY", (float) rotY.value);
 				
 				nbt.setFloat("transparency", (float) transparency.value);
-				nbt.setFloat("brightness", (float) brightness.value);*/
+				nbt.setFloat("brightness", (float) brightness.value);
 				
 				nbt.setString("url", url.text);
-				/*float posX = 1;
+				float posX = 1;
 				float posY = 1;
 				try {
 					posX = Float.parseFloat(sizeX.text);
@@ -224,24 +213,11 @@ public class SubGuiPic extends SubGui {
 				nbt.setFloat("y", posY);
 				
 				nbt.setInteger("type", 0);
-				
-				if (editFacing) {
-					GuiStateButton facing = (GuiStateButton) get("facing");
-					nbt.setInteger("facing", facing.getState());
-				}*/
 				sendPacketToServer(nbt);
 			}
 		};
 		save.setEnabled(LittleFrames.CONFIG.canUse(mc.player, url.text));
 		controls.add(save);
-		
-		if (editFacing) {
-			String[] names = new String[EnumFacing.VALUES.length];
-			for (int i = 0; i < names.length; i++) {
-				names[i] = EnumFacing.VALUES[i].getName();
-			}
-			controls.add(new GuiStateButton("facing", frame.getBlockMetadata(), 0, 196, 50, names));
-		}
 	}
 	
 	@CustomEventSubscribe
@@ -264,13 +240,13 @@ public class SubGuiPic extends SubGui {
 				y = 1;
 			}
 			
-			/*if (frame.texture != null) {
+			if (frame.display != null) {
 				if (event.source.is("reX")) {
-					sizeYField.text = "" + (frame.texture.height / (frame.texture.width / x));
+					sizeYField.text = "" + (frame.display.getHeight() / (frame.display.getWidth() / x));
 				} else {
-					sizeXField.text = "" + (frame.texture.width / (frame.texture.height / y));
+					sizeXField.text = "" + (frame.display.getWidth() / (frame.display.getHeight() / y));
 				}
-			}*/
+			}
 		}
 	}
 	

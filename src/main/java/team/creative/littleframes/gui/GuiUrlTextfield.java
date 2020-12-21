@@ -1,4 +1,4 @@
-package team.creative.lf.gui;
+package team.creative.littleframes.gui;
 
 import java.util.ArrayList;
 
@@ -10,7 +10,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
-import team.creative.lf.LittleFrames;
+import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
 	public static final Style DISABLED = new Style("disabled", new ColoredDisplayStyle(50, 0, 0), new ColoredDisplayStyle(150, 90, 90), new ColoredDisplayStyle(180, 100, 100), new ColoredDisplayStyle(220, 198, 198), new ColoredDisplayStyle(50, 0, 0, 100));

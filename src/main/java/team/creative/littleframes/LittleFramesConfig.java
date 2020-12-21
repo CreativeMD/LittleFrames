@@ -1,4 +1,4 @@
-package team.creative.lf;
+package team.creative.littleframes;
 
 import java.net.URI;
 import java.net.URISyntaxException;

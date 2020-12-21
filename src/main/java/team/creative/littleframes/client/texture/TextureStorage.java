@@ -1,4 +1,4 @@
-package team.creative.lf.client.texture;
+package team.creative.littleframes.client.texture;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

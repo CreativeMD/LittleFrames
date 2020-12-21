@@ -1,8 +1,12 @@
-package team.creative.lf.client.display;
+package team.creative.littleframes.client.display;
 
-import team.creative.lf.block.TileEntityCreativeFrame;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
 
 public abstract class FrameDisplay {
+	
+	public abstract int getWidth();
+	
+	public abstract int getHeight();
 	
 	public abstract void prepare(TileEntityCreativeFrame frame);
 	
