@@ -16,7 +16,7 @@ public class FramePictureDisplay extends FrameDisplay {
 	
 	@Override
 	public void prepare(TileEntityCreativeFrame frame) {
-		long time = frame.tick * 50 + (long) (TickUtils.getPartialTickTime() * 50);
+		long time = frame.tick * 50 + (frame.playing ? (long) (TickUtils.getPartialTickTime() * 50) : 0);
 		if (texture.getDuration() > 0 && time > texture.getDuration())
 			if (frame.loop)
 				time %= texture.getDuration();

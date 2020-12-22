@@ -4,6 +4,7 @@ import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAnalogeSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
@@ -146,7 +147,11 @@ public class SubGuiPic extends SubGui {
 		controls.add(new GuiLabel("distance:", 0, 134));
 		controls.add(new GuiSteppedSlider("renderDistance", 80, 136, 109, 5, frame.renderDistance, 5, 1024));
 		
-		controls.add(new GuiButton("reload", 90, 174) {
+		controls.add(new GuiCheckBox("loop", "loop", 60, 168, frame.loop));
+		controls.add(new GuiLabel("volume:", 0, 186));
+		controls.add(new GuiAnalogeSlider("volume", 50, 188, 30, 5, frame.volume, 0, 1));
+		
+		controls.add(new GuiButton("reload", 102, 180) {
 			
 			@Override
 			public void onClicked(int x, int y, int button) {
@@ -159,7 +164,7 @@ public class SubGuiPic extends SubGui {
 			}
 		}.setCustomTooltip("Hold shift to reload all"));
 		
-		save = new GuiButton("Save", 140, 174, 50) {
+		save = new GuiButton("Save", 144, 180, 50) {
 			@Override
 			public void onClicked(int x, int y, int button) {
 				NBTTagCompound nbt = new NBTTagCompound();
@@ -181,6 +186,9 @@ public class SubGuiPic extends SubGui {
 				GuiAnalogeSlider transparency = (GuiAnalogeSlider) get("transparency");
 				GuiAnalogeSlider brightness = (GuiAnalogeSlider) get("brightness");
 				
+				GuiCheckBox loop = (GuiCheckBox) get("loop");
+				GuiAnalogeSlider volume = (GuiAnalogeSlider) get("volume");
+				
 				nbt.setByte("posX", (byte) buttonPosX.getState());
 				nbt.setByte("posY", (byte) buttonPosY.getState());
 				
@@ -195,6 +203,9 @@ public class SubGuiPic extends SubGui {
 				
 				nbt.setFloat("transparency", (float) transparency.value);
 				nbt.setFloat("brightness", (float) brightness.value);
+				
+				nbt.setBoolean("loop", loop.value);
+				nbt.setFloat("volume", (float) volume.value);
 				
 				nbt.setString("url", url.text);
 				float posX = 1;
@@ -218,6 +229,34 @@ public class SubGuiPic extends SubGui {
 		};
 		save.setEnabled(LittleFrames.CONFIG.canUse(mc.player, url.text));
 		controls.add(save);
+		
+		controls.add(new GuiIconButton("play", 0, 168, 10) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("play", true);
+				sendPacketToServer(nbt);
+			}
+		});
+		controls.add(new GuiIconButton("pause", 20, 168, 9) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("pause", true);
+				sendPacketToServer(nbt);
+			}
+		});
+		controls.add(new GuiIconButton("stop", 40, 168, 11) {
+			
+			@Override
+			public void onClicked(int x, int y, int button) {
+				NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setBoolean("stop", true);
+				sendPacketToServer(nbt);
+			}
+		});
 	}
 	
 	@CustomEventSubscribe

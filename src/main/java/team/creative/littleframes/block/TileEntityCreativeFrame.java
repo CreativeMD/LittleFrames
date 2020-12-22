@@ -2,6 +2,7 @@ package team.creative.littleframes.block;
 
 import javax.vecmath.Vector2f;
 
+import com.creativemd.creativecore.common.packet.PacketHandler;
 import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
@@ -16,6 +17,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.packet.CreativeFramePacket;
 
 public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
 	
@@ -57,7 +59,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		if (display != null)
 			return display;
 		if (cache.ready())
-			return display = cache.createDisplay();
+			return display = cache.createDisplay(this);
 		return null;
 	}
 	
@@ -105,6 +107,22 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		nbt = super.writeToNBT(nbt);
 		writePictureNBT(nbt);
 		return nbt;
+	}
+	
+	public void play() {
+		playing = true;
+		PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
+	}
+	
+	public void pause() {
+		playing = false;
+		PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
+	}
+	
+	public void stop() {
+		playing = false;
+		tick = 0;
+		PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
 	}
 	
 	protected void writePictureNBT(NBTTagCompound nbt) {

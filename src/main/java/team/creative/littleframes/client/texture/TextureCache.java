@@ -17,6 +17,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import team.creative.littleframes.block.TileEntityCreativeFrame;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
@@ -103,9 +104,9 @@ public class TextureCache {
 		return last;
 	}
 	
-	public FrameDisplay createDisplay() {
+	public FrameDisplay createDisplay(TileEntityCreativeFrame frame) {
 		if (textures == null)
-			return new FrameVideoDisplay(url);
+			return new FrameVideoDisplay(frame);
 		return new FramePictureDisplay(this);
 	}
 	
