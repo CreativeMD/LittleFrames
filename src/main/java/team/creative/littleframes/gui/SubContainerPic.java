@@ -45,7 +45,7 @@ public class SubContainerPic extends SubContainerTileEntity {
 			if (type == 0) {
 				String url = nbt.getString("url");
 				if (LittleFrames.CONFIG.canUse(player, url)) {
-					frame.url = url;
+					frame.setURL(url);
 					float sizeX = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("x"));
 					float sizeY = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("y"));
 					int posX = nbt.getByte("posX");

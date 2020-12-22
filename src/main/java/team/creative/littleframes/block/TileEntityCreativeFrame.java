@@ -7,6 +7,7 @@ import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -21,7 +22,7 @@ import team.creative.littleframes.packet.CreativeFramePacket;
 
 public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
 	
-	public String url = "";
+	private String url = "";
 	public Vector2f min = new Vector2f(0, 0);
 	public Vector2f max = new Vector2f(1, 1);
 	
@@ -41,6 +42,24 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 	public boolean loop = true;
 	public int tick = 0;
 	public boolean playing = true;
+	
+	@SideOnly(Side.CLIENT)
+	public boolean isURLEmpty() {
+		return url.isEmpty();
+	}
+	
+	@SideOnly(Side.CLIENT)
+	public String getURL() {
+		return url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+	}
+	
+	public String getRealURL() {
+		return url;
+	}
+	
+	public void setURL(String url) {
+		this.url = url;
+	}
 	
 	@SideOnly(Side.CLIENT)
 	public TextureCache cache;

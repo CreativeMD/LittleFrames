@@ -11,7 +11,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import team.creative.littleframes.block.TileEntityCreativeFrame;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
-import uk.co.caprica.vlcj.media.MediaType;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
@@ -67,7 +66,7 @@ public class FrameVideoDisplay extends FrameDisplay {
 			player.mediaPlayer().audio().setVolume((int) (frame.volume * 100F));
 			lastSetVolume = frame.volume;
 			player.mediaPlayer().controls().setRepeat(frame.loop);
-			player.mediaPlayer().media().start(frame.url);
+			player.mediaPlayer().media().start(frame.getURL());
 		});
 	}
 	
@@ -88,7 +87,7 @@ public class FrameVideoDisplay extends FrameDisplay {
 				GlStateManager.popMatrix();
 			}
 		}
-		if (player.mediaPlayer().status().isPlayable() && player.mediaPlayer().media().info().type() != MediaType.STREAM) {
+		if (player.mediaPlayer().status().isPlayable()) {
 			if (frame.volume != lastSetVolume) {
 				player.mediaPlayer().submit(() -> player.mediaPlayer().audio().setVolume((int) (frame.volume * 100F)));
 				lastSetVolume = frame.volume;
@@ -96,10 +95,8 @@ public class FrameVideoDisplay extends FrameDisplay {
 			if (player.mediaPlayer().controls().getRepeat() != frame.loop)
 				player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(frame.loop));
 			long tickTime = 50;
-			if (!stream && durationBefore != 0 && player.mediaPlayer().status().length() != durationBefore) {
-				System.out.println("recognized stream");
+			if (!stream && durationBefore != 0 && player.mediaPlayer().status().length() != durationBefore) // if duration changes it's a stream and should not be synced
 				stream = true;
-			}
 			durationBefore = player.mediaPlayer().status().length();
 			if (stream) {
 				boolean playing = frame.playing && !Minecraft.getMinecraft().isGamePaused();

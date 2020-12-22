@@ -26,7 +26,7 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
 	
 	@Override
 	public void render(TileEntityCreativeFrame frame, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
-		if (frame.url.isEmpty() || frame.alpha == 0) {
+		if (frame.isURLEmpty() || frame.alpha == 0) {
 			if (frame.display != null)
 				frame.display.release();
 			return;

@@ -44,7 +44,7 @@ public class SubGuiPic extends SubGui {
 	
 	@Override
 	public void createControls() {
-		url = new GuiUrlTextfield(this, "url", frame.url, 0, 0, 194, 16);
+		url = new GuiUrlTextfield(this, "url", frame.getRealURL(), 0, 0, 194, 16);
 		url.maxLength = 512;
 		controls.add(url);
 		controls.add(new GuiLabel(translate(frame.cache != null && frame.cache.getError() != null ? frame.cache.getError() : ""), 0, 20, ColorUtils.RED));
