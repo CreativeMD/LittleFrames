@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.creativemd.creativecore.common.utils.mc.ColorUtils;
@@ -45,11 +46,15 @@ public class SubGuiLittleFrame extends SubGui {
 				GuiTextfield url = (GuiTextfield) get("url");
 				GuiSteppedSlider renderDistance = (GuiSteppedSlider) get("renderDistance");
 				
+				GuiStateButton fit = (GuiStateButton) get("fit");
+				
 				GuiAnalogeSlider transparency = (GuiAnalogeSlider) get("transparency");
 				GuiAnalogeSlider brightness = (GuiAnalogeSlider) get("brightness");
 				
 				GuiCheckBox loop = (GuiCheckBox) get("loop");
 				GuiAnalogeSlider volume = (GuiAnalogeSlider) get("volume");
+				
+				nbt.setInteger("fit", fit.getState());
 				
 				nbt.setInteger("render", (int) renderDistance.value);
 				
@@ -73,6 +78,11 @@ public class SubGuiLittleFrame extends SubGui {
 		
 		save.setEnabled(LittleFrames.CONFIG.canUse(mc.player, url.text));
 		controls.add(save);
+		
+		String[] args = new String[LittleFrame.FitMode.values().length];
+		for (int i = 0; i < args.length; i++)
+			args[i] = translate("gui.little_frame.fitmode." + LittleFrame.FitMode.values()[i].name());
+		controls.add(new GuiStateButton("fit", frame.fitMode.ordinal(), 0, 68, 70, args));
 		
 		controls.add(new GuiLabel(translate("gui.creative_frame.transparency"), 0, 110));
 		controls.add(new GuiAnalogeSlider("transparency", 80, 112, 109, 5, frame.alpha, 0, 1));

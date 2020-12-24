@@ -34,6 +34,7 @@ public class SubContainerLittleFrame extends SubContainer {
 			if (LittleFrames.CONFIG.canUse(player, url)) {
 				frame.setURL(url);
 				frame.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInteger("render"));
+				frame.fitMode = LittleFrame.FitMode.values()[nbt.getInteger("fit")];
 				frame.loop = nbt.getBoolean("loop");
 				frame.volume = nbt.getFloat("volume");
 				frame.alpha = nbt.getFloat("transparency");

@@ -31,6 +31,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumFacing.Axis;
+import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -56,7 +58,9 @@ public class LittleFrame extends LittleStructure {
 	public float brightness = 1;
 	public float alpha = 1;
 	
-	public int renderDistance = 128;
+	public int renderDistance = 64;
+	
+	public FitMode fitMode = FitMode.CROP;
 	
 	public float volume = 1;
 	public boolean loop = true;
@@ -126,7 +130,10 @@ public class LittleFrame extends LittleStructure {
 	@Override
 	protected void loadFromNBTExtra(NBTTagCompound nbt) {
 		url = nbt.getString("url");
-		renderDistance = nbt.getInteger("render");
+		if (nbt.hasKey("render"))
+			renderDistance = nbt.getInteger("render");
+		else
+			renderDistance = 64;
 		if (nbt.hasKey("alpha"))
 			alpha = nbt.getFloat("alpha");
 		else
@@ -140,6 +147,7 @@ public class LittleFrame extends LittleStructure {
 		playing = nbt.getBoolean("playing");
 		tick = nbt.getInteger("tick");
 		loop = nbt.getBoolean("loop");
+		fitMode = FitMode.values()[nbt.getInteger("fitMode")];
 	}
 	
 	@Override
@@ -153,6 +161,7 @@ public class LittleFrame extends LittleStructure {
 		nbt.setBoolean("playing", playing);
 		nbt.setInteger("tick", tick);
 		nbt.setBoolean("loop", loop);
+		nbt.setInteger("fitMode", fitMode.ordinal());
 	}
 	
 	@Override
@@ -192,6 +201,22 @@ public class LittleFrame extends LittleStructure {
 		
 		AlignedBox box = frame.getBox().getCube(frame.getContext());
 		BoxFace face = BoxFace.get(facing);
+		if (facing.getAxisDirection() == AxisDirection.POSITIVE)
+			box.setMax(facing.getAxis(), box.getMin(facing.getAxis()) + 0.01F);
+		else
+			box.setMin(facing.getAxis(), box.getMax(facing.getAxis()) - 0.01F);
+		Axis uAxis = face.getTexUAxis();
+		Axis vAxis = face.getTexVAxis();
+		if (fitMode == FitMode.CROP) {
+			float width = box.getSize(uAxis);
+			float height = box.getSize(vAxis);
+			float videoRatio = display.getWidth() / (float) display.getHeight();
+			float ratio = width / height;
+			if (ratio > videoRatio)
+				box.shrink(uAxis, width - height * videoRatio);
+			else if (ratio < videoRatio)
+				box.shrink(vAxis, height - width / videoRatio);
+		}
 		
 		GlStateManager.enableRescaleNormal();
 		
@@ -201,7 +226,7 @@ public class LittleFrame extends LittleStructure {
 		for (BoxCorner corner : face.corners)
 			builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z))
 			        
-			        .tex(corner.isFacingPositive(face.getTexUAxis()) != (VectorUtils.get(face.getTexUAxis(), topRight) > 0) ? 1 : 0, corner.isFacingPositive(face.getTexVAxis()) != (VectorUtils.get(face.getTexVAxis(), topRight) > 0) ? 1 : 0).endVertex();
+			        .tex(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0).endVertex();
 		tessellator.draw();
 		
 		GlStateManager.popMatrix();
@@ -223,6 +248,10 @@ public class LittleFrame extends LittleStructure {
 	@SideOnly(Side.CLIENT)
 	public AxisAlignedBB getRenderBoundingBox() {
 		return frame.getBox().getBox(frame.getContext());
+	}
+	
+	public static enum FitMode {
+		CROP, STRETCH;
 	}
 	
 }
