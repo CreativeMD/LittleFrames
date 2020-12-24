@@ -1,10 +1,11 @@
-package team.creative.littleframes.gui;
+package team.creative.littleframes.client.gui;
 
 import java.util.ArrayList;
 
 import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
 import com.creativemd.creativecore.common.gui.client.style.Style;
+import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.google.common.collect.Lists;
 
@@ -15,11 +16,11 @@ import team.creative.littleframes.LittleFrames;
 public class GuiUrlTextfield extends GuiTextfield {
 	public static final Style DISABLED = new Style("disabled", new ColoredDisplayStyle(50, 0, 0), new ColoredDisplayStyle(150, 90, 90), new ColoredDisplayStyle(180, 100, 100), new ColoredDisplayStyle(220, 198, 198), new ColoredDisplayStyle(50, 0, 0, 100));
 	public static final Style WARNING = new Style("warning", new ColoredDisplayStyle(50, 50, 0), new ColoredDisplayStyle(150, 150, 90), new ColoredDisplayStyle(180, 180, 100), new ColoredDisplayStyle(220, 220, 198), new ColoredDisplayStyle(50, 50, 0, 100));
-	private SubGuiPic gui;
+	private GuiButton saveButton;
 	
-	public GuiUrlTextfield(SubGuiPic gui, String name, String text, int x, int y, int width, int height) {
+	public GuiUrlTextfield(GuiButton saveButton, String name, String text, int x, int y, int width, int height) {
 		super(name, text, x, y, width, height);
-		this.gui = gui;
+		this.saveButton = saveButton;
 	}
 	
 	@Override
@@ -32,7 +33,7 @@ public class GuiUrlTextfield extends GuiTextfield {
 	@Override
 	public boolean onKeyPressed(char character, int key) {
 		boolean pressed = super.onKeyPressed(character, key);
-		gui.save.setEnabled(canUse(false));
+		saveButton.setEnabled(canUse(false));
 		return pressed;
 	}
 	

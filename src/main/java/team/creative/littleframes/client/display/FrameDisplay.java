@@ -1,18 +1,16 @@
 package team.creative.littleframes.client.display;
 
-import team.creative.littleframes.block.TileEntityCreativeFrame;
-
 public abstract class FrameDisplay {
 	
 	public abstract int getWidth();
 	
 	public abstract int getHeight();
 	
-	public abstract void prepare(TileEntityCreativeFrame frame);
+	public abstract void prepare(String url, float volume, boolean playing, boolean loop, int tick);
 	
-	public abstract void pause(TileEntityCreativeFrame frame);
+	public abstract void pause(String url, float volume, boolean playing, boolean loop, int tick);
 	
-	public abstract void resume(TileEntityCreativeFrame frame);
+	public abstract void resume(String url, float volume, boolean playing, boolean loop, int tick);
 	
 	public abstract int texture();
 	

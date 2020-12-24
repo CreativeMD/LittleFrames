@@ -7,8 +7,8 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.block.TileEntityCreativeFrame;
 import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.common.block.TileEntityCreativeFrame;
 
 @SideOnly(Side.CLIENT)
 public class LittleFramesClient {

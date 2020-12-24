@@ -1,4 +1,4 @@
-package team.creative.littleframes.block;
+package team.creative.littleframes.common.block;
 
 import javax.vecmath.Vector2f;
 
@@ -18,7 +18,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.packet.CreativeFramePacket;
+import team.creative.littleframes.common.packet.CreativeFramePacket;
 
 public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
 	
@@ -69,6 +69,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 	
 	@SideOnly(Side.CLIENT)
 	public FrameDisplay requestDisplay() {
+		String url = getURL();
 		if (cache == null || !cache.url.equals(url)) {
 			cache = TextureCache.get(url);
 			if (display != null)
@@ -78,7 +79,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
 		if (display != null)
 			return display;
 		if (cache.ready())
-			return display = cache.createDisplay(this);
+			return display = cache.createDisplay(url, volume, loop);
 		return null;
 	}
 	

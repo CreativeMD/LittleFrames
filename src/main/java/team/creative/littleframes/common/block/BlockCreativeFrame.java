@@ -1,4 +1,4 @@
-package team.creative.littleframes.block;
+package team.creative.littleframes.common.block;
 
 import java.util.ArrayList;
 
@@ -37,8 +37,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.gui.SubContainerPic;
-import team.creative.littleframes.gui.SubGuiPic;
+import team.creative.littleframes.client.gui.SubGuiCreativeFrame;
+import team.creative.littleframes.common.container.SubContainerCreativeFrame;
 
 public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, ICreativeRendered {
 	
@@ -154,7 +154,7 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
 	public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityCreativeFrame)
-			return new SubGuiPic((TileEntityCreativeFrame) te);
+			return new SubGuiCreativeFrame((TileEntityCreativeFrame) te);
 		return null;
 	}
 	
@@ -162,7 +162,7 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
 	public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
 		TileEntity te = world.getTileEntity(pos);
 		if (te instanceof TileEntityCreativeFrame)
-			return new SubContainerPic((TileEntityCreativeFrame) te, player);
+			return new SubContainerCreativeFrame((TileEntityCreativeFrame) te, player);
 		return null;
 	}
 	

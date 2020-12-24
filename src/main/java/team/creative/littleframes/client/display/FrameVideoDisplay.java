@@ -9,7 +9,6 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import team.creative.littleframes.block.TileEntityCreativeFrame;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
@@ -31,7 +30,7 @@ public class FrameVideoDisplay extends FrameDisplay {
 	private AtomicBoolean needsUpdate = new AtomicBoolean(false);
 	private boolean first = true;
 	
-	public FrameVideoDisplay(TileEntityCreativeFrame frame) {
+	public FrameVideoDisplay(String url, float volume, boolean loop) {
 		super();
 		texture = GlStateManager.generateTexture();
 		
@@ -63,15 +62,15 @@ public class FrameVideoDisplay extends FrameDisplay {
 			
 		}, null);
 		player.mediaPlayer().submit(() -> {
-			player.mediaPlayer().audio().setVolume((int) (frame.volume * 100F));
-			lastSetVolume = frame.volume;
-			player.mediaPlayer().controls().setRepeat(frame.loop);
-			player.mediaPlayer().media().start(frame.getURL());
+			player.mediaPlayer().audio().setVolume((int) (volume * 100F));
+			lastSetVolume = volume;
+			player.mediaPlayer().controls().setRepeat(loop);
+			player.mediaPlayer().media().start(url);
 		});
 	}
 	
 	@Override
-	public void prepare(TileEntityCreativeFrame frame) {
+	public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
 		synchronized (this) {
 			if (buffer != null && first) {
 				GlStateManager.pushMatrix();
@@ -87,38 +86,38 @@ public class FrameVideoDisplay extends FrameDisplay {
 				GlStateManager.popMatrix();
 			}
 		}
-		if (player.mediaPlayer().status().isPlayable()) {
-			if (frame.volume != lastSetVolume) {
-				player.mediaPlayer().submit(() -> player.mediaPlayer().audio().setVolume((int) (frame.volume * 100F)));
-				lastSetVolume = frame.volume;
+		if (player.mediaPlayer().media().isValid()) {
+			boolean realPlaying = playing && !Minecraft.getMinecraft().isGamePaused();
+			
+			if (volume != lastSetVolume) {
+				player.mediaPlayer().submit(() -> player.mediaPlayer().audio().setVolume((int) (volume * 100F)));
+				lastSetVolume = volume;
 			}
-			if (player.mediaPlayer().controls().getRepeat() != frame.loop)
-				player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(frame.loop));
+			if (player.mediaPlayer().controls().getRepeat() != loop)
+				player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(loop));
 			long tickTime = 50;
 			if (!stream && durationBefore != 0 && player.mediaPlayer().status().length() != durationBefore) // if duration changes it's a stream and should not be synced
 				stream = true;
 			durationBefore = player.mediaPlayer().status().length();
 			if (stream) {
-				boolean playing = frame.playing && !Minecraft.getMinecraft().isGamePaused();
-				if (player.mediaPlayer().status().isPlaying() != playing)
-					player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!playing));
+				if (player.mediaPlayer().status().isPlaying() != realPlaying)
+					player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
 			} else {
 				if (player.mediaPlayer().status().length() > 0) {
-					long time = frame.tick * tickTime + (frame.playing ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
+					long time = tick * tickTime + (realPlaying ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
 					if (player.mediaPlayer().status().isSeekable() && time > player.mediaPlayer().status().time())
-						if (frame.loop)
+						if (loop)
 							time %= player.mediaPlayer().status().length();
 					if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME)
 						player.mediaPlayer().submit(() -> {
-							long newTime = frame.tick * tickTime + (frame.playing ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
+							long newTime = tick * tickTime + (realPlaying ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
 							if (player.mediaPlayer().status().isSeekable() && newTime > player.mediaPlayer().status().length())
-								if (frame.loop)
+								if (loop)
 									newTime %= player.mediaPlayer().status().length();
 								
 							player.mediaPlayer().controls().setTime(newTime);
-							boolean playing = frame.playing && !Minecraft.getMinecraft().isGamePaused();
-							if (player.mediaPlayer().status().isPlaying() != playing)
-								player.mediaPlayer().controls().setPause(!playing);
+							if (player.mediaPlayer().status().isPlaying() != realPlaying)
+								player.mediaPlayer().controls().setPause(!realPlaying);
 						});
 				}
 			}
@@ -136,17 +135,17 @@ public class FrameVideoDisplay extends FrameDisplay {
 	}
 	
 	@Override
-	public void pause(TileEntityCreativeFrame frame) {
+	public void pause(String url, float volume, boolean playing, boolean loop, int tick) {
 		player.mediaPlayer().submit(() -> {
-			player.mediaPlayer().controls().setTime(frame.tick * 50);
+			player.mediaPlayer().controls().setTime(tick * 50);
 			player.mediaPlayer().controls().pause();
 		});
 	}
 	
 	@Override
-	public void resume(TileEntityCreativeFrame frame) {
+	public void resume(String url, float volume, boolean playing, boolean loop, int tick) {
 		player.mediaPlayer().submit(() -> {
-			player.mediaPlayer().controls().setTime(frame.tick * 50);
+			player.mediaPlayer().controls().setTime(tick * 50);
 			player.mediaPlayer().controls().play();
 		});
 	}

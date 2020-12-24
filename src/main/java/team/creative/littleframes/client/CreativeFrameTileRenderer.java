@@ -18,8 +18,8 @@ import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import team.creative.littleframes.block.TileEntityCreativeFrame;
 import team.creative.littleframes.client.display.FrameDisplay;
+import team.creative.littleframes.common.block.TileEntityCreativeFrame;
 
 @SideOnly(Side.CLIENT)
 public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEntityCreativeFrame> {
@@ -36,7 +36,7 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
 		if (display == null)
 			return;
 		
-		display.prepare(frame);
+		display.prepare(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
 		
 		GlStateManager.enableBlend();
 		OpenGlHelper.glBlendFunc(770, 771, 1, 0);

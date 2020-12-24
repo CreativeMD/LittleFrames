@@ -1,4 +1,4 @@
-package team.creative.littleframes.packet;
+package team.creative.littleframes.common.packet;
 
 import com.creativemd.creativecore.common.packet.CreativeCorePacket;
 
@@ -6,7 +6,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
-import team.creative.littleframes.block.TileEntityCreativeFrame;
+import team.creative.littleframes.common.block.TileEntityCreativeFrame;
 
 public class CreativeFramePacket extends CreativeCorePacket {
 	
@@ -40,12 +40,13 @@ public class CreativeFramePacket extends CreativeCorePacket {
 	public void executeClient(EntityPlayer player) {
 		TileEntity te = player.world.getTileEntity(pos);
 		if (te instanceof TileEntityCreativeFrame) {
-			((TileEntityCreativeFrame) te).playing = playing;
-			((TileEntityCreativeFrame) te).tick = tick;
+			TileEntityCreativeFrame frame = (TileEntityCreativeFrame) te;
+			frame.playing = playing;
+			frame.tick = tick;
 			if (playing)
-				((TileEntityCreativeFrame) te).display.resume((TileEntityCreativeFrame) te);
+				frame.display.resume(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
 			else
-				((TileEntityCreativeFrame) te).display.pause((TileEntityCreativeFrame) te);
+				frame.display.pause(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
 		}
 	}
 	
