@@ -9,6 +9,7 @@ import com.creativemd.creativecore.common.utils.mc.TickUtils;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import team.creative.littleframes.client.texture.TextureCache;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
@@ -18,7 +19,26 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class FrameVideoDisplay extends FrameDisplay {
 	
+	private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/qDIb9iV.png";
+	private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/3EKo7Jx.png";
 	private static final int ACCEPTABLE_SYNC_TIME = 1000;
+	private static boolean isVLCInstalled = true;
+	
+	public static FrameDisplay createVideoDisplay(String url, float volume, boolean loop) {
+		try {
+			if (isVLCInstalled)
+				return new FrameVideoDisplay(url, volume, loop);
+		} catch (Exception | UnsatisfiedLinkError e) {
+			
+		}
+		isVLCInstalled = false;
+		String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
+		TextureCache cache = TextureCache.get(failURL);
+		if (cache.ready())
+			return cache.createDisplay(failURL, volume, loop);
+		return null;
+	}
+	
 	public int width = 1;
 	public int height = 1;
 	public CallbackMediaPlayerComponent player;

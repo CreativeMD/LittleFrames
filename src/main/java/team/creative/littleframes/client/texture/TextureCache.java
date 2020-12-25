@@ -60,6 +60,7 @@ public class TextureCache {
 			return cache;
 		}
 		cache = new TextureCache(url);
+		cached.put(url, cache);
 		return cache;
 	}
 	
@@ -105,7 +106,7 @@ public class TextureCache {
 	
 	public FrameDisplay createDisplay(String url, float volume, boolean loop) {
 		if (textures == null)
-			return new FrameVideoDisplay(url, volume, loop);
+			return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
 		return new FramePictureDisplay(this);
 	}
 	
@@ -117,6 +118,7 @@ public class TextureCache {
 		this.textures = null;
 		this.error = error;
 		this.ready = true;
+		this.seeker = null;
 	}
 	
 	public void process(BufferedImage image) {
