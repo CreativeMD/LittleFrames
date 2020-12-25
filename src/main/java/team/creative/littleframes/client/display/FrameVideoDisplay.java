@@ -116,7 +116,8 @@ public class FrameVideoDisplay extends FrameDisplay {
 			if (player.mediaPlayer().controls().getRepeat() != loop)
 				player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(loop));
 			long tickTime = 50;
-			if (!stream && durationBefore != 0 && player.mediaPlayer().status().length() != durationBefore) // if duration changes it's a stream and should not be synced
+			long newDuration = player.mediaPlayer().status().length();
+			if (!stream && durationBefore != 0 && durationBefore != -1 && newDuration != 0 && newDuration != -1 && player.mediaPlayer().status().length() != durationBefore) // if duration changes it's a stream and should not be synced
 				stream = true;
 			durationBefore = player.mediaPlayer().status().length();
 			if (stream) {
