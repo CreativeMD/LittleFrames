@@ -1,8 +1,0 @@
-tile.creative_frame.name=Ð’ÐµÐ±-Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ
-config.littleframes.limitations=Ð›Ð¸Ð¼Ð¸Ñ‚Ñ‹
-config.littleframes.sizeLimit=ÐœÐ°ÐºÑ�Ð¸Ð¼Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ€Ð°Ð·Ð¼ÐµÑ€
-config.littleframes.onlyOpped=Ð ÐµÑ�Ñ‚Ñ€Ð¸ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ðº Ð¾Ð¿ÐµÑ€Ð°Ñ‚Ð¾Ñ€Ð°Ð¼
-config.littleframes.enableWhitelist=Ð¡Ð¿Ð¸Ñ�Ð¾Ðº URL Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½
-config.littleframes.whitelist=Ð¡Ð¿Ð¸Ñ�Ð¾Ðº URL
-label.littleframes.not_whitelisted.name=URL Ð½Ðµ Ð² Ñ�Ð¿Ð¸Ñ�ÐºÐµ, Ð½Ðµ Ð¼Ð¾Ð³Ñƒ Ñ�Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ
-label.littleframes.whitelist_warning.name=Ð’Ð½Ð¸Ð¼Ð°Ð½Ð¸Ðµ: Ñ�Ð¿Ð¸Ñ�Ð¾Ðº URL Ð½Ðµ Ð°ÐºÑ‚Ð¸Ð²ÐµÐ½

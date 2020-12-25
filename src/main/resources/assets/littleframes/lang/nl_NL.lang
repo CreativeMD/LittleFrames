@@ -1,9 +1,0 @@
-    
-tile.creative_frame.name=Online Afbeelding montuur
-config.littleframes.limitations=Limitaties
-config.littleframes.sizeLimit=Maximum maat
-config.littleframes.onlyOpped=beperkt tot operators
-config.littleframes.enableWhitelist=URL Whitelist ingeschakeld
-config.littleframes.whitelist=URL Whitelist
-label.littleframes.not_whitelisted.name=URL niet gewhitelist, kan niet opslaan
-label.littleframes.whitelist_warning.name=Pas op: URL Whitelist niet ingeschakeld
