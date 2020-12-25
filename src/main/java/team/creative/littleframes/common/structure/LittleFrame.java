@@ -250,6 +250,20 @@ public class LittleFrame extends LittleStructure {
 		return frame.getBox().getBox(frame.getContext());
 	}
 	
+	@Override
+	public void tick() {
+		super.tick();
+		if (playing)
+			tick++;
+	}
+	
+	@Override
+	public void unload() {
+		super.unload();
+		if (getWorld().isRemote && display != null)
+			display.release();
+	}
+	
 	public static enum FitMode {
 		CROP, STRETCH;
 	}
