@@ -29,7 +29,7 @@ public class FrameVideoDisplay extends FrameDisplay {
 			if (isVLCInstalled)
 				return new FrameVideoDisplay(url, volume, loop);
 		} catch (Exception | UnsatisfiedLinkError e) {
-			
+			e.printStackTrace();
 		}
 		isVLCInstalled = false;
 		String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
@@ -77,7 +77,7 @@ public class FrameVideoDisplay extends FrameDisplay {
 			
 			@Override
 			public void allocatedBuffers(ByteBuffer[] buffers) {
-				
+			
 			}
 			
 		}, null);
@@ -92,18 +92,19 @@ public class FrameVideoDisplay extends FrameDisplay {
 	@Override
 	public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
 		synchronized (this) {
-			if (buffer != null && first) {
-				GlStateManager.pushMatrix();
-				GlStateManager.bindTexture(texture);
-				GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-				GlStateManager.popMatrix();
-				first = false;
-			}
 			if (needsUpdate.getAndSet(false)) {
-				GlStateManager.pushMatrix();
-				GlStateManager.bindTexture(texture);
-				GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-				GlStateManager.popMatrix();
+				if (buffer != null && first) {
+					GlStateManager.pushMatrix();
+					GlStateManager.bindTexture(texture);
+					GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+					GlStateManager.popMatrix();
+					first = false;
+				} else {
+					GlStateManager.pushMatrix();
+					GlStateManager.bindTexture(texture);
+					GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+					GlStateManager.popMatrix();
+				}
 			}
 		}
 		if (player.mediaPlayer().media().isValid()) {
