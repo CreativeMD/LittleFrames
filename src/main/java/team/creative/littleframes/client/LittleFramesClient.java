@@ -12,12 +12,12 @@ import team.creative.littleframes.common.block.TileEntityCreativeFrame;
 
 @SideOnly(Side.CLIENT)
 public class LittleFramesClient {
-	
-	public static void initClient() {
-		ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCreativeFrame.class, new CreativeFrameTileRenderer());
-		
-		CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleFrames.frame);
-		
-		MinecraftForge.EVENT_BUS.register(TextureCache.class);
-	}
+    
+    public static void initClient() {
+        ClientRegistry.bindTileEntitySpecialRenderer(TileEntityCreativeFrame.class, new CreativeFrameTileRenderer());
+        
+        CreativeBlockRenderHelper.registerCreativeRenderedBlock(LittleFrames.frame);
+        
+        MinecraftForge.EVENT_BUS.register(TextureCache.class);
+    }
 }

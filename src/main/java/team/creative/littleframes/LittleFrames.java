@@ -40,84 +40,85 @@ import team.creative.littleframes.common.packet.LittleFramePacket;
 import team.creative.littleframes.common.structure.LittleFrame;
 import team.creative.littleframes.common.structure.LittleFrameBuilder;
 
-@Mod(modid = LittleFrames.modid, version = LittleFrames.version, name = "LittleFrames", acceptedMinecraftVersions = "", dependencies = "required-after:creativecore", guiFactory = "team.creative.littleframes.LittleFramesSettings")
+@Mod(modid = LittleFrames.modid, version = LittleFrames.version, name = "LittleFrames", acceptedMinecraftVersions = "", dependencies = "required-after:creativecore",
+    guiFactory = "team.creative.littleframes.LittleFramesSettings")
 @Mod.EventBusSubscriber
 public class LittleFrames {
-	
-	public static final String modid = "littleframes";
-	public static final String version = "1.0.0";
-	
-	public static Block frame = new BlockCreativeFrame().setUnlocalizedName("creative_frame").setRegistryName("creative_frame");
-	
-	public static LittleFramesConfig CONFIG;
-	
-	@SideOnly(Side.CLIENT)
-	public static void initClient() {
-		LittleFramesClient.initClient();
-	}
-	
-	@EventHandler
-	public void preInit(FMLPreInitializationEvent evt) {
-		MinecraftForge.EVENT_BUS.register(LittleFrames.class);
-	}
-	
-	@SubscribeEvent
-	public static void registerBlocks(RegistryEvent.Register<Block> event) {
-		event.getRegistry().registerAll(frame);
-	}
-	
-	@SubscribeEvent
-	public static void registerItems(RegistryEvent.Register<Item> event) {
-		event.getRegistry().registerAll(new ItemBlock(frame).setRegistryName(frame.getRegistryName()));
-		
-		if (FMLCommonHandler.instance().getSide().isClient())
-			initClient();
-	}
-	
-	@EventHandler
-	public void init(FMLInitializationEvent evt) {
-		CreativeConfigRegistry.ROOT.registerValue(modid, CONFIG = new LittleFramesConfig());
-		
-		CreativeCorePacket.registerPacket(CreativeFramePacket.class);
-		CreativeCorePacket.registerPacket(LittleFramePacket.class);
-		
-		GameRegistry.registerTileEntity(TileEntityCreativeFrame.class, new ResourceLocation(modid, "CreativeFrame"));
-		LittleStructurePremade.registerPremadeStructureType("frame_builder", modid, LittleFrameBuilder.class);
-		LittleStructureRegistry.registerStructureType("little_frame", "decoration", LittleFrame.class, LittleStructureAttribute.TICK_RENDERING | LittleStructureAttribute.TICKING, null);
-		
-		GuiHandler.registerGuiHandler("frame_builder", new LittleStructureGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-				if (structure instanceof LittleFrameBuilder)
-					return new SubGuiBuilder((LittleFrameBuilder) structure);
-				return null;
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-				if (structure instanceof LittleFrameBuilder)
-					return new SubContainerBuilder(player, (LittleFrameBuilder) structure);
-				return null;
-			}
-		});
-		GuiHandler.registerGuiHandler("little_frame", new LittleStructureGuiHandler() {
-			
-			@Override
-			@SideOnly(Side.CLIENT)
-			public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-				if (structure instanceof LittleFrame)
-					return new SubGuiLittleFrame((LittleFrame) structure);
-				return null;
-			}
-			
-			@Override
-			public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
-				if (structure instanceof LittleFrame)
-					return new SubContainerLittleFrame(player, (LittleFrame) structure);
-				return null;
-			}
-		});
-	}
+    
+    public static final String modid = "littleframes";
+    public static final String version = "1.0.0";
+    
+    public static Block frame = new BlockCreativeFrame().setUnlocalizedName("creative_frame").setRegistryName("creative_frame");
+    
+    public static LittleFramesConfig CONFIG;
+    
+    @SideOnly(Side.CLIENT)
+    public static void initClient() {
+        LittleFramesClient.initClient();
+    }
+    
+    @EventHandler
+    public void preInit(FMLPreInitializationEvent evt) {
+        MinecraftForge.EVENT_BUS.register(LittleFrames.class);
+    }
+    
+    @SubscribeEvent
+    public static void registerBlocks(RegistryEvent.Register<Block> event) {
+        event.getRegistry().registerAll(frame);
+    }
+    
+    @SubscribeEvent
+    public static void registerItems(RegistryEvent.Register<Item> event) {
+        event.getRegistry().registerAll(new ItemBlock(frame).setRegistryName(frame.getRegistryName()));
+        
+        if (FMLCommonHandler.instance().getSide().isClient())
+            initClient();
+    }
+    
+    @EventHandler
+    public void init(FMLInitializationEvent evt) {
+        CreativeConfigRegistry.ROOT.registerValue(modid, CONFIG = new LittleFramesConfig());
+        
+        CreativeCorePacket.registerPacket(CreativeFramePacket.class);
+        CreativeCorePacket.registerPacket(LittleFramePacket.class);
+        
+        GameRegistry.registerTileEntity(TileEntityCreativeFrame.class, new ResourceLocation(modid, "CreativeFrame"));
+        LittleStructurePremade.registerPremadeStructureType("frame_builder", modid, LittleFrameBuilder.class);
+        LittleStructureRegistry.registerStructureType("little_frame", "decoration", LittleFrame.class, LittleStructureAttribute.TICK_RENDERING | LittleStructureAttribute.TICKING, null);
+        
+        GuiHandler.registerGuiHandler("frame_builder", new LittleStructureGuiHandler() {
+            
+            @Override
+            @SideOnly(Side.CLIENT)
+            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleFrameBuilder)
+                    return new SubGuiBuilder((LittleFrameBuilder) structure);
+                return null;
+            }
+            
+            @Override
+            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleFrameBuilder)
+                    return new SubContainerBuilder(player, (LittleFrameBuilder) structure);
+                return null;
+            }
+        });
+        GuiHandler.registerGuiHandler("little_frame", new LittleStructureGuiHandler() {
+            
+            @Override
+            @SideOnly(Side.CLIENT)
+            public SubGui getGui(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleFrame)
+                    return new SubGuiLittleFrame((LittleFrame) structure);
+                return null;
+            }
+            
+            @Override
+            public SubContainer getContainer(EntityPlayer player, NBTTagCompound nbt, LittleStructure structure) {
+                if (structure instanceof LittleFrame)
+                    return new SubContainerLittleFrame(player, (LittleFrame) structure);
+                return null;
+            }
+        });
+    }
 }
