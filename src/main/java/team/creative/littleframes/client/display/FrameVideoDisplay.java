@@ -47,7 +47,6 @@ public class FrameVideoDisplay extends FrameDisplay {
     public ByteBuffer buffer;
     public int texture;
     private boolean stream = false;
-    private long durationBefore;
     private float lastSetVolume;
     private AtomicBoolean needsUpdate = new AtomicBoolean(false);
     private boolean first = true;
@@ -120,9 +119,8 @@ public class FrameVideoDisplay extends FrameDisplay {
                 player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(loop));
             long tickTime = 50;
             long newDuration = player.mediaPlayer().status().length();
-            if (!stream && durationBefore != 0 && durationBefore != -1 && newDuration != 0 && newDuration != -1 && player.mediaPlayer().status().length() != durationBefore) // if duration changes it's a stream and should not be synced
+            if (!stream && newDuration != -1 && newDuration != 0 && player.mediaPlayer().media().info().duration() == 0)
                 stream = true;
-            durationBefore = player.mediaPlayer().status().length();
             if (stream) {
                 if (player.mediaPlayer().status().isPlaying() != realPlaying)
                     player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
