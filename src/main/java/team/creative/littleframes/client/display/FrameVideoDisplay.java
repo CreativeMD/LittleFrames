@@ -1,7 +1,7 @@
 package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lwjgl.opengl.GL11;
@@ -20,6 +20,7 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class FrameVideoDisplay extends FrameDisplay {
     
+    private static HashSet<Runnable> toBeRun = new HashSet<>();
     private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/qDIb9iV.png";
     private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/3EKo7Jx.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
@@ -149,12 +150,21 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void release() {
-        boolean released = false;
-        while (!released)
-            try {
-                player.mediaPlayer().submit(() -> player.release());
-                released = true;
-            } catch (RejectedExecutionException e) {}
+        Runnable run = new Runnable() {
+            
+            @Override
+            public void run() {
+                player.release();
+                synchronized (toBeRun) {
+                    toBeRun.remove(this);
+                }
+            }
+        };
+        
+        synchronized (toBeRun) {
+            toBeRun.add(run);
+        }
+        player.mediaPlayer().submit(run);
     }
     
     @Override
