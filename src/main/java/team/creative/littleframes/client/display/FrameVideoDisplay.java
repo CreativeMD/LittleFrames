@@ -1,6 +1,7 @@
 package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lwjgl.opengl.GL11;
@@ -148,7 +149,12 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void release() {
-        player.mediaPlayer().submit(() -> player.release());
+        boolean released = false;
+        while (!released)
+            try {
+                player.mediaPlayer().submit(() -> player.release());
+                released = true;
+            } catch (RejectedExecutionException e) {}
     }
     
     @Override
