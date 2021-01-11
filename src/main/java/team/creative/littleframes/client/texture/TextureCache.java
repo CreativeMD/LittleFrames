@@ -177,8 +177,6 @@ public class TextureCache {
     
     public void remove() {
         ready = false;
-        if (seeker != null)
-            seeker.destroy();
         if (textures != null)
             for (int i = 0; i < textures.length; i++)
                 GlStateManager.deleteTexture(textures[i]);
