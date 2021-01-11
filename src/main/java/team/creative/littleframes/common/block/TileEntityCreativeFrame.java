@@ -93,10 +93,19 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
             box.setMin(facing.getAxis(), 0.969F);
             box.setMax(facing.getAxis(), 1F);
         }
-        Axis one = RotationUtils.getOne(facing.getAxis());
+        Axis one;
+        Axis two;
+        
+        if (facing.getAxis() == Axis.X) {
+            one = RotationUtils.getTwo(facing.getAxis());
+            two = RotationUtils.getOne(facing.getAxis());
+        } else {
+            one = RotationUtils.getOne(facing.getAxis());
+            two = RotationUtils.getTwo(facing.getAxis());
+        }
         box.setMin(one, min.x);
         box.setMax(one, max.x);
-        Axis two = RotationUtils.getTwo(facing.getAxis());
+        
         box.setMin(two, min.y);
         box.setMax(two, max.y);
         return box;
