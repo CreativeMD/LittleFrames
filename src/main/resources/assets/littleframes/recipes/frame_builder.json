@@ -1,0 +1,26 @@
+{
+  "result": {
+    "item": "littletiles:premade",
+    "data": 0,
+    "structure": "frame_builder"
+  },
+  "pattern": [
+    "CCC",
+    "CRC",
+    "CXC"
+  ],
+  "type": "littletiles:crafting_shaped_premade",
+  "key": {
+    "X": {
+      "item": "minecraft:planks",
+      "data": 0
+    },
+    "C": {
+      "item": "minecraft:redstone"
+    },
+    "X": {
+      "item": "minecraft:stained_hardened_clay",
+      "data": 15
+    }
+  }
+}
