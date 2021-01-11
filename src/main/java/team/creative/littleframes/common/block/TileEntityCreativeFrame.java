@@ -96,7 +96,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
         Axis one;
         Axis two;
         
-        if (facing.getAxis() == Axis.X) {
+        if (facing.getAxis() != Axis.Z) {
             one = RotationUtils.getTwo(facing.getAxis());
             two = RotationUtils.getOne(facing.getAxis());
         } else {
