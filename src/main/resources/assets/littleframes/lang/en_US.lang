@@ -1,5 +1,4 @@
 tile.creative_frame.name=Creative Frame
-item.LTPremade.frame_builder.name=Frame Builder
 
 label.littleframes.not_whitelisted.name=URL not whitelisted, cannot save
 label.littleframes.whitelist_warning.name=Warning: URL Whitelist not enabled
