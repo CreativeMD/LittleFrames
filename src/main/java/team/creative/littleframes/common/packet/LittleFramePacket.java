@@ -44,12 +44,16 @@ public class LittleFramePacket extends CreativeCorePacket {
             LittleStructure structure = location.find(player.world);
             if (structure instanceof LittleFrame) {
                 LittleFrame frame = (LittleFrame) structure;
+                
                 frame.playing = playing;
                 frame.tick = tick;
-                if (playing)
-                    frame.display.resume(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
-                else
-                    frame.display.pause(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+                
+                if (frame.display != null) {
+                    if (playing)
+                        frame.display.resume(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+                    else
+                        frame.display.pause(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+                }
             }
         } catch (LittleActionException e) {}
         
