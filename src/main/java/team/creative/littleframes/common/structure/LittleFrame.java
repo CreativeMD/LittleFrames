@@ -34,6 +34,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -183,7 +184,7 @@ public class LittleFrame extends LittleStructure {
         if (display == null)
             return;
         
-        display.prepare(getURL(), volume, playing, loop, tick);
+        display.prepare(getURL(), volume * Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER), playing, loop, tick);
         
         GlStateManager.enableBlend();
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);

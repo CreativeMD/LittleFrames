@@ -6,6 +6,7 @@ import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
 import com.creativemd.creativecore.common.utils.math.box.BoxFace;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.CullFace;
@@ -16,6 +17,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
 import net.minecraft.util.EnumFacing.AxisDirection;
+import net.minecraft.util.SoundCategory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.client.display.FrameDisplay;
@@ -36,7 +38,7 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
         if (display == null)
             return;
         
-        display.prepare(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+        display.prepare(frame.getURL(), frame.volume * Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER), frame.playing, frame.loop, frame.tick);
         
         GlStateManager.enableBlend();
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);

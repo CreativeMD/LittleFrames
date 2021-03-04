@@ -12,7 +12,9 @@ import org.lwjgl.opengl.GL12;
 
 import com.madgag.gif.fmsware.GifDecoder;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.util.SoundCategory;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -105,6 +107,7 @@ public class TextureCache {
     }
     
     public FrameDisplay createDisplay(String url, float volume, boolean loop) {
+        volume *= Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
         if (textures == null)
             return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
         return new FramePictureDisplay(this);
