@@ -37,7 +37,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
         TextureCache cache = TextureCache.get(failURL);
         if (cache.ready())
-            return cache.createDisplay(failURL, volume, loop);
+            return cache.createDisplay(failURL, volume, loop, true);
         return null;
     }
     

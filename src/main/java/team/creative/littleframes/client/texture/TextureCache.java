@@ -107,8 +107,12 @@ public class TextureCache {
     }
     
     public FrameDisplay createDisplay(String url, float volume, boolean loop) {
+        return createDisplay(url, volume, loop, false);
+    }
+    
+    public FrameDisplay createDisplay(String url, float volume, boolean loop, boolean noVideo) {
         volume *= Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
-        if (textures == null)
+        if (textures == null && !noVideo)
             return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
         return new FramePictureDisplay(this);
     }
