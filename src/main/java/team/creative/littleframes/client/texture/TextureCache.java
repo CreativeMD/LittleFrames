@@ -79,6 +79,9 @@ public class TextureCache {
     
     private int usage = 0;
     
+    private GifDecoder decoder;
+    private int remaining;
+    
     public TextureCache(String url) {
         this.url = url;
         use();
@@ -94,14 +97,24 @@ public class TextureCache {
         }
     }
     
+    private int getTexture(int index) {
+        if (textures[index] == -1 && decoder != null) {
+            textures[index] = uploadFrame(decoder.getFrame(index), width, height);
+            remaining--;
+            if (remaining <= 0)
+                decoder = null;
+        }
+        return textures[index];
+    }
+    
     public int getTexture(long time) {
         if (textures.length == 1)
-            return textures[0];
-        int last = textures[0];
+            return getTexture(0);
+        int last = getTexture(0);
         for (int i = 1; i < delay.length; i++) {
             if (delay[i] > time)
                 break;
-            last = textures[i];
+            last = getTexture(i);
         }
         return last;
     }
@@ -145,9 +158,11 @@ public class TextureCache {
         textures = new int[decoder.getFrameCount()];
         delay = new long[decoder.getFrameCount()];
         
+        this.decoder = decoder;
+        this.remaining = decoder.getFrameCount();
         long time = 0;
         for (int i = 0; i < decoder.getFrameCount(); i++) {
-            textures[i] = uploadFrame(decoder.getFrame(i), width, height);
+            textures[i] = -1;
             delay[i] = time;
             time += decoder.getDelay(i);
         }
