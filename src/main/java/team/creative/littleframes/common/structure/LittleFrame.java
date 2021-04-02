@@ -191,6 +191,8 @@ public class LittleFrame extends LittleStructure {
         GlStateManager.disableLighting();
         GlStateManager.color(brightness, brightness, brightness, alpha);
         int texture = display.texture();
+        
+        GlStateManager.cullFace(CullFace.BACK);
         GlStateManager.bindTexture(texture);
         
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);

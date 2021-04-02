@@ -46,6 +46,7 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
         GlStateManager.color(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
         int texture = display.texture();
         GlStateManager.bindTexture(texture);
+        GlStateManager.cullFace(CullFace.BACK);
         
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
