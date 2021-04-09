@@ -89,8 +89,8 @@ public class SubGuiCreativeFrame extends SubGui {
                 nbt.setFloat("volume", (float) volume.value);
                 
                 nbt.setString("url", url.text);
-                nbt.setFloat("x", sizeX.getValue());
-                nbt.setFloat("y", sizeY.getValue());
+                nbt.setFloat("x", Math.max(0.1F, sizeX.getValue()));
+                nbt.setFloat("y", Math.max(0.1F, sizeY.getValue()));
                 sendPacketToServer(nbt);
             }
         };
