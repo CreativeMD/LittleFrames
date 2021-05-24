@@ -19,6 +19,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
 import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
@@ -125,7 +126,7 @@ public class TextureCache {
     
     public FrameDisplay createDisplay(String url, float volume, boolean loop, boolean noVideo) {
         volume *= Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
-        if (textures == null && !noVideo)
+        if (textures == null && !noVideo && LittleFrames.CONFIG.useVLC)
             return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
         return new FramePictureDisplay(this);
     }
