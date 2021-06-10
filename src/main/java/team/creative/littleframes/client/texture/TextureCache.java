@@ -109,6 +109,8 @@ public class TextureCache {
     }
     
     public int getTexture(long time) {
+        if (textures == null)
+            return -1;
         if (textures.length == 1)
             return getTexture(0);
         int last = getTexture(0);
