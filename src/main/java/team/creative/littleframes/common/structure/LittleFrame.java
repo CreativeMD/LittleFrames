@@ -73,9 +73,16 @@ public class LittleFrame extends LittleStructure {
         return url.isEmpty();
     }
     
+    public static String getUrl(String url) {
+        String result = url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+        if (result.startsWith("minecraft://"))
+            result = result.replace("minecraft://", "file:///" + Minecraft.getMinecraft().mcDataDir.getAbsolutePath().replace("\\", "/") + "/");
+        return result;
+    }
+    
     @SideOnly(Side.CLIENT)
     public String getURL() {
-        return url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+        return getUrl(url);
     }
     
     public String getRealURL() {

@@ -7,7 +7,6 @@ import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
 import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumFacing.Axis;
@@ -19,6 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.packet.CreativeFramePacket;
+import team.creative.littleframes.common.structure.LittleFrame;
 
 public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
     
@@ -50,7 +50,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     
     @SideOnly(Side.CLIENT)
     public String getURL() {
-        return url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+        return LittleFrame.getUrl(url);
     }
     
     public String getRealURL() {
