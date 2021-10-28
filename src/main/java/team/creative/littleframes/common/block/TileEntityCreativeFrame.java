@@ -165,7 +165,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
         nbt.setBoolean("visibleFrame", visibleFrame);
         nbt.setBoolean("bothSides", bothSides);
         nbt.setBoolean("flipX", flipX);
-        nbt.setBoolean("flipX", flipX);
+        nbt.setBoolean("flipY", flipY);
         nbt.setFloat("alpha", alpha);
         nbt.setFloat("brightness", brightness);
         
@@ -192,7 +192,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
         visibleFrame = nbt.getBoolean("visibleFrame");
         bothSides = nbt.getBoolean("bothSides");
         flipX = nbt.getBoolean("flipX");
-        flipX = nbt.getBoolean("flipX");
+        flipY = nbt.getBoolean("flipY");
         if (nbt.hasKey("alpha"))
             alpha = nbt.getFloat("alpha");
         else
