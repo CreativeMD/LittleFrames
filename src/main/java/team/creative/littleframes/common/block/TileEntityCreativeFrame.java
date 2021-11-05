@@ -209,24 +209,6 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     }
     
     @Override
-    public void getDescriptionNBT(NBTTagCompound nbt) {
-        super.getDescriptionNBT(nbt);
-        writePictureNBT(nbt);
-    }
-    
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void receiveUpdatePacket(NBTTagCompound nbt) {
-        super.receiveUpdatePacket(nbt);
-        readPictureNBT(nbt);
-    }
-    
-    @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
-    }
-    
-    @Override
     public void update() {
         if (playing)
             tick++;
