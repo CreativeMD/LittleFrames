@@ -181,6 +181,11 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
         readPictureNBT(nbt);
     }
     
+    @Override
+    public void handleUpdate(NBTTagCompound nbt, boolean chunkUpdate) {
+        readFromNBT(nbt);
+    }
+    
     protected void readPictureNBT(NBTTagCompound nbt) {
         url = nbt.getString("url");
         min.x = nbt.getFloat("minx");
