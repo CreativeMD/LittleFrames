@@ -10,3 +10,19 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+
+# Gradlew #
+.gradle/
+build/
+*.launch
+*.classpath
+*.project
+*.factorypath
+bin/
+run/
+.settings/
+/.apt_generated/
+/.apt_generated_tests/
+/Users/
+
+!/gradle/wrapper/gradle-wrapper.jar

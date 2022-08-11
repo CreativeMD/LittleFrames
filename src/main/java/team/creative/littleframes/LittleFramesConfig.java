@@ -6,13 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import com.creativemd.creativecore.common.config.api.CreativeConfig;
-import com.creativemd.creativecore.common.config.sync.ConfigSynchronization;
-
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.world.GameType;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.Level;
+import team.creative.creativecore.common.config.api.CreativeConfig;
+import team.creative.creativecore.common.config.sync.ConfigSynchronization;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 
 public class LittleFramesConfig {
     
@@ -39,15 +38,15 @@ public class LittleFramesConfig {
     
     @CreativeConfig
     public List<String> whitelist = Arrays
-        .asList("imgur.com", "gyazo.com", "prntscr.com", "tinypic.com", "puu.sh", "pinimg.com", "photobucket.com", "staticflickr.com", "flic.kr", "tenor.co", "gfycat.com", "giphy.com", "gph.is", "gifbin.com", "i.redd.it", "media.tumblr.com", "twimg.com", "discordapp.com", "images.discordapp.net", "githubusercontent.com", "googleusercontent.com", "googleapis.com", "wikimedia.org", "ytimg.com");
+            .asList("imgur.com", "gyazo.com", "prntscr.com", "tinypic.com", "puu.sh", "pinimg.com", "photobucket.com", "staticflickr.com", "flic.kr", "tenor.co", "gfycat.com", "giphy.com", "gph.is", "gifbin.com", "i.redd.it", "media.tumblr.com", "twimg.com", "discordapp.com", "images.discordapp.net", "githubusercontent.com", "googleusercontent.com", "googleapis.com", "wikimedia.org", "ytimg.com");
     
-    public boolean canUse(EntityPlayer player, String url) {
+    public boolean canUse(Player player, String url) {
         return canUse(player, url, false);
     }
     
-    public boolean canUse(EntityPlayer player, String url, boolean ignoreToggle) {
-        World world = player.world;
-        if (!world.isRemote && (world.getMinecraftServer().isSinglePlayer() || player.canUseCommand(world.getMinecraftServer().getOpPermissionLevel(), ""))) {
+    public boolean canUse(Player player, String url, boolean ignoreToggle) {
+        Level level = player.level;
+        if (!level.isClientSide && (level.getServer().isSingleplayer() || player.hasPermissions(level.getServer().getOperatorUserPermissionLevel()))) {
             return true;
         }
         if (whitelistEnabled || ignoreToggle) {
@@ -72,16 +71,16 @@ public class LittleFramesConfig {
         return false;
     }
     
-    public boolean canInteract(EntityPlayer player, World world) {
-        if (disableAdventure && ((EntityPlayerMP) player).interactionManager.getGameType() == GameType.ADVENTURE)
+    public boolean canInteract(Player player, Level level) {
+        if (disableAdventure && PlayerUtils.getGameType(player) == GameType.ADVENTURE)
             return false;
         if (onlyCreative && !player.isCreative())
             return false;
-        boolean isOperator = world.getMinecraftServer().isSinglePlayer() || player.canUseCommand(world.getMinecraftServer().getOpPermissionLevel(), "");
-        if (onlyOps) {
+        boolean isOperator = level.getServer().isSingleplayer() || player.hasPermissions(level.getServer().getOperatorUserPermissionLevel());
+        if (onlyOps)
             return isOperator;
-        } else {
-            return isOperator || (!disableAdventure || player.capabilities.allowEdit);
-        }
+        else
+            return isOperator || (!disableAdventure || player.getAbilities().mayBuild);
+        
     }
 }

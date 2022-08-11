@@ -1,16 +1,14 @@
 package team.creative.littleframes.common.packet;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
-import com.creativemd.littletiles.common.action.LittleAction;
-import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.tile.math.location.StructureLocation;
-
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littleframes.common.structure.LittleFrame;
+import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.math.location.StructureLocation;
+import team.creative.littletiles.common.structure.LittleStructure;
 
-public class LittleFramePacket extends CreativeCorePacket {
+public class LittleFramePacket extends CreativePacket {
     
     public StructureLocation location;
     public boolean playing;
@@ -25,23 +23,9 @@ public class LittleFramePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        LittleAction.writeStructureLocation(location, buf);
-        buf.writeBoolean(playing);
-        buf.writeInt(tick);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        location = LittleAction.readStructureLocation(buf);
-        playing = buf.readBoolean();
-        tick = buf.readInt();
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
+    public void executeClient(Player player) {
         try {
-            LittleStructure structure = location.find(player.world);
+            LittleStructure structure = location.find(player.level);
             if (structure instanceof LittleFrame) {
                 LittleFrame frame = (LittleFrame) structure;
                 
@@ -56,12 +40,9 @@ public class LittleFramePacket extends CreativeCorePacket {
                 }
             }
         } catch (LittleActionException e) {}
-        
     }
     
     @Override
-    public void executeServer(EntityPlayer player) {
-        
-    }
+    public void executeServer(ServerPlayer player) {}
     
 }

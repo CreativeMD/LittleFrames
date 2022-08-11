@@ -2,20 +2,20 @@ package team.creative.littleframes.client.gui;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.common.gui.GuiRenderHelper;
 import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
-import com.creativemd.creativecore.common.gui.client.style.Style;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
 import com.google.common.collect.Lists;
 
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.translation.I18n;
+import team.creative.creativecore.client.render.GuiRenderHelper;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.style.GuiStyle;
 import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
-    public static final Style DISABLED = new Style("disabled", new ColoredDisplayStyle(50, 0, 0), new ColoredDisplayStyle(150, 90, 90), new ColoredDisplayStyle(180, 100, 100), new ColoredDisplayStyle(220, 198, 198), new ColoredDisplayStyle(50, 0, 0, 100));
-    public static final Style WARNING = new Style("warning", new ColoredDisplayStyle(50, 50, 0), new ColoredDisplayStyle(150, 150, 90), new ColoredDisplayStyle(180, 180, 100), new ColoredDisplayStyle(220, 220, 198), new ColoredDisplayStyle(50, 50, 0, 100));
+    public static final GuiStyle DISABLED = new GuiStyle("disabled", new ColoredDisplayStyle(50, 0, 0), new ColoredDisplayStyle(150, 90, 90), new ColoredDisplayStyle(180, 100, 100), new ColoredDisplayStyle(220, 198, 198), new ColoredDisplayStyle(50, 0, 0, 100));
+    public static final GuiStyle WARNING = new GuiStyle("warning", new ColoredDisplayStyle(50, 50, 0), new ColoredDisplayStyle(150, 150, 90), new ColoredDisplayStyle(180, 180, 100), new ColoredDisplayStyle(220, 220, 198), new ColoredDisplayStyle(50, 50, 0, 100));
     private GuiButton saveButton;
     
     public GuiUrlTextfield(GuiButton saveButton, String name, String text, int x, int y, int width, int height) {

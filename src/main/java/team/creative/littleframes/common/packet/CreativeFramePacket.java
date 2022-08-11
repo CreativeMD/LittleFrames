@@ -1,14 +1,13 @@
 package team.creative.littleframes.common.packet;
 
-import com.creativemd.creativecore.common.packet.CreativeCorePacket;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littleframes.common.block.BECreativeFrame;
 
-import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import team.creative.littleframes.common.block.TileEntityCreativeFrame;
-
-public class CreativeFramePacket extends CreativeCorePacket {
+public class CreativeFramePacket extends CreativePacket {
     
     public BlockPos pos;
     public boolean playing;
@@ -23,24 +22,9 @@ public class CreativeFramePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void writeBytes(ByteBuf buf) {
-        writePos(buf, pos);
-        buf.writeBoolean(playing);
-        buf.writeInt(tick);
-    }
-    
-    @Override
-    public void readBytes(ByteBuf buf) {
-        pos = readPos(buf);
-        playing = buf.readBoolean();
-        tick = buf.readInt();
-    }
-    
-    @Override
-    public void executeClient(EntityPlayer player) {
-        TileEntity te = player.world.getTileEntity(pos);
-        if (te instanceof TileEntityCreativeFrame) {
-            TileEntityCreativeFrame frame = (TileEntityCreativeFrame) te;
+    public void executeClient(Player player) {
+        BlockEntity be = player.level.getBlockEntity(pos);
+        if (be instanceof BECreativeFrame frame) {
             frame.playing = playing;
             frame.tick = tick;
             if (playing)
@@ -51,8 +35,6 @@ public class CreativeFramePacket extends CreativeCorePacket {
     }
     
     @Override
-    public void executeServer(EntityPlayer player) {
-        
-    }
+    public void executeServer(ServerPlayer player) {}
     
 }

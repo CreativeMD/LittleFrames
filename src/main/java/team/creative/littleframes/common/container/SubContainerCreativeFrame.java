@@ -5,13 +5,13 @@ import com.creativemd.creativecore.common.gui.premade.SubContainerTileEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.common.block.TileEntityCreativeFrame;
+import team.creative.littleframes.common.block.BECreativeFrame;
 
 public class SubContainerCreativeFrame extends SubContainerTileEntity {
     
-    public TileEntityCreativeFrame frame;
+    public BECreativeFrame frame;
     
-    public SubContainerCreativeFrame(TileEntityCreativeFrame frame, EntityPlayer player) {
+    public SubContainerCreativeFrame(BECreativeFrame frame, EntityPlayer player) {
         super(player, frame);
         this.frame = frame;
     }

@@ -40,7 +40,7 @@ public class TextureSeeker extends Thread {
     
     public static int activeDownloads = 0;
     
-    private static final Minecraft mc = Minecraft.getMinecraft();
+    private static final Minecraft mc = Minecraft.getInstance();
     
     private TextureCache cache;
     
@@ -69,7 +69,7 @@ public class TextureSeeker extends Thread {
                     GifDecoder gif = new GifDecoder();
                     int status = gif.read(in);
                     if (status == GifDecoder.STATUS_OK) {
-                        mc.addScheduledTask(() -> cache.process(gif));
+                        mc.doRunTask(() -> cache.process(gif));
                         processed = true;
                     } else {
                         LOGGER.error("Failed to read gif: {}", status);
@@ -78,7 +78,7 @@ public class TextureSeeker extends Thread {
                     try {
                         BufferedImage image = ImageIO.read(in);
                         if (image != null) {
-                            mc.addScheduledTask(() -> cache.process(image));
+                            mc.doRunTask(() -> cache.process(image));
                             processed = true;
                         }
                     } catch (IOException e1) {

@@ -11,14 +11,14 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import com.madgag.gif.fmsware.GifDecoder;
+import com.mojang.blaze3d.platform.GlStateManager;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.util.SoundCategory;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
-import net.minecraftforge.fml.common.gameevent.TickEvent.RenderTickEvent;
+import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.event.TickEvent.Phase;
+import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
@@ -27,7 +27,6 @@ import team.creative.littleframes.client.display.FrameVideoDisplay;
 public class TextureCache {
     
     private static HashMap<String, TextureCache> cached = new HashMap<>();
-    private static boolean changed = false;
     
     @SubscribeEvent
     public static void render(RenderTickEvent event) {
@@ -48,8 +47,8 @@ public class TextureCache {
     }
     
     @SubscribeEvent
-    public static void unload(WorldEvent.Unload event) {
-        if (event.getWorld().isRemote) {
+    public static void unload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
             for (TextureCache cache : cached.values())
                 cache.remove();
             cached.clear();
@@ -127,7 +126,7 @@ public class TextureCache {
     }
     
     public FrameDisplay createDisplay(String url, float volume, boolean loop, boolean noVideo) {
-        volume *= Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER);
+        volume *= Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
         if (textures == null && !noVideo && LittleFrames.CONFIG.useVLC)
             return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
         return new FramePictureDisplay(this);
@@ -193,7 +192,6 @@ public class TextureCache {
     
     public void unuse() {
         usage--;
-        changed = true;
     }
     
     public boolean isUsed() {
@@ -204,7 +202,7 @@ public class TextureCache {
         ready = false;
         if (textures != null)
             for (int i = 0; i < textures.length; i++)
-                GlStateManager.deleteTexture(textures[i]);
+                GlStateManager._deleteTexture(textures[i]);
     }
     
     public int getWidth() {

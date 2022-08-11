@@ -6,10 +6,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.common.utils.mc.TickUtils;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littleframes.client.texture.TextureCache;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -53,7 +54,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     public FrameVideoDisplay(String url, float volume, boolean loop) {
         super();
-        texture = GlStateManager.generateTexture();
+        texture = GlStateManager._genTexture();
         
         player = new CallbackMediaPlayerComponent(new MediaPlayerFactory("--quiet"), null, null, false, new RenderCallback() {
             
@@ -78,7 +79,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             
             @Override
             public void allocatedBuffers(ByteBuffer[] buffers) {
-            
+                
             }
             
         }, null);
@@ -95,21 +96,17 @@ public class FrameVideoDisplay extends FrameDisplay {
         synchronized (this) {
             if (needsUpdate.getAndSet(false)) {
                 if (buffer != null && first) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.bindTexture(texture);
+                    RenderSystem.bindTexture(texture);
                     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                    GlStateManager.popMatrix();
                     first = false;
                 } else {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.bindTexture(texture);
+                    RenderSystem.bindTexture(texture);
                     GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                    GlStateManager.popMatrix();
                 }
             }
         }
         if (player.mediaPlayer().media().isValid()) {
-            boolean realPlaying = playing && !Minecraft.getMinecraft().isGamePaused();
+            boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
             if (volume != lastSetVolume) {
                 player.mediaPlayer().submit(() -> player.mediaPlayer().audio().setVolume((int) (volume * 100F)));
@@ -126,13 +123,13 @@ public class FrameVideoDisplay extends FrameDisplay {
                     player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
             } else {
                 if (player.mediaPlayer().status().length() > 0) {
-                    long time = tick * tickTime + (realPlaying ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
+                    long time = tick * tickTime + (realPlaying ? (long) (TickUtils.getFrameTimeClient() * tickTime) : 0);
                     if (player.mediaPlayer().status().isSeekable() && time > player.mediaPlayer().status().time())
                         if (loop)
                             time %= player.mediaPlayer().status().length();
                     if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME)
                         player.mediaPlayer().submit(() -> {
-                            long newTime = tick * tickTime + (realPlaying ? (long) (TickUtils.getPartialTickTime() * tickTime) : 0);
+                            long newTime = tick * tickTime + (realPlaying ? (long) (TickUtils.getFrameTimeClient() * tickTime) : 0);
                             if (player.mediaPlayer().status().isSeekable() && newTime > player.mediaPlayer().status().length())
                                 if (loop)
                                     newTime %= player.mediaPlayer().status().length();

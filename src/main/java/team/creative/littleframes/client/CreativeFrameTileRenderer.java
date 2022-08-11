@@ -21,13 +21,13 @@ import net.minecraft.util.SoundCategory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.client.display.FrameDisplay;
-import team.creative.littleframes.common.block.TileEntityCreativeFrame;
+import team.creative.littleframes.common.block.BECreativeFrame;
 
 @SideOnly(Side.CLIENT)
-public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEntityCreativeFrame> {
+public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<BECreativeFrame> {
     
     @Override
-    public void render(TileEntityCreativeFrame frame, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
+    public void render(BECreativeFrame frame, double x, double y, double z, float partialTicks, int destroyStage, float alpha) {
         if (frame.isURLEmpty() || frame.alpha == 0) {
             if (frame.display != null)
                 frame.display.release();
@@ -93,7 +93,7 @@ public class CreativeFrameTileRenderer extends TileEntitySpecialRenderer<TileEnt
     }
     
     @Override
-    public boolean isGlobalRenderer(TileEntityCreativeFrame te) {
+    public boolean isGlobalRenderer(BECreativeFrame te) {
         return te.getSizeX() > 16 || te.getSizeY() > 16;
     }
     

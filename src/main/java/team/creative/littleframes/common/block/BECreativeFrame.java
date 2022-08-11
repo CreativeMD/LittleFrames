@@ -3,24 +3,26 @@ package team.creative.littleframes.common.block;
 import javax.vecmath.Vector2f;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.tileentity.TileEntityCreative;
 import com.creativemd.creativecore.common.utils.math.RotationUtils;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.packet.CreativeFramePacket;
 
-public class TileEntityCreativeFrame extends TileEntityCreative implements ITickable {
+public class BECreativeFrame extends BlockEntity implements ITickable {
     
     private String url = "";
     public Vector2f min = new Vector2f(0, 0);
@@ -43,14 +45,24 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     public int tick = 0;
     public boolean playing = true;
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    public TextureCache cache;
+    
+    @OnlyIn(Dist.CLIENT)
+    public FrameDisplay display;
+    
+    public BECreativeFrame(BlockPos pos, BlockState state) {
+        super(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), pos, state);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public boolean isURLEmpty() {
         return url.isEmpty();
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getURL() {
-        return url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+        return url.replace("$(name)", Minecraft.getInstance().player.getDisplayName().getString()).replace("$(uuid)", Minecraft.getInstance().player.getStringUUID());
     }
     
     public String getRealURL() {
@@ -61,13 +73,6 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
         this.url = url;
     }
     
-    @SideOnly(Side.CLIENT)
-    public TextureCache cache;
-    
-    @SideOnly(Side.CLIENT)
-    public FrameDisplay display;
-    
-    @SideOnly(Side.CLIENT)
     public FrameDisplay requestDisplay() {
         String url = getURL();
         if (cache == null || !cache.url.equals(url)) {
@@ -85,7 +90,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     
     public AlignedBox getBox() {
         AlignedBox box = new AlignedBox();
-        EnumFacing facing = EnumFacing.getFront(getBlockMetadata());
+        Facing facing = Facing.getFront(getBlockMetadata());
         if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
             box.setMin(facing.getAxis(), 0F);
             box.setMax(facing.getAxis(), 0.031F);
@@ -120,13 +125,13 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public double getMaxRenderDistanceSquared() {
         return Math.pow(renderDistance, 2);
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public AxisAlignedBB getRenderBoundingBox() {
         return getBox().getBB(pos);
     }
@@ -215,7 +220,7 @@ public class TileEntityCreativeFrame extends TileEntityCreative implements ITick
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public void receiveUpdatePacket(NBTTagCompound nbt) {
         super.receiveUpdatePacket(nbt);
         readPictureNBT(nbt);

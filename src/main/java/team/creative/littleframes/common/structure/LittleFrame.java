@@ -1,48 +1,45 @@
 package team.creative.littleframes.common.structure;
 
-import javax.vecmath.Vector3f;
-
 import org.lwjgl.opengl.GL11;
 
 import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.VectorUtils;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
-import com.creativemd.creativecore.common.utils.math.box.BoxCorner;
-import com.creativemd.creativecore.common.utils.math.box.BoxFace;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
-import com.creativemd.littletiles.common.action.LittleActionException;
-import com.creativemd.littletiles.common.action.block.LittleActionActivated;
-import com.creativemd.littletiles.common.structure.LittleStructure;
-import com.creativemd.littletiles.common.structure.directional.StructureDirectional;
-import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
-import com.creativemd.littletiles.common.structure.relative.StructureRelative;
-import com.creativemd.littletiles.common.tile.LittleTile;
 import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.GlStateManager.CullFace;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
+import net.minecraft.core.BlockPos;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumFacing.Axis;
-import net.minecraft.util.EnumFacing.AxisDirection;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.box.BoxCorner;
+import team.creative.creativecore.common.util.math.box.BoxFace;
+import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.packet.LittleFramePacket;
+import team.creative.littletiles.common.action.LittleActionActivated;
+import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.common.structure.directional.StructureDirectional;
+import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class LittleFrame extends LittleStructure {
     
@@ -50,7 +47,7 @@ public class LittleFrame extends LittleStructure {
     public StructureRelative frame;
     
     @StructureDirectional
-    public EnumFacing facing;
+    public Facing facing;
     
     @StructureDirectional
     public Vector3f topRight;
@@ -228,9 +225,10 @@ public class LittleFrame extends LittleStructure {
         builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
         for (BoxCorner corner : face.corners)
             builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z))
-                
-                .tex(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
-                .endVertex();
+                    
+                    .tex(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
+                            .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
+                    .endVertex();
         tessellator.draw();
         
         GlStateManager.popMatrix();

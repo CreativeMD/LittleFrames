@@ -21,23 +21,23 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.texture.TextureSeeker;
-import team.creative.littleframes.common.block.TileEntityCreativeFrame;
+import team.creative.littleframes.common.block.BECreativeFrame;
 
 @SideOnly(Side.CLIENT)
 public class SubGuiCreativeFrame extends SubGui {
     
-    public TileEntityCreativeFrame frame;
+    public BECreativeFrame frame;
     
     public float scaleMultiplier;
     
     public GuiTextfield url;
     public GuiButton save;
     
-    public SubGuiCreativeFrame(TileEntityCreativeFrame frame) {
+    public SubGuiCreativeFrame(BECreativeFrame frame) {
         this(frame, false, 16);
     }
     
-    public SubGuiCreativeFrame(TileEntityCreativeFrame frame, boolean editFacing, int scaleSize) {
+    public SubGuiCreativeFrame(BECreativeFrame frame, boolean editFacing, int scaleSize) {
         super(200, editFacing ? 220 : 200);
         this.frame = frame;
         this.scaleMultiplier = 1F / (scaleSize);

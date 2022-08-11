@@ -2,45 +2,43 @@ package team.creative.littleframes.common.block;
 
 import java.util.ArrayList;
 
-import com.creativemd.creativecore.client.rendering.RenderBox;
 import com.creativemd.creativecore.client.rendering.model.ICreativeRendered;
 import com.creativemd.creativecore.common.block.TileEntityState;
 import com.creativemd.creativecore.common.gui.container.SubContainer;
 import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.opener.GuiHandler;
 import com.creativemd.creativecore.common.gui.opener.IGuiCreator;
-import com.creativemd.creativecore.common.utils.math.box.AlignedBox;
 
-import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.gui.SubGuiCreativeFrame;
 import team.creative.littleframes.common.container.SubContainerCreativeFrame;
 
-public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, ICreativeRendered {
+public class BlockCreativeFrame extends BaseEntityBlock implements IGuiCreator, ICreativeRendered {
     
     public static final PropertyDirection FACING = BlockDirectional.FACING;
     
@@ -93,7 +91,7 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
     /** Returns the blockstate with the given mirror of the passed blockstate. If inapplicable, returns the passed
      * blockstate. */
     @Override
-    public IBlockState withMirror(IBlockState state, Mirror mirrorIn) {
+    public BlockState withMirror(BlockState state, Mirror mirrorIn) {
         return state.withRotation(mirrorIn.toRotation(state.getValue(FACING)));
     }
     
@@ -129,8 +127,8 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
         TileEntity te = source.getTileEntity(pos);
-        if (te instanceof TileEntityCreativeFrame)
-            return ((TileEntityCreativeFrame) te).getBox().getBB();
+        if (te instanceof BECreativeFrame)
+            return ((BECreativeFrame) te).getBox().getBB();
         
         AlignedBox cube = new AlignedBox(0, 0, 0, 0.05F, 1, 1);
         EnumFacing direction = state.getValue(FACING);
@@ -146,23 +144,23 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
     
     @Override
     public TileEntity createNewTileEntity(World world, int meta) {
-        return new TileEntityCreativeFrame();
+        return new BECreativeFrame();
     }
     
     @Override
     @SideOnly(Side.CLIENT)
     public SubGui getGui(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
         TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityCreativeFrame)
-            return new SubGuiCreativeFrame((TileEntityCreativeFrame) te);
+        if (te instanceof BECreativeFrame)
+            return new SubGuiCreativeFrame((BECreativeFrame) te);
         return null;
     }
     
     @Override
     public SubContainer getContainer(EntityPlayer player, ItemStack stack, World world, BlockPos pos, IBlockState state) {
         TileEntity te = world.getTileEntity(pos);
-        if (te instanceof TileEntityCreativeFrame)
-            return new SubContainerCreativeFrame((TileEntityCreativeFrame) te, player);
+        if (te instanceof BECreativeFrame)
+            return new SubContainerCreativeFrame((BECreativeFrame) te, player);
         return null;
     }
     
@@ -171,10 +169,10 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
     public ArrayList<RenderBox> getRenderingCubes(IBlockState state, TileEntity te, ItemStack stack) {
         ArrayList<RenderBox> cubes = new ArrayList<RenderBox>();
         RenderBox cube = new RenderBox(0, 0, 0, 0.03F, 1, 1, Blocks.PLANKS);
-        if (te instanceof TileEntityCreativeFrame && ((TileEntityCreativeFrame) te).visibleFrame) {
+        if (te instanceof BECreativeFrame && ((BECreativeFrame) te).visibleFrame) {
             cube = new RenderBox(rotateCube(cube, state.getValue(FACING)), cube);
             cubes.add(cube);
-        } else if (!(te instanceof TileEntityCreativeFrame))
+        } else if (!(te instanceof BECreativeFrame))
             cubes.add(cube);
         return cubes;
     }
@@ -199,28 +197,28 @@ public class BlockCreativeFrame extends BlockContainer implements IGuiCreator, I
         double posZ = tempZ;
         
         switch (EnumFacing) {
-        case UP:
-            posX = -tempY;
-            posY = tempX;
-            break;
-        case DOWN:
-            posX = tempY;
-            posY = -tempX;
-            break;
-        case SOUTH:
-            posX = -tempZ;
-            posZ = tempX;
-            break;
-        case NORTH:
-            posX = tempZ;
-            posZ = -tempX;
-            break;
-        case WEST:
-            posX = -tempX;
-            posZ = -tempZ;
-            break;
-        default:
-            break;
+            case UP:
+                posX = -tempY;
+                posY = tempX;
+                break;
+            case DOWN:
+                posX = tempY;
+                posY = -tempX;
+                break;
+            case SOUTH:
+                posX = -tempZ;
+                posZ = tempX;
+                break;
+            case NORTH:
+                posX = tempZ;
+                posZ = -tempX;
+                break;
+            case WEST:
+                posX = -tempX;
+                posZ = -tempZ;
+                break;
+            default:
+                break;
         }
         return new Vec3d(posX, posY, posZ);
     }
