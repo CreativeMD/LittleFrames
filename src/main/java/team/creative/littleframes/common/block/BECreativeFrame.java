@@ -1,32 +1,36 @@
 package team.creative.littleframes.common.block;
 
-import javax.vecmath.Vector2f;
-
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.creativecore.common.utils.math.RotationUtils;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ITickable;
-import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.be.BlockEntityCreative;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
+import team.creative.creativecore.common.util.math.vec.Vec2f;
+import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.packet.CreativeFramePacket;
 
-public class BECreativeFrame extends BlockEntity implements ITickable {
+public class BECreativeFrame extends BlockEntityCreative {
+    
+    @OnlyIn(Dist.CLIENT)
+    public static String replaceVariables(String url) {
+        return url.replace("$(name)", Minecraft.getInstance().player.getDisplayName().getString()).replace("$(uuid)", Minecraft.getInstance().player.getStringUUID());
+    }
     
     private String url = "";
-    public Vector2f min = new Vector2f(0, 0);
-    public Vector2f max = new Vector2f(1, 1);
+    public Vec2f min = new Vec2f(0, 0);
+    public Vec2f max = new Vec2f(1, 1);
     
     public float rotation = 0;
     public boolean flipX = false;
@@ -62,7 +66,7 @@ public class BECreativeFrame extends BlockEntity implements ITickable {
     
     @OnlyIn(Dist.CLIENT)
     public String getURL() {
-        return url.replace("$(name)", Minecraft.getInstance().player.getDisplayName().getString()).replace("$(uuid)", Minecraft.getInstance().player.getStringUUID());
+        return replaceVariables(url);
     }
     
     public String getRealURL() {
@@ -89,25 +93,13 @@ public class BECreativeFrame extends BlockEntity implements ITickable {
     }
     
     public AlignedBox getBox() {
-        AlignedBox box = new AlignedBox();
-        Facing facing = Facing.getFront(getBlockMetadata());
-        if (facing.getAxisDirection() == AxisDirection.POSITIVE) {
-            box.setMin(facing.getAxis(), 0F);
-            box.setMax(facing.getAxis(), 0.031F);
-        } else {
-            box.setMin(facing.getAxis(), 0.969F);
-            box.setMax(facing.getAxis(), 1F);
-        }
-        Axis one;
-        Axis two;
+        Direction direction = getBlockState().getValue(BlockCreativeFrame.FACING);
+        Facing facing = Facing.get(direction);
+        AlignedBox box = BlockCreativeFrame.box(direction);
         
-        if (facing.getAxis() != Axis.Z) {
-            one = RotationUtils.getTwo(facing.getAxis());
-            two = RotationUtils.getOne(facing.getAxis());
-        } else {
-            one = RotationUtils.getOne(facing.getAxis());
-            two = RotationUtils.getTwo(facing.getAxis());
-        }
+        Axis one = facing.one();
+        Axis two = facing.two();
+        
         box.setMin(one, min.x);
         box.setMax(one, max.x);
         
@@ -126,127 +118,107 @@ public class BECreativeFrame extends BlockEntity implements ITickable {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public double getMaxRenderDistanceSquared() {
-        return Math.pow(renderDistance, 2);
+    public AABB getRenderBoundingBox() {
+        return getBox().getBB(getBlockPos());
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
-        return getBox().getBB(pos);
-    }
-    
-    @Override
-    public NBTTagCompound writeToNBT(NBTTagCompound nbt) {
-        nbt = super.writeToNBT(nbt);
-        writePictureNBT(nbt);
-        return nbt;
+    public void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
+        savePicture(nbt);
     }
     
     public void play() {
         playing = true;
-        PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
+        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
     public void pause() {
         playing = false;
-        PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
+        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        PacketHandler.sendPacketToTrackingPlayers(new CreativeFramePacket(pos, playing, tick), world, pos, null);
+        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
-    protected void writePictureNBT(NBTTagCompound nbt) {
-        nbt.setString("url", url);
-        nbt.setFloat("minx", min.x);
-        nbt.setFloat("miny", min.y);
-        nbt.setFloat("maxx", max.x);
-        nbt.setFloat("maxy", max.y);
-        nbt.setFloat("rotation", rotation);
-        nbt.setInteger("render", renderDistance);
-        nbt.setBoolean("visibleFrame", visibleFrame);
-        nbt.setBoolean("bothSides", bothSides);
-        nbt.setBoolean("flipX", flipX);
-        nbt.setBoolean("flipX", flipX);
-        nbt.setFloat("alpha", alpha);
-        nbt.setFloat("brightness", brightness);
+    protected void savePicture(CompoundTag nbt) {
+        nbt.putString("url", url);
+        nbt.putFloat("minx", min.x);
+        nbt.putFloat("miny", min.y);
+        nbt.putFloat("maxx", max.x);
+        nbt.putFloat("maxy", max.y);
+        nbt.putFloat("rotation", rotation);
+        nbt.putInt("render", renderDistance);
+        nbt.putBoolean("visibleFrame", visibleFrame);
+        nbt.putBoolean("bothSides", bothSides);
+        nbt.putBoolean("flipX", flipX);
+        nbt.putBoolean("flipX", flipX);
+        nbt.putFloat("alpha", alpha);
+        nbt.putFloat("brightness", brightness);
         
-        nbt.setFloat("volume", volume);
-        nbt.setBoolean("playing", playing);
-        nbt.setInteger("tick", tick);
-        nbt.setBoolean("loop", loop);
+        nbt.putFloat("volume", volume);
+        nbt.putBoolean("playing", playing);
+        nbt.putInt("tick", tick);
+        nbt.putBoolean("loop", loop);
     }
     
     @Override
-    public void readFromNBT(NBTTagCompound nbt) {
-        super.readFromNBT(nbt);
-        readPictureNBT(nbt);
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        loadPicture(nbt);
     }
     
-    protected void readPictureNBT(NBTTagCompound nbt) {
+    protected void loadPicture(CompoundTag nbt) {
         url = nbt.getString("url");
         min.x = nbt.getFloat("minx");
         min.y = nbt.getFloat("miny");
         max.x = nbt.getFloat("maxx");
         max.y = nbt.getFloat("maxy");
         rotation = nbt.getFloat("rotation");
-        renderDistance = nbt.getInteger("render");
+        renderDistance = nbt.getInt("render");
         visibleFrame = nbt.getBoolean("visibleFrame");
         bothSides = nbt.getBoolean("bothSides");
         flipX = nbt.getBoolean("flipX");
         flipX = nbt.getBoolean("flipX");
-        if (nbt.hasKey("alpha"))
+        if (nbt.contains("alpha"))
             alpha = nbt.getFloat("alpha");
         else
             alpha = 1;
-        if (nbt.hasKey("brightness"))
+        if (nbt.contains("brightness"))
             brightness = nbt.getFloat("brightness");
         else
             brightness = 1;
         
         volume = nbt.getFloat("volume");
         playing = nbt.getBoolean("playing");
-        tick = nbt.getInteger("tick");
+        tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");
     }
     
     @Override
-    public void getDescriptionNBT(NBTTagCompound nbt) {
-        super.getDescriptionNBT(nbt);
-        writePictureNBT(nbt);
+    public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
+        loadPicture(nbt);
+    }
+    
+    public static void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof BECreativeFrame be) {
+            if (be.playing)
+                be.tick++;
+        }
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public void receiveUpdatePacket(NBTTagCompound nbt) {
-        super.receiveUpdatePacket(nbt);
-        readPictureNBT(nbt);
-    }
-    
-    @Override
-    public NBTTagCompound getUpdateTag() {
-        return writeToNBT(new NBTTagCompound());
-    }
-    
-    @Override
-    public void update() {
-        if (playing)
-            tick++;
-    }
-    
-    @Override
-    public void invalidate() {
-        super.invalidate();
-        if (isClientSide() && display != null)
+    public void setRemoved() {
+        if (isClient() && display != null)
             display.release();
     }
     
     @Override
-    public void onChunkUnload() {
-        if (isClientSide() && display != null)
+    public void onChunkUnloaded() {
+        if (isClient() && display != null)
             display.release();
     }
 }

@@ -2,46 +2,52 @@ package team.creative.littleframes.common.structure;
 
 import org.lwjgl.opengl.GL11;
 
-import com.creativemd.creativecore.common.packet.PacketHandler;
-import com.creativemd.littletiles.client.gui.handler.LittleStructureGuiHandler;
-import com.creativemd.littletiles.common.tile.parent.IStructureTileList;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager.CullFace;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.world.World;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
+import team.creative.littleframes.client.gui.GuiLittleFrame;
 import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.common.block.BECreativeFrame;
 import team.creative.littleframes.common.packet.LittleFramePacket;
-import team.creative.littletiles.common.action.LittleActionActivated;
-import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public class LittleFrame extends LittleStructure {
+    
+    public static final LittleStructureGuiCreator GUI = GuiCreator
+            .register("little_frame", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittleFrame((LittleFrame) structure)));
     
     @StructureDirectional(color = ColorUtils.CYAN)
     public StructureRelative frame;
@@ -65,14 +71,24 @@ public class LittleFrame extends LittleStructure {
     public int tick = 0;
     public boolean playing = true;
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    public TextureCache cache;
+    
+    @OnlyIn(Dist.CLIENT)
+    public FrameDisplay display;
+    
+    public LittleFrame(LittleStructureType type, IStructureParentCollection mainBlock) {
+        super(type, mainBlock);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public boolean isURLEmpty() {
         return url.isEmpty();
     }
     
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public String getURL() {
-        return url.replace("$(name)", Minecraft.getMinecraft().player.getDisplayNameString()).replace("$(uuid)", Minecraft.getMinecraft().player.getCachedUniqueIdString());
+        return BECreativeFrame.replaceVariables(url);
     }
     
     public String getRealURL() {
@@ -83,13 +99,7 @@ public class LittleFrame extends LittleStructure {
         this.url = url;
     }
     
-    @SideOnly(Side.CLIENT)
-    public TextureCache cache;
-    
-    @SideOnly(Side.CLIENT)
-    public FrameDisplay display;
-    
-    @SideOnly(Side.CLIENT)
+    @OnlyIn(Dist.CLIENT)
     public FrameDisplay requestDisplay() {
         String url = getURL();
         if (cache == null || !cache.url.equals(url)) {
@@ -105,72 +115,73 @@ public class LittleFrame extends LittleStructure {
         return null;
     }
     
-    public LittleFrame(LittleStructureType type, IStructureTileList mainBlock) {
-        super(type, mainBlock);
-    }
-    
     public void play() {
         playing = true;
-        PacketHandler.sendPacketToTrackingPlayers(new LittleFramePacket(getStructureLocation(), playing, tick), getWorld(), getPos(), null);
+        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     public void pause() {
         playing = false;
-        PacketHandler.sendPacketToTrackingPlayers(new LittleFramePacket(getStructureLocation(), playing, tick), getWorld(), getPos(), null);
+        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        PacketHandler.sendPacketToTrackingPlayers(new LittleFramePacket(getStructureLocation(), playing, tick), getWorld(), getPos(), null);
+        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     @Override
-    protected void loadFromNBTExtra(NBTTagCompound nbt) {
+    protected void loadExtra(CompoundTag nbt) {
         url = nbt.getString("url");
-        if (nbt.hasKey("render"))
-            renderDistance = nbt.getInteger("render");
+        if (nbt.contains("render"))
+            renderDistance = nbt.getInt("render");
         else
             renderDistance = 64;
-        if (nbt.hasKey("alpha"))
+        if (nbt.contains("alpha"))
             alpha = nbt.getFloat("alpha");
         else
             alpha = 1;
-        if (nbt.hasKey("brightness"))
+        if (nbt.contains("brightness"))
             brightness = nbt.getFloat("brightness");
         else
             brightness = 1;
         
         volume = nbt.getFloat("volume");
         playing = nbt.getBoolean("playing");
-        tick = nbt.getInteger("tick");
+        tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");
-        fitMode = FitMode.values()[nbt.getInteger("fitMode")];
+        fitMode = FitMode.values()[nbt.getInt("fitMode")];
     }
     
     @Override
-    protected void writeToNBTExtra(NBTTagCompound nbt) {
-        nbt.setString("url", url);
-        nbt.setInteger("render", renderDistance);
-        nbt.setFloat("alpha", alpha);
-        nbt.setFloat("brightness", brightness);
+    protected void saveExtra(CompoundTag nbt) {
+        nbt.putString("url", url);
+        nbt.putInt("render", renderDistance);
+        nbt.putFloat("alpha", alpha);
+        nbt.putFloat("brightness", brightness);
         
-        nbt.setFloat("volume", volume);
-        nbt.setBoolean("playing", playing);
-        nbt.setInteger("tick", tick);
-        nbt.setBoolean("loop", loop);
-        nbt.setInteger("fitMode", fitMode.ordinal());
+        nbt.putFloat("volume", volume);
+        nbt.putBoolean("playing", playing);
+        nbt.putInt("tick", tick);
+        nbt.putBoolean("loop", loop);
+        nbt.putInt("fitMode", fitMode.ordinal());
     }
     
     @Override
-    public boolean onBlockActivated(World worldIn, LittleTile tile, BlockPos pos, EntityPlayer playerIn, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ, LittleActionActivated action) throws LittleActionException {
-        LittleStructureGuiHandler.openGui("little_frame", new NBTTagCompound(), playerIn, this);
+    public boolean canInteract() {
         return true;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public void renderTick(BlockPos pos, double x, double y, double z, float partialTickTime) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
+        GUI.open(player, this);
+        return InteractionResult.SUCCESS;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void renderTick(PoseStack pose, MultiBufferSource buffer, BlockPos pos, float partialTickTime) {
         if (isURLEmpty() || alpha == 0) {
             if (display != null)
                 display.release();
@@ -181,7 +192,7 @@ public class LittleFrame extends LittleStructure {
         if (display == null)
             return;
         
-        display.prepare(getURL(), volume * Minecraft.getMinecraft().gameSettings.getSoundLevel(SoundCategory.MASTER), playing, loop, tick);
+        display.prepare(getURL(), volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), playing, loop, tick);
         
         GlStateManager.enableBlend();
         OpenGlHelper.glBlendFunc(770, 771, 1, 0);
@@ -241,15 +252,15 @@ public class LittleFrame extends LittleStructure {
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public double getMaxRenderDistanceSquared() {
-        return Math.pow(renderDistance, 2);
+    @OnlyIn(Dist.CLIENT)
+    public double getMaxRenderDistance() {
+        return renderDistance;
     }
     
     @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox() {
-        return frame.getBox().getBox(frame.getContext());
+    @OnlyIn(Dist.CLIENT)
+    public AABB getRenderBoundingBox() {
+        return frame.getBox().getBB(frame.getGrid());
     }
     
     @Override
@@ -262,7 +273,7 @@ public class LittleFrame extends LittleStructure {
     @Override
     public void unload() {
         super.unload();
-        if (getWorld().isRemote && display != null)
+        if (getLevel().isClientSide && display != null)
             display.release();
     }
     

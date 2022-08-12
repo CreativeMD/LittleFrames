@@ -1,44 +1,63 @@
 package team.creative.littleframes.client.gui;
 
-import com.creativemd.creativecore.common.gui.container.SubGui;
 import com.creativemd.creativecore.common.gui.controls.gui.GuiAnalogeSlider;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiCheckBox;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiIconButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiLabel;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiStateButton;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiSteppedSlider;
-import com.creativemd.creativecore.common.gui.controls.gui.GuiTextfield;
-import com.creativemd.creativecore.common.utils.mc.ColorUtils;
 
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.texture.TextureSeeker;
 import team.creative.littleframes.common.structure.LittleFrame;
 
-@SideOnly(Side.CLIENT)
-public class SubGuiLittleFrame extends SubGui {
+public class GuiLittleFrame extends GuiLayer {
     
     public LittleFrame frame;
     
     public GuiTextfield url;
     public GuiButton save;
     
-    public SubGuiLittleFrame(LittleFrame frame) {
+    public final GuiSyncLocal<EndTag> PLAY = getSyncHolder().register("play", x -> frame.play());
+    public final GuiSyncLocal<EndTag> PAUSE = getSyncHolder().register("pause", x -> frame.pause());
+    public final GuiSyncLocal<EndTag> STOP = getSyncHolder().register("stop", x -> frame.stop());
+    
+    public final GuiSyncLocal<CompoundTag> SET_DATA = getSyncHolder().register("set_data", nbt -> {
+        String url = nbt.getString("url");
+        if (LittleFrames.CONFIG.canUse(getPlayer(), url)) {
+            frame.setURL(url);
+            frame.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInt("render"));
+            frame.fitMode = LittleFrame.FitMode.values()[nbt.getInt("fit")];
+            frame.loop = nbt.getBoolean("loop");
+            frame.volume = nbt.getFloat("volume");
+            frame.alpha = nbt.getFloat("transparency");
+            frame.brightness = nbt.getFloat("brightness");
+        }
+        
+        frame.updateStructure();
+    });
+    
+    public GuiLittleFrame(LittleFrame frame) {
         this(frame, false, 16);
     }
     
-    public SubGuiLittleFrame(LittleFrame frame, boolean editFacing, int scaleSize) {
-        super(200, editFacing ? 220 : 200);
+    public GuiLittleFrame(LittleFrame frame, boolean editFacing, int scaleSize) {
+        super("little_frame", 200, editFacing ? 220 : 200);
         this.frame = frame;
     }
     
     @Override
-    public void createControls() {
+    public void create() {
         save = new GuiButton(translate("gui.creative_frame.save"), 144, 180, 50) {
             @Override
             public void onClicked(int x, int y, int button) {

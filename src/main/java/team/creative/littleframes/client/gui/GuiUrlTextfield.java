@@ -1,52 +1,63 @@
 package team.creative.littleframes.client.gui;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import com.creativemd.creativecore.common.gui.client.style.ColoredDisplayStyle;
-import com.google.common.collect.Lists;
-
-import net.minecraft.client.resources.language.I18n;
-import net.minecraft.util.text.TextFormatting;
-import team.creative.creativecore.client.render.GuiRenderHelper;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.style.GuiStyle;
+import team.creative.creativecore.common.gui.style.display.DisplayColor;
+import team.creative.creativecore.common.gui.style.display.StyleDisplay;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
-    public static final GuiStyle DISABLED = new GuiStyle("disabled", new ColoredDisplayStyle(50, 0, 0), new ColoredDisplayStyle(150, 90, 90), new ColoredDisplayStyle(180, 100, 100), new ColoredDisplayStyle(220, 198, 198), new ColoredDisplayStyle(50, 0, 0, 100));
-    public static final GuiStyle WARNING = new GuiStyle("warning", new ColoredDisplayStyle(50, 50, 0), new ColoredDisplayStyle(150, 150, 90), new ColoredDisplayStyle(180, 180, 100), new ColoredDisplayStyle(220, 220, 198), new ColoredDisplayStyle(50, 50, 0, 100));
+    
+    public static final StyleDisplay DISABLED_BORDER = new DisplayColor(50, 0, 0, 255);
+    public static final StyleDisplay DISABLED_BACKGROUND = new DisplayColor(150, 90, 90, 255);
+    
+    public static final StyleDisplay WARNING_BORDER = new DisplayColor(50, 0, 0, 255);
+    public static final StyleDisplay WARNING_BACKGROUND = new DisplayColor(150, 150, 90, 255);
+    
     private GuiButton saveButton;
     
-    public GuiUrlTextfield(GuiButton saveButton, String name, String text, int x, int y, int width, int height) {
-        super(name, text, x, y, width, height);
+    public GuiUrlTextfield(GuiButton saveButton, String name, String text) {
+        super(name, text);
         this.saveButton = saveButton;
     }
     
     @Override
-    protected void renderBackground(GuiRenderHelper helper, Style style) {
+    public StyleDisplay getBorder(GuiStyle style, StyleDisplay display) {
         if (!canUse(true))
-            style = LittleFrames.CONFIG.whitelistEnabled ? DISABLED : WARNING;
-        super.renderBackground(helper, style);
+            return LittleFrames.CONFIG.whitelistEnabled ? DISABLED_BORDER : WARNING_BORDER;
+        return super.getBorder(style, display);
     }
     
     @Override
-    public boolean onKeyPressed(char character, int key) {
-        boolean pressed = super.onKeyPressed(character, key);
+    public StyleDisplay getBackground(GuiStyle style, StyleDisplay display) {
+        if (!canUse(true))
+            return LittleFrames.CONFIG.whitelistEnabled ? DISABLED_BACKGROUND : WARNING_BACKGROUND;
+        return super.getBackground(style, display);
+    }
+    
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        boolean pressed = super.keyPressed(keyCode, scanCode, modifiers);
         saveButton.setEnabled(canUse(false));
         return pressed;
     }
     
     @Override
-    public ArrayList<String> getTooltip() {
+    public List<Component> getTooltip() {
         if (!canUse(false))
-            return Lists.newArrayList(TextFormatting.RED.toString() + TextFormatting.BOLD.toString() + I18n.translateToLocal("label.littleframes.not_whitelisted.name"));
+            return new TextBuilder().text(ChatFormatting.RED + "" + ChatFormatting.BOLD).translate("label.littleframes.not_whitelisted.name").build();
         else if (!canUse(true))
-            return Lists.newArrayList(TextFormatting.GOLD + I18n.translateToLocal("label.littleframes.whitelist_warning.name"));
-        return Lists.newArrayList();
+            return new TextBuilder().text(ChatFormatting.GOLD + "").translate("label.littleframes.whitelist_warning.name").build();
+        return null;
     }
     
     protected boolean canUse(boolean ignoreToggle) {
-        return LittleFrames.CONFIG.canUse(mc.player, text, ignoreToggle);
+        return LittleFrames.CONFIG.canUse(getPlayer(), getText(), ignoreToggle);
     }
 }

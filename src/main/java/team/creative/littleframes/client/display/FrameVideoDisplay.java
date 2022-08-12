@@ -10,7 +10,7 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
-import team.creative.creativecore.common.util.mc.TickUtils;
+import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.littleframes.client.texture.TextureCache;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -123,13 +123,13 @@ public class FrameVideoDisplay extends FrameDisplay {
                     player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
             } else {
                 if (player.mediaPlayer().status().length() > 0) {
-                    long time = tick * tickTime + (realPlaying ? (long) (TickUtils.getFrameTimeClient() * tickTime) : 0);
+                    long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
                     if (player.mediaPlayer().status().isSeekable() && time > player.mediaPlayer().status().time())
                         if (loop)
                             time %= player.mediaPlayer().status().length();
                     if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME)
                         player.mediaPlayer().submit(() -> {
-                            long newTime = tick * tickTime + (realPlaying ? (long) (TickUtils.getFrameTimeClient() * tickTime) : 0);
+                            long newTime = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
                             if (player.mediaPlayer().status().isSeekable() && newTime > player.mediaPlayer().status().length())
                                 if (loop)
                                     newTime %= player.mediaPlayer().status().length();
