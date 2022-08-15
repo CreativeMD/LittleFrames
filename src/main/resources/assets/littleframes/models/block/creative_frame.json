@@ -1,4 +1,5 @@
 {
     "loader": "creativecore:rendered",
-    "block": "littleframes:creative_frame"
+    "block": "littleframes:creative_frame",
+    "item": "littleframes:creative_frame"
 }

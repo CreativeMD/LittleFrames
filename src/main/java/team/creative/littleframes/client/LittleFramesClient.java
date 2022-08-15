@@ -5,10 +5,13 @@ import java.util.List;
 
 import org.jetbrains.annotations.NotNull;
 
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -23,6 +26,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
+import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.texture.TextureCache;
@@ -40,6 +44,15 @@ public class LittleFramesClient {
         MinecraftForge.EVENT_BUS.register(TextureCache.class);
         
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
+        
+        CreativeCoreClient
+                .registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_frame"), new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
+                    
+                    @Override
+                    public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {
+                        return Collections.singletonList(new RenderBox(0, 0, 0, BlockCreativeFrame.frameThickness, 1, 1, Blocks.OAK_PLANKS));
+                    }
+                });
         
         CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_frame"), new CreativeBlockModel() {
             
