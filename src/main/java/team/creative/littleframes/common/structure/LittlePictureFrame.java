@@ -35,10 +35,10 @@ import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
-import team.creative.littleframes.client.gui.GuiLittleFrame;
+import team.creative.littleframes.client.gui.GuiLittlePictureFrame;
 import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.common.block.BECreativeFrame;
-import team.creative.littleframes.common.packet.LittleFramePacket;
+import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.packet.LittlePictureFramePacket;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
@@ -47,10 +47,10 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
-public class LittleFrame extends LittleStructure {
+public class LittlePictureFrame extends LittleStructure {
     
     public static final LittleStructureGuiCreator GUI = GuiCreator
-            .register("little_frame", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittleFrame((LittleFrame) structure)));
+            .register("little_frame", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittlePictureFrame((LittlePictureFrame) structure)));
     
     @StructureDirectional(color = ColorUtils.CYAN)
     public StructureRelative frame;
@@ -80,7 +80,7 @@ public class LittleFrame extends LittleStructure {
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay display;
     
-    public LittleFrame(LittleStructureType type, IStructureParentCollection mainBlock) {
+    public LittlePictureFrame(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
     
@@ -91,7 +91,7 @@ public class LittleFrame extends LittleStructure {
     
     @OnlyIn(Dist.CLIENT)
     public String getURL() {
-        return BECreativeFrame.replaceVariables(url);
+        return BECreativePictureFrame.replaceVariables(url);
     }
     
     public String getRealURL() {
@@ -120,18 +120,18 @@ public class LittleFrame extends LittleStructure {
     
     public void play() {
         playing = true;
-        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     public void pause() {
         playing = false;
-        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        LittleFrames.NETWORK.sendToClient(new LittleFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
     }
     
     @Override

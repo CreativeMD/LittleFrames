@@ -30,8 +30,8 @@ import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.common.block.BECreativeFrame;
-import team.creative.littleframes.common.block.BlockCreativeFrame;
+import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleFramesClient {
@@ -46,15 +46,15 @@ public class LittleFramesClient {
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
         CreativeCoreClient
-                .registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_frame"), new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
+                .registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"), new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
                     
                     @Override
                     public List<? extends RenderBox> getBoxes(ItemStack stack, RenderType layer) {
-                        return Collections.singletonList(new RenderBox(0, 0, 0, BlockCreativeFrame.frameThickness, 1, 1, Blocks.OAK_PLANKS));
+                        return Collections.singletonList(new RenderBox(0, 0, 0, BlockCreativePictureFrame.frameThickness, 1, 1, Blocks.OAK_PLANKS));
                     }
                 });
         
-        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_frame"), new CreativeBlockModel() {
+        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"), new CreativeBlockModel() {
             
             public final ModelProperty<Boolean> visibility = new ModelProperty<>();
             public final ModelData visible = ModelData.builder().with(visibility, true).build();
@@ -63,7 +63,7 @@ public class LittleFramesClient {
             @Override
             public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
                 BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof BECreativeFrame frame)
+                if (be instanceof BECreativePictureFrame frame)
                     return frame.visibleFrame ? visible : invisible;
                 return visible;
             }
@@ -72,12 +72,12 @@ public class LittleFramesClient {
             public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
                 if (!data.get(visibility))
                     return Collections.EMPTY_LIST;
-                RenderBox box = new RenderBox(BlockCreativeFrame.box(state.getValue(BlockCreativeFrame.FACING)), Blocks.OAK_PLANKS);
+                RenderBox box = new RenderBox(BlockCreativePictureFrame.box(state.getValue(BlockCreativePictureFrame.FACING)), Blocks.OAK_PLANKS);
                 return Collections.singletonList(box);
             }
         });
         
-        BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativeFrameRenderer());
+        BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativePictureFrameRenderer());
     }
     
 }

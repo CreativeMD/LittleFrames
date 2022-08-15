@@ -1,5 +1,5 @@
 {
-    "block.creative_frame": "Creative Frame",
+    "block.littleframes.creative_pic_frame": "Creative Picture Frame",
     "label.littleframes.not_whitelisted": "URL not whitelisted, cannot save",
     "label.littleframes.whitelist_warning": "Warning: URL Whitelist not enabled",
     "gui.creative_frame.flipx": "flip (x-axis)",

@@ -24,24 +24,24 @@ import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.littleframes.client.display.FrameDisplay;
-import team.creative.littleframes.common.block.BECreativeFrame;
-import team.creative.littleframes.common.block.BlockCreativeFrame;
+import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
 @OnlyIn(Dist.CLIENT)
-public class CreativeFrameRenderer implements BlockEntityRenderer<BECreativeFrame> {
+public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreativePictureFrame> {
     
     @Override
-    public boolean shouldRenderOffScreen(BECreativeFrame frame) {
+    public boolean shouldRenderOffScreen(BECreativePictureFrame frame) {
         return frame.getSizeX() > 16 || frame.getSizeY() > 16;
     }
     
     @Override
-    public boolean shouldRender(BECreativeFrame frame, Vec3 vec) {
+    public boolean shouldRender(BECreativePictureFrame frame, Vec3 vec) {
         return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, frame.renderDistance);
     }
     
     @Override
-    public void render(BECreativeFrame frame, float partialTicks, PoseStack pose, MultiBufferSource buffer, int p_112311_, int p_112312_) {
+    public void render(BECreativePictureFrame frame, float partialTicks, PoseStack pose, MultiBufferSource buffer, int p_112311_, int p_112312_) {
         if (frame.isURLEmpty() || frame.alpha == 0) {
             if (frame.display != null)
                 frame.display.release();
@@ -65,7 +65,7 @@ public class CreativeFrameRenderer implements BlockEntityRenderer<BECreativeFram
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         
-        Facing facing = Facing.get(frame.getBlockState().getValue(BlockCreativeFrame.FACING));
+        Facing facing = Facing.get(frame.getBlockState().getValue(BlockCreativePictureFrame.FACING));
         AlignedBox box = frame.getBox();
         box.grow(facing.axis, 0.01F);
         BoxFace face = BoxFace.get(facing);

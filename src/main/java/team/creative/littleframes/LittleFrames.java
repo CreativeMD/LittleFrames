@@ -13,9 +13,9 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littleframes.client.LittleFramesClient;
-import team.creative.littleframes.common.packet.CreativeFramePacket;
-import team.creative.littleframes.common.packet.LittleFramePacket;
-import team.creative.littleframes.common.structure.LittleFrame;
+import team.creative.littleframes.common.packet.CreativePictureFramePacket;
+import team.creative.littleframes.common.packet.LittlePictureFramePacket;
+import team.creative.littleframes.common.structure.LittlePictureFrame;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
@@ -42,12 +42,12 @@ public class LittleFrames {
     private void init(final FMLCommonSetupEvent event) {
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleFramesConfig());
         
-        NETWORK.registerType(CreativeFramePacket.class, CreativeFramePacket::new);
+        NETWORK.registerType(CreativePictureFramePacket.class, CreativePictureFramePacket::new);
         
         if (ModList.get().isLoaded("littletiles")) {
-            NETWORK.registerType(LittleFramePacket.class, LittleFramePacket::new);
+            NETWORK.registerType(LittlePictureFramePacket.class, LittlePictureFramePacket::new);
             LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry
-                    .register("little_frame", LittleFrame.class, LittleFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
+                    .register("little_picture_frame", LittlePictureFrame.class, LittlePictureFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
         }
     }
 }

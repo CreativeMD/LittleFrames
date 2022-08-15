@@ -28,12 +28,12 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.texture.TextureSeeker;
-import team.creative.littleframes.common.structure.LittleFrame;
-import team.creative.littleframes.common.structure.LittleFrame.FitMode;
+import team.creative.littleframes.common.structure.LittlePictureFrame;
+import team.creative.littleframes.common.structure.LittlePictureFrame.FitMode;
 
-public class GuiLittleFrame extends GuiLayer {
+public class GuiLittlePictureFrame extends GuiLayer {
     
-    public LittleFrame frame;
+    public LittlePictureFrame frame;
     
     public GuiTextfield url;
     
@@ -46,7 +46,7 @@ public class GuiLittleFrame extends GuiLayer {
         if (LittleFrames.CONFIG.canUse(getPlayer(), url)) {
             frame.setURL(url);
             frame.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInt("render"));
-            frame.fitMode = LittleFrame.FitMode.values()[nbt.getInt("fit")];
+            frame.fitMode = LittlePictureFrame.FitMode.values()[nbt.getInt("fit")];
             frame.loop = nbt.getBoolean("loop");
             frame.volume = nbt.getFloat("volume");
             frame.alpha = nbt.getFloat("transparency");
@@ -56,7 +56,7 @@ public class GuiLittleFrame extends GuiLayer {
         frame.updateStructure();
     });
     
-    public GuiLittleFrame(LittleFrame frame) {
+    public GuiLittlePictureFrame(LittlePictureFrame frame) {
         super("little_frame");
         this.frame = frame;
     }

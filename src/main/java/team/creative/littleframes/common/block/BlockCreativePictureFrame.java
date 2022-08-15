@@ -33,9 +33,9 @@ import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.client.gui.GuiCreativeFrame;
+import team.creative.littleframes.client.gui.GuiCreativePictureFrame;
 
-public class BlockCreativeFrame extends BaseEntityBlock implements BlockGuiCreator {
+public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockGuiCreator {
     
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final float frameThickness = 0.031F;
@@ -50,7 +50,7 @@ public class BlockCreativeFrame extends BaseEntityBlock implements BlockGuiCreat
         return box;
     }
     
-    public BlockCreativeFrame() {
+    public BlockCreativePictureFrame() {
         super(BlockBehaviour.Properties.of(Material.WOOD).explosionResistance(2.5F).destroyTime(2.0F).noOcclusion());
     }
     
@@ -103,19 +103,19 @@ public class BlockCreativeFrame extends BaseEntityBlock implements BlockGuiCreat
     
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return BECreativeFrame::serverTick;
+        return BECreativePictureFrame::serverTick;
     }
     
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return new BECreativeFrame(pos, state);
+        return new BECreativePictureFrame(pos, state);
     }
     
     @Override
     public GuiLayer create(CompoundTag nbt, Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof BECreativeFrame frame)
-            return new GuiCreativeFrame(frame);
+        if (be instanceof BECreativePictureFrame frame)
+            return new GuiCreativePictureFrame(frame);
         return null;
     }
     

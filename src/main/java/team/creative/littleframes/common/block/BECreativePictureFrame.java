@@ -19,9 +19,9 @@ import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.common.packet.CreativeFramePacket;
+import team.creative.littleframes.common.packet.CreativePictureFramePacket;
 
-public class BECreativeFrame extends BlockEntityCreative {
+public class BECreativePictureFrame extends BlockEntityCreative {
     
     @OnlyIn(Dist.CLIENT)
     public static String replaceVariables(String url) {
@@ -55,7 +55,7 @@ public class BECreativeFrame extends BlockEntityCreative {
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay display;
     
-    public BECreativeFrame(BlockPos pos, BlockState state) {
+    public BECreativePictureFrame(BlockPos pos, BlockState state) {
         super(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), pos, state);
     }
     
@@ -93,9 +93,9 @@ public class BECreativeFrame extends BlockEntityCreative {
     }
     
     public AlignedBox getBox() {
-        Direction direction = getBlockState().getValue(BlockCreativeFrame.FACING);
+        Direction direction = getBlockState().getValue(BlockCreativePictureFrame.FACING);
         Facing facing = Facing.get(direction);
-        AlignedBox box = BlockCreativeFrame.box(direction);
+        AlignedBox box = BlockCreativePictureFrame.box(direction);
         
         Axis one = facing.one();
         Axis two = facing.two();
@@ -135,18 +135,18 @@ public class BECreativeFrame extends BlockEntityCreative {
     
     public void play() {
         playing = true;
-        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
+        LittleFrames.NETWORK.sendToClient(new CreativePictureFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
     public void pause() {
         playing = false;
-        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
+        LittleFrames.NETWORK.sendToClient(new CreativePictureFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        LittleFrames.NETWORK.sendToClient(new CreativeFramePacket(worldPosition, playing, tick), level, worldPosition);
+        LittleFrames.NETWORK.sendToClient(new CreativePictureFramePacket(worldPosition, playing, tick), level, worldPosition);
     }
     
     protected void savePicture(CompoundTag nbt) {
@@ -209,7 +209,7 @@ public class BECreativeFrame extends BlockEntityCreative {
     }
     
     public static void serverTick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (blockEntity instanceof BECreativeFrame be) {
+        if (blockEntity instanceof BECreativePictureFrame be) {
             if (be.playing)
                 be.tick++;
         }

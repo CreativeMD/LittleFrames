@@ -10,8 +10,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
-import team.creative.littleframes.common.block.BECreativeFrame;
-import team.creative.littleframes.common.block.BlockCreativeFrame;
+import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
 public class LittleFramesRegistry {
     
@@ -23,7 +23,7 @@ public class LittleFramesRegistry {
     
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, LittleFrames.MODID);
     
-    public static final RegistryObject<Block> CREATIVE_FRAME = register("creative_frame", () -> new BlockCreativeFrame());
+    public static final RegistryObject<Block> CREATIVE_PICTURE_FRAME = register("creative_pic_frame", () -> new BlockCreativePictureFrame());
     
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
         RegistryObject<T> ret = BLOCKS.register(name, sup);
@@ -35,7 +35,7 @@ public class LittleFramesRegistry {
     
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LittleFrames.MODID);
     
-    public static final RegistryObject<BlockEntityType<BECreativeFrame>> BE_CREATIVE_FRAME = BLOCK_ENTITIES
-            .register("creative_frame", () -> BlockEntityType.Builder.of(BECreativeFrame::new, CREATIVE_FRAME.get()).build(null));
+    public static final RegistryObject<BlockEntityType<BECreativePictureFrame>> BE_CREATIVE_FRAME = BLOCK_ENTITIES
+            .register("creative_pic_frame", () -> BlockEntityType.Builder.of(BECreativePictureFrame::new, CREATIVE_PICTURE_FRAME.get()).build(null));
     
 }
