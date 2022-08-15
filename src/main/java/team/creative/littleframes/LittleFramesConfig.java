@@ -34,7 +34,7 @@ public class LittleFramesConfig {
     public boolean whitelistEnabled = false;
     
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
-    public boolean useVLC = true;
+    public boolean useVLC = false;
     
     @CreativeConfig
     public List<String> whitelist = Arrays

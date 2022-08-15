@@ -1,0 +1,20 @@
+modLoader="javafml"
+loaderVersion="[24,)"
+issueTrackerURL="https://github.com/CreativeMD/LittleFrames/issues"
+logoFile="littleframes.png"
+license="GNU General Public License v3.0"
+
+[[mods]]
+	modId="littleframes"
+	version="${file.jarVersion}"
+	displayName="LittleFrames"
+	displayURL="https://minecraft.curseforge.com/projects/littleframes"
+	authors="CreativeMD"
+	description='''#ShowItIngame'''
+
+[[dependencies.littleframes]]
+	modId="creativecore"
+	mandatory=true
+	ordering="NONE"
+	side="BOTH"
+	versionRange="[2.5.0,)"

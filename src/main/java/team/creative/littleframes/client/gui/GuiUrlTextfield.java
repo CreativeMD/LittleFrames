@@ -14,11 +14,11 @@ import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
     
-    public static final StyleDisplay DISABLED_BORDER = new DisplayColor(50, 0, 0, 255);
-    public static final StyleDisplay DISABLED_BACKGROUND = new DisplayColor(150, 90, 90, 255);
+    public static final StyleDisplay DISABLED_BORDER = new DisplayColor(0.196F, 0, 0, 1);
+    public static final StyleDisplay DISABLED_BACKGROUND = new DisplayColor(0.588F, 0.352F, 0.352F, 1);
     
-    public static final StyleDisplay WARNING_BORDER = new DisplayColor(50, 0, 0, 255);
-    public static final StyleDisplay WARNING_BACKGROUND = new DisplayColor(150, 150, 90, 255);
+    public static final StyleDisplay WARNING_BORDER = new DisplayColor(0.196F, 0, 0, 1);
+    public static final StyleDisplay WARNING_BACKGROUND = new DisplayColor(0.588F, 0.588F, 0.352F, 1);
     
     private GuiButton saveButton;
     

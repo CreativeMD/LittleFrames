@@ -27,6 +27,7 @@ import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.block.BECreativeFrame;
+import team.creative.littleframes.common.block.BlockCreativeFrame;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleFramesClient {
@@ -37,6 +38,8 @@ public class LittleFramesClient {
     
     public static void setup(FMLClientSetupEvent event) {
         MinecraftForge.EVENT_BUS.register(TextureCache.class);
+        
+        CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
         CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_frame"), new CreativeBlockModel() {
             
@@ -56,7 +59,7 @@ public class LittleFramesClient {
             public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
                 if (!data.get(visibility))
                     return Collections.EMPTY_LIST;
-                RenderBox box = new RenderBox(0, 0, 0, 0, 0, 0, Blocks.OAK_PLANKS);
+                RenderBox box = new RenderBox(BlockCreativeFrame.box(state.getValue(BlockCreativeFrame.FACING)), Blocks.OAK_PLANKS);
                 return Collections.singletonList(box);
             }
         });

@@ -3,16 +3,18 @@ package team.creative.littleframes.common.structure;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+import com.mojang.math.Matrix4f;
 import com.mojang.math.Vector3f;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GlStateManager.CullFace;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
@@ -24,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
@@ -108,11 +111,11 @@ public class LittleFrame extends LittleStructure {
                 display.release();
             display = null;
         }
+        if (!cache.ready() || cache.getError() != null)
+            return null;
         if (display != null)
             return display;
-        if (cache.ready())
-            return display = cache.createDisplay(url, volume, loop);
-        return null;
+        return display = cache.createDisplay(url, volume, loop);
     }
     
     public void play() {
@@ -194,28 +197,23 @@ public class LittleFrame extends LittleStructure {
         
         display.prepare(getURL(), volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), playing, loop, tick);
         
-        GlStateManager.enableBlend();
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        GlStateManager.disableLighting();
-        GlStateManager.color(brightness, brightness, brightness, alpha);
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableBlend();
+        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.setShaderColor(brightness, brightness, brightness, alpha);
         int texture = display.texture();
+        RenderSystem.bindTexture(texture);
+        RenderSystem.setShaderTexture(0, texture);
         
-        GlStateManager.cullFace(CullFace.BACK);
-        GlStateManager.bindTexture(texture);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
-        GlStateManager.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
-        
-        GlStateManager.pushMatrix();
-        
-        GlStateManager.translate(x, y, z);
-        
-        AlignedBox box = frame.getBox().getCube(frame.getContext());
+        AlignedBox box = frame.getBox().getBox(frame.getGrid());
         BoxFace face = BoxFace.get(facing);
-        if (facing.getAxisDirection() == AxisDirection.POSITIVE)
-            box.setMax(facing.getAxis(), box.getMin(facing.getAxis()) + 0.01F);
+        if (facing.positive)
+            box.setMax(facing.axis, box.getMin(facing.axis) + 0.01F);
         else
-            box.setMin(facing.getAxis(), box.getMax(facing.getAxis()) - 0.01F);
+            box.setMin(facing.axis, box.getMax(facing.axis) - 0.01F);
         Axis uAxis = face.getTexUAxis();
         Axis vAxis = face.getTexVAxis();
         if (fitMode == FitMode.CROP) {
@@ -229,26 +227,15 @@ public class LittleFrame extends LittleStructure {
                 box.shrink(vAxis, height - width / videoRatio);
         }
         
-        GlStateManager.enableRescaleNormal();
-        
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder builder = tessellator.getBuffer();
-        builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
+        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder builder = tesselator.getBuilder();
+        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        Matrix4f mat = pose.last().pose();
         for (BoxCorner corner : face.corners)
-            builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z))
-                    
-                    .tex(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
-                            .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
-                    .endVertex();
-        tessellator.draw();
-        
-        GlStateManager.popMatrix();
-        
-        GlStateManager.cullFace(CullFace.BACK);
-        
-        GlStateManager.disableRescaleNormal();
-        GlStateManager.disableBlend();
-        GlStateManager.enableLighting();
+            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
+                    .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0).endVertex();
+        tesselator.end();
     }
     
     @Override

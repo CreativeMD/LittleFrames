@@ -33,16 +33,21 @@ public class LittleFrames {
     public LittleFrames() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
         DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LittleFramesClient.load(FMLJavaModLoadingContext.get().getModEventBus()));
+        
+        LittleFramesRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleFramesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleFramesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
     
     private void init(final FMLCommonSetupEvent event) {
         CreativeConfigRegistry.ROOT.registerValue(MODID, CONFIG = new LittleFramesConfig());
         
         NETWORK.registerType(CreativeFramePacket.class, CreativeFramePacket::new);
-        NETWORK.registerType(LittleFramePacket.class, LittleFramePacket::new);
         
-        if (ModList.get().isLoaded("littletiles"))
+        if (ModList.get().isLoaded("littletiles")) {
+            NETWORK.registerType(LittleFramePacket.class, LittleFramePacket::new);
             LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry
                     .register("little_frame", LittleFrame.class, LittleFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
+        }
     }
 }

@@ -12,6 +12,7 @@ import org.lwjgl.opengl.GL12;
 
 import com.madgag.gif.fmsware.GifDecoder;
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
@@ -253,8 +254,8 @@ public class TextureCache {
         }
         buffer.flip();
         
-        int textureID = GL11.glGenTextures(); //Generate texture ID
-        GL11.glBindTexture(GL11.GL_TEXTURE_2D, textureID); //Bind texture ID
+        int textureID = GlStateManager._genTexture(); //Generate texture ID
+        RenderSystem.bindTexture(textureID); //Bind texture ID
         
         //Setup wrap mode
         GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);

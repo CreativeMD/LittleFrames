@@ -69,7 +69,7 @@ public class TextureSeeker extends Thread {
                     GifDecoder gif = new GifDecoder();
                     int status = gif.read(in);
                     if (status == GifDecoder.STATUS_OK) {
-                        mc.doRunTask(() -> cache.process(gif));
+                        mc.executeBlocking(() -> cache.process(gif));
                         processed = true;
                     } else {
                         LOGGER.error("Failed to read gif: {}", status);
@@ -78,7 +78,7 @@ public class TextureSeeker extends Thread {
                     try {
                         BufferedImage image = ImageIO.read(in);
                         if (image != null) {
-                            mc.doRunTask(() -> cache.process(image));
+                            mc.executeBlocking(() -> cache.process(image));
                             processed = true;
                         }
                     } catch (IOException e1) {
@@ -90,8 +90,11 @@ public class TextureSeeker extends Thread {
                 IOUtils.closeQuietly(in);
             }
         } catch (FoundVideoException e) {
-            cache.processFailed(null);
-            isVideo = true;
+            if (LittleFrames.CONFIG.useVLC) {
+                cache.processFailed(null);
+                isVideo = true;
+            } else
+                exception = e;
         } catch (Exception e) {
             exception = e;
             LOGGER.error("An exception occurred while loading LittleFrames image", e);
@@ -99,6 +102,8 @@ public class TextureSeeker extends Thread {
         if (!isVideo && !processed) {
             if (exception == null)
                 cache.processFailed("download.exception.gif");
+            else if (exception instanceof FoundVideoException)
+                cache.processFailed("No image found");
             else if (exception.getMessage().startsWith("Server returned HTTP response code: 403"))
                 cache.processFailed("download.exception.forbidden");
             else if (exception.getMessage().startsWith("Server returned HTTP response code: 404"))

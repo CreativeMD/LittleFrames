@@ -103,7 +103,7 @@ public class GuiCreativeFrame extends GuiLayer {
     public void create() {
         GuiButton save = new GuiButton("save", x -> {
             CompoundTag nbt = new CompoundTag();
-            GuiTextfield url = (GuiTextfield) get("url");
+            GuiTextfield url = get("url", GuiTextfield.class);
             GuiCounterDecimal sizeX = get("sizeX", GuiCounterDecimal.class);
             GuiCounterDecimal sizeY = get("sizeY", GuiCounterDecimal.class);
             
@@ -116,7 +116,7 @@ public class GuiCreativeFrame extends GuiLayer {
             GuiCheckBox visibleFrame = (GuiCheckBox) get("visibleFrame");
             GuiCheckBox bothSides = (GuiCheckBox) get("bothSides");
             
-            GuiSteppedSlider renderDistance = (GuiSteppedSlider) get("renderDistance");
+            GuiSteppedSlider renderDistance = get("distance", GuiSteppedSlider.class);
             
             GuiSlider transparency = get("transparency", GuiSlider.class);
             GuiSlider brightness = get("brightness", GuiSlider.class);
@@ -226,9 +226,9 @@ public class GuiCreativeFrame extends GuiLayer {
         add(align);
         
         align.add(new GuiStateButton("posX", frame.min.x == 0 ? 0 : frame.max.x == 1 ? 2 : 1, new TextListBuilder()
-                .addTranslated("gui.creative_frame.posX.", "left", "center", "right")));
+                .addTranslated("gui.creative_frame.posx.", "left", "center", "right")));
         align.add(new GuiStateButton("posY", frame.min.y == 0 ? 0 : frame.max.y == 1 ? 2 : 1, new TextListBuilder()
-                .addTranslated("gui.creative_frame.posY.", "top", "center", "bottom")));
+                .addTranslated("gui.creative_frame.posy.", "top", "center", "bottom")));
         
         GuiTable table = new GuiTable();
         add(table);
@@ -237,19 +237,19 @@ public class GuiCreativeFrame extends GuiLayer {
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("t_label").setTitle(Component.translatable("gui.creative_frame.rotation").append(":")));
-        right.add(new GuiSlider("rotation", frame.rotation, 0, 360));
+        right.add(new GuiSlider("rotation", frame.rotation, 0, 360).setExpandableX());
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("t_label").setTitle(Component.translatable("gui.creative_frame.transparency").append(":")));
-        right.add(new GuiSlider("transparency", frame.alpha, 0, 1));
+        right.add(new GuiSlider("transparency", frame.alpha, 0, 1).setExpandableX());
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("b_label").setTitle(Component.translatable("gui.creative_frame.brightness").append(":")));
-        right.add(new GuiSlider("brightness", frame.brightness, 0, 1));
+        right.add(new GuiSlider("brightness", frame.brightness, 0, 1).setExpandableX());
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("d_label").setTitle(Component.translatable("gui.creative_frame.distance").append(":")));
-        right.add(new GuiSlider("distance", frame.renderDistance, 5, 1024));
+        right.add(new GuiSteppedSlider("distance", frame.renderDistance, 5, 1024).setExpandableX());
         
         GuiParent rendering = new GuiParent(GuiFlow.STACK_X);
         add(rendering);

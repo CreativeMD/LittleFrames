@@ -76,7 +76,7 @@ public class BlockCreativeFrame extends BaseEntityBlock implements BlockGuiCreat
     
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getClickedFace());
     }
     
     @Override

@@ -85,11 +85,11 @@ public class BECreativeFrame extends BlockEntityCreative {
                 display.release();
             display = null;
         }
+        if (!cache.ready() || cache.getError() != null)
+            return null;
         if (display != null)
             return display;
-        if (cache.ready())
-            return display = cache.createDisplay(url, volume, loop);
-        return null;
+        return display = cache.createDisplay(url, volume, loop);
     }
     
     public AlignedBox getBox() {
@@ -99,6 +99,11 @@ public class BECreativeFrame extends BlockEntityCreative {
         
         Axis one = facing.one();
         Axis two = facing.two();
+        
+        if (facing.axis != Axis.Z) {
+            one = facing.two();
+            two = facing.one();
+        }
         
         box.setMin(one, min.x);
         box.setMax(one, max.x);
@@ -155,7 +160,7 @@ public class BECreativeFrame extends BlockEntityCreative {
         nbt.putBoolean("visibleFrame", visibleFrame);
         nbt.putBoolean("bothSides", bothSides);
         nbt.putBoolean("flipX", flipX);
-        nbt.putBoolean("flipX", flipX);
+        nbt.putBoolean("flipY", flipY);
         nbt.putFloat("alpha", alpha);
         nbt.putFloat("brightness", brightness);
         
@@ -182,7 +187,7 @@ public class BECreativeFrame extends BlockEntityCreative {
         visibleFrame = nbt.getBoolean("visibleFrame");
         bothSides = nbt.getBoolean("bothSides");
         flipX = nbt.getBoolean("flipX");
-        flipX = nbt.getBoolean("flipX");
+        flipY = nbt.getBoolean("flipY");
         if (nbt.contains("alpha"))
             alpha = nbt.getFloat("alpha");
         else

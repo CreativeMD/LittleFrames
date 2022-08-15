@@ -196,16 +196,16 @@ public class GifDecoder {
                 if (iline >= ih) {
                     pass++;
                     switch (pass) {
-                    case 2:
-                        iline = 4;
-                        break;
-                    case 3:
-                        iline = 2;
-                        inc = 4;
-                        break;
-                    case 4:
-                        iline = 1;
-                        inc = 2;
+                        case 2:
+                            iline = 4;
+                            break;
+                        case 3:
+                            iline = 2;
+                            inc = 4;
+                            break;
+                        case 4:
+                            iline = 1;
+                            inc = 2;
                     }
                 }
                 line = iline;
@@ -332,8 +332,7 @@ public class GifDecoder {
     protected void decodeImageData() {
         int NullCode = -1;
         int npix = iw * ih;
-        int available, clear, code_mask, code_size, end_of_information, in_code, old_code, bits, code, count, i, datum,
-            data_size, first, top, bi, pi;
+        int available, clear, code_mask, code_size, end_of_information, in_code, old_code, bits, code, count, i, datum, data_size, first, top, bi, pi;
         
         if ((pixels == null) || (pixels.length < npix)) {
             pixels = new byte[npix]; // allocate new pixel array
@@ -531,44 +530,44 @@ public class GifDecoder {
         while (!(done || err())) {
             int code = read();
             switch (code) {
-            
-            case 0x2C: // image separator
-                readImage();
-                break;
-            
-            case 0x21: // extension
-                code = read();
-                switch (code) {
-                case 0xf9: // graphics control extension
-                    readGraphicControlExt();
+                
+                case 0x2C: // image separator
+                    readImage();
                     break;
                 
-                case 0xff: // application extension
-                    readBlock();
-                    String app = "";
-                    for (int i = 0; i < 11; i++) {
-                        app += (char) block[i];
+                case 0x21: // extension
+                    code = read();
+                    switch (code) {
+                        case 0xf9: // graphics control extension
+                            readGraphicControlExt();
+                            break;
+                        
+                        case 0xff: // application extension
+                            readBlock();
+                            String app = "";
+                            for (int i = 0; i < 11; i++) {
+                                app += (char) block[i];
+                            }
+                            if (app.equals("NETSCAPE2.0")) {
+                                readNetscapeExt();
+                            } else
+                                skip(); // don't care
+                            break;
+                        
+                        default: // uninteresting extension
+                            skip();
                     }
-                    if (app.equals("NETSCAPE2.0")) {
-                        readNetscapeExt();
-                    } else
-                        skip(); // don't care
                     break;
                 
-                default: // uninteresting extension
-                    skip();
-                }
-                break;
-            
-            case 0x3b: // terminator
-                done = true;
-                break;
-            
-            case 0x00: // bad byte, but keep going and see what happens
-                break;
-            
-            default:
-                status = STATUS_FORMAT_ERROR;
+                case 0x3b: // terminator
+                    done = true;
+                    break;
+                
+                case 0x00: // bad byte, but keep going and see what happens
+                    break;
+                
+                default:
+                    status = STATUS_FORMAT_ERROR;
             }
         }
     }
@@ -705,9 +704,6 @@ public class GifDecoder {
         lastRect = new Rectangle(ix, iy, iw, ih);
         lastImage = image;
         lastBgColor = bgColor;
-        int dispose = 0;
-        boolean transparency = false;
-        int delay = 0;
         lct = null;
     }
     

@@ -9,13 +9,12 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+import com.mojang.math.Matrix4f;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.GlStateManager.CullFace;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -55,39 +54,47 @@ public class CreativeFrameRenderer implements BlockEntityRenderer<BECreativeFram
         
         display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.playing, frame.loop, frame.tick);
         
+        RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        //RenderSystem.disableLighting();
         RenderSystem.setShaderColor(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
         int texture = display.texture();
         RenderSystem.bindTexture(texture);
-        //GlStateManager.cullFace(CullFace.BACK);
+        RenderSystem.setShaderTexture(0, texture);
         
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_NEAREST);
         RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_NEAREST);
         
-        pose.pushPose();
-        
         Facing facing = Facing.get(frame.getBlockState().getValue(BlockCreativeFrame.FACING));
         AlignedBox box = frame.getBox();
+        box.grow(facing.axis, 0.01F);
         BoxFace face = BoxFace.get(facing);
+        
+        pose.pushPose();
+        
+        pose.translate(0.5, 0.5, 0.5);
+        pose.mulPose(facing.rotation().rotation((float) Math.toRadians(-frame.rotation)));
+        pose.translate(-0.5, -0.5, -0.5);
         
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
         builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        Matrix4f mat = pose.last().pose();
         for (BoxCorner corner : face.corners)
-            builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z))
-                    .tex(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
+                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
         tesselator.end();
         
         if (frame.bothSides) {
-            GlStateManager.cullFace(CullFace.FRONT);
-            builder.begin(GL11.GL_POLYGON, DefaultVertexFormats.POSITION_TEX);
-            for (BoxCorner corner : face.corners)
-                builder.pos(box.getValueOfFacing(corner.x), box.getValueOfFacing(corner.y), box.getValueOfFacing(corner.z))
-                        .tex(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
-            tessellator.draw();
+            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            
+            for (int i = face.corners.length - 1; i >= 0; i--) {
+                BoxCorner corner = face.corners[i];
+                builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
+                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+            }
+            tesselator.end();
         }
         
         pose.popPose();
