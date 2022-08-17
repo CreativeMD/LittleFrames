@@ -1,8 +1,14 @@
+
+
 plugins {
     id 'eclipse'
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.+'
 	id 'org.spongepowered.mixin'
+}
+
+repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 group= "team.creative" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
@@ -22,6 +28,19 @@ java.sourceSets.create("api") {
 
 sourceSets.main.compileClasspath += sourceSets.api.output
 sourceSets.main.runtimeClasspath += sourceSets.api.output
+
+configurations {
+    library
+    implementation.extendsFrom library
+}
+
+minecraft.runs.all {
+    lazyToken('minecraft_classpath') {
+        configurations.library.copyRecursive().resolve().collect {
+            it.absolutePath
+        }.join(File.pathSeparator)
+    }
+}
 
 minecraft {
     mappings channel: 'official', version: "${project.property 'minecraft_version'}"
@@ -80,7 +99,12 @@ dependencies {
     implementation project(':CreativeCore')
     implementation project(':LittleTiles')
 	
-	implementation 'uk.co.caprica:vlcj:4+'
+	library("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") { // Fallback: Direct download from https://oss.sonatype.org/content/repositories/snapshots/uk/co/caprica/
+        exclude group: 'net.java.dev.jna', module: 'jna'
+        exclude group: 'net.java.dev.jna', module: 'jna-platform'
+    }// vlcJ
+    
+	//implementation 'uk.co.caprica:vlcj:4+'
 }
 
 jar {

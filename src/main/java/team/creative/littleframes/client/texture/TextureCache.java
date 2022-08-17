@@ -73,6 +73,7 @@ public class TextureCache {
     private int height;
     private long[] delay;
     private long duration;
+    private boolean isVideo;
     
     private TextureSeeker seeker;
     private boolean ready = false;
@@ -137,6 +138,14 @@ public class TextureCache {
         return error;
     }
     
+    public void processVideo() {
+        this.textures = null;
+        this.error = null;
+        this.isVideo = true;
+        this.ready = true;
+        this.seeker = null;
+    }
+    
     public void processFailed(String error) {
         this.textures = null;
         this.error = error;
@@ -179,6 +188,10 @@ public class TextureCache {
             return true;
         trySeek();
         return false;
+    }
+    
+    public boolean isVideo() {
+        return isVideo;
     }
     
     public void reload() {

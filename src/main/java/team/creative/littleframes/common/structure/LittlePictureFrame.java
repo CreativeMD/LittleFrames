@@ -111,7 +111,7 @@ public class LittlePictureFrame extends LittleStructure {
                 display.release();
             display = null;
         }
-        if (!cache.ready() || cache.getError() != null)
+        if (!cache.isVideo() && (!cache.ready() || cache.getError() != null))
             return null;
         if (display != null)
             return display;

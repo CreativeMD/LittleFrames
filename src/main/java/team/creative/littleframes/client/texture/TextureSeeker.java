@@ -91,7 +91,7 @@ public class TextureSeeker extends Thread {
             }
         } catch (FoundVideoException e) {
             if (LittleFrames.CONFIG.useVLC) {
-                cache.processFailed(null);
+                cache.processVideo();
                 isVideo = true;
             } else
                 exception = e;
@@ -138,9 +138,9 @@ public class TextureSeeker extends Thread {
         InputStream in = null;
         try {
             in = connection.getInputStream();
-            //String contentType = connection.getContentType();
-            //if (!contentType.startsWith("image"))
-            //throw new FoundVideoException();
+            String contentType = connection.getContentType();
+            if (!contentType.startsWith("image"))
+                throw new FoundVideoException();
             String etag = connection.getHeaderField("ETag");
             long lastModifiedTimestamp;
             long expireTimestamp = -1;
