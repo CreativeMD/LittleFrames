@@ -35,10 +35,9 @@ configurations {
 }
 
 minecraft.runs.all {
+    // Tell forge to include your libraries in the classpath
     lazyToken('minecraft_classpath') {
-        configurations.library.copyRecursive().resolve().collect {
-            it.absolutePath
-        }.join(File.pathSeparator)
+        configurations.library.copyRecursive().resolve().collect { it.absolutePath }.join(File.pathSeparator)
     }
 }
 
@@ -99,12 +98,10 @@ dependencies {
     implementation project(':CreativeCore')
     implementation project(':LittleTiles')
 	
-	library("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") { // Fallback: Direct download from https://oss.sonatype.org/content/repositories/snapshots/uk/co/caprica/
+	library("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") {
         exclude group: 'net.java.dev.jna', module: 'jna'
         exclude group: 'net.java.dev.jna', module: 'jna-platform'
-    }// vlcJ
-    
-	//implementation 'uk.co.caprica:vlcj:4+'
+    }
 }
 
 jar {
@@ -146,5 +143,14 @@ jar {
             "Implementation-Vendor": "CreativeMD",
             "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
         ])
+    }
+    from {
+        configurations.library.collect {
+            it.isDirectory() ? it.matching {
+                exclude '*', 'META-INF/**'
+            } : zipTree(it).matching {
+                exclude '*', 'META-INF/**'
+            }
+        }
     }
 }
