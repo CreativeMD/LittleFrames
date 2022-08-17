@@ -46,6 +46,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     private float lastSetVolume;
     private AtomicBoolean needsUpdate = new AtomicBoolean(false);
     private boolean first = true;
+    private long lastCorrectedTime = Long.MIN_VALUE;
     
     public FrameVideoDisplay(String url, float volume, boolean loop) {
         super();
@@ -120,21 +121,21 @@ public class FrameVideoDisplay extends FrameDisplay {
                     player.mediaPlayer().controls().setPause(!realPlaying); // player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
             } else {
                 if (player.mediaPlayer().status().length() > 0) {
+                    if (player.mediaPlayer().status().isPlaying() != realPlaying)
+                        player.mediaPlayer().controls().setPause(!realPlaying);
+                    
                     long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
                     if (player.mediaPlayer().status().isSeekable() && time > player.mediaPlayer().status().time())
                         if (loop)
                             time %= player.mediaPlayer().status().length();
-                    if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME) {
-                        //player.mediaPlayer().submit(() -> {
+                    if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
                         long newTime = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
                         if (player.mediaPlayer().status().isSeekable() && newTime > player.mediaPlayer().status().length())
                             if (loop)
                                 newTime %= player.mediaPlayer().status().length();
-                            
+                        lastCorrectedTime = newTime;
                         player.mediaPlayer().controls().setTime(newTime);
-                        if (player.mediaPlayer().status().isPlaying() != realPlaying)
-                            player.mediaPlayer().controls().setPause(!realPlaying);
-                        //});
+                        
                     }
                 }
             }

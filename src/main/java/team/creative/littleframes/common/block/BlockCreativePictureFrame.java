@@ -103,7 +103,7 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
     
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return BECreativePictureFrame::serverTick;
+        return BECreativePictureFrame::tick;
     }
     
     @Override
