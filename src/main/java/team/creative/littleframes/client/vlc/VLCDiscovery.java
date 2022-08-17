@@ -20,7 +20,7 @@ public class VLCDiscovery {
         loaded = true;
         if (successful) {
             LittleFrames.LOGGER.info("Loaded VLC");
-            factory = new MediaPlayerFactory(); //new MediaPlayerFactory("--quiet");
+            factory = new MediaPlayerFactory("--quiet");
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
         }
         return successful;

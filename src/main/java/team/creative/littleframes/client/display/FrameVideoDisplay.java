@@ -1,11 +1,13 @@
 package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
@@ -38,7 +40,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public int height = 1;
     public CallbackMediaPlayerComponent player;
     
-    public ByteBuffer buffer;
+    private IntBuffer buffer;
     public int texture;
     private boolean stream = false;
     private float lastSetVolume;
@@ -48,12 +50,15 @@ public class FrameVideoDisplay extends FrameDisplay {
     public FrameVideoDisplay(String url, float volume, boolean loop) {
         super();
         texture = GlStateManager._genTexture();
+        
         player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
             
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-                synchronized (this) {
-                    buffer = nativeBuffers[0];
+                synchronized (FrameVideoDisplay.this) {
+                    buffer.rewind();
+                    buffer.put(nativeBuffers[0].asIntBuffer());
+                    buffer.rewind();
                     needsUpdate.set(true);
                 }
             }
@@ -61,10 +66,12 @@ public class FrameVideoDisplay extends FrameDisplay {
             
             @Override
             public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-                synchronized (this) {
+                synchronized (FrameVideoDisplay.this) {
                     FrameVideoDisplay.this.width = sourceWidth;
                     FrameVideoDisplay.this.height = sourceHeight;
                     FrameVideoDisplay.this.first = true;
+                    buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                    needsUpdate.set(true);
                 }
                 return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
             }
@@ -83,8 +90,8 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
-        synchronized (this) {
-            if (needsUpdate.getAndSet(false)) {
+        if (needsUpdate.getAndSet(false)) {
+            synchronized (this) {
                 if (buffer != null && first) {
                     RenderSystem.bindTexture(texture);
                     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
