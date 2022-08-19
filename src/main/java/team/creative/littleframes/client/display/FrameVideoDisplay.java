@@ -2,7 +2,7 @@ package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.lwjgl.opengl.GL11;
 
@@ -44,7 +44,8 @@ public class FrameVideoDisplay extends FrameDisplay {
     public int texture;
     private boolean stream = false;
     private float lastSetVolume;
-    private AtomicBoolean needsUpdate = new AtomicBoolean(false);
+    private boolean needsUpdate = false;
+    private ReentrantLock lock = new ReentrantLock();
     private boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
@@ -56,12 +57,12 @@ public class FrameVideoDisplay extends FrameDisplay {
             
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-                synchronized (FrameVideoDisplay.this) {
-                    buffer.rewind();
-                    buffer.put(nativeBuffers[0].asIntBuffer());
-                    buffer.rewind();
-                    needsUpdate.set(true);
-                }
+                lock.lock();
+                buffer.rewind();
+                buffer.put(nativeBuffers[0].asIntBuffer());
+                buffer.rewind();
+                needsUpdate = true;
+                lock.unlock();
             }
         }, new BufferFormatCallback() {
             
@@ -71,9 +72,11 @@ public class FrameVideoDisplay extends FrameDisplay {
                     FrameVideoDisplay.this.width = sourceWidth;
                     FrameVideoDisplay.this.height = sourceHeight;
                     FrameVideoDisplay.this.first = true;
-                    buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
-                    needsUpdate.set(true);
                 }
+                lock.lock();
+                buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                needsUpdate = true;
+                lock.unlock();
                 return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
             }
             
@@ -91,18 +94,21 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
-        if (needsUpdate.getAndSet(false)) {
+        if (player == null)
+            return;
+        lock.lock();
+        if (needsUpdate) {
+            RenderSystem.bindTexture(texture);
             synchronized (this) {
                 if (buffer != null && first) {
-                    RenderSystem.bindTexture(texture);
                     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
                     first = false;
-                } else {
-                    RenderSystem.bindTexture(texture);
+                } else
                     GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                }
             }
+            needsUpdate = false;
         }
+        lock.unlock();
         if (player.mediaPlayer().media().isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
@@ -145,6 +151,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     @Override
     public void release() {
         player.mediaPlayer().release();
+        player = null;
     }
     
     @Override
