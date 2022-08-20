@@ -206,6 +206,7 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     @Override
     public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
         loadPicture(nbt);
+        markDirty();
     }
     
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
