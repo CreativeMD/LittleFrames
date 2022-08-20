@@ -122,75 +122,78 @@ public class TextureSeeker extends Thread {
         TextureStorage.CacheEntry entry = TEXTURE_STORAGE.getEntry(url);
         long requestTime = System.currentTimeMillis();
         URLConnection connection = new URL(url).openConnection();
-        connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
-        int responseCode = -1;
-        if (connection instanceof HttpURLConnection) {
-            HttpURLConnection httpConnection = (HttpURLConnection) connection;
-            if (entry != null) {
-                if (entry.getEtag() != null) {
-                    httpConnection.setRequestProperty("If-None-Match", entry.getEtag());
-                } else if (entry.getTime() != -1) {
-                    httpConnection.setRequestProperty("If-Modified-Since", FORMAT.format(new Date(entry.getTime())));
-                }
-            }
-            responseCode = httpConnection.getResponseCode();
-        }
-        InputStream in = null;
         try {
-            in = connection.getInputStream();
-            String contentType = connection.getContentType();
-            if (!contentType.startsWith("image"))
-                throw new FoundVideoException();
-            String etag = connection.getHeaderField("ETag");
-            long lastModifiedTimestamp;
-            long expireTimestamp = -1;
-            String maxAge = connection.getHeaderField("max-age");
-            if (maxAge != null && !maxAge.isEmpty()) {
-                try {
-                    expireTimestamp = requestTime + Long.parseLong(maxAge) * 1000;
-                } catch (NumberFormatException e) {}
+            connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
+            int responseCode = -1;
+            if (connection instanceof HttpURLConnection httpConnection) {
+                if (entry != null && entry.getFile().exists()) {
+                    if (entry.getEtag() != null)
+                        httpConnection.setRequestProperty("If-None-Match", entry.getEtag());
+                    else if (entry.getTime() != -1)
+                        httpConnection.setRequestProperty("If-Modified-Since", FORMAT.format(new Date(entry.getTime())));
+                }
+                responseCode = httpConnection.getResponseCode();
             }
-            String expires = connection.getHeaderField("Expires");
-            if (expires != null && !expires.isEmpty()) {
-                try {
-                    expireTimestamp = FORMAT.parse(expires).getTime();
-                } catch (ParseException e) {}
-            }
-            String lastModified = connection.getHeaderField("Last-Modified");
-            if (lastModified != null && !lastModified.isEmpty()) {
-                try {
-                    lastModifiedTimestamp = FORMAT.parse(lastModified).getTime();
-                } catch (ParseException e) {
+            InputStream in = null;
+            try {
+                in = connection.getInputStream();
+                if (responseCode != HttpURLConnection.HTTP_NOT_MODIFIED && !connection.getContentType().startsWith("image"))
+                    throw new FoundVideoException();
+                
+                String etag = connection.getHeaderField("ETag");
+                long lastModifiedTimestamp;
+                long expireTimestamp = -1;
+                String maxAge = connection.getHeaderField("max-age");
+                if (maxAge != null && !maxAge.isEmpty()) {
+                    try {
+                        expireTimestamp = requestTime + Long.parseLong(maxAge) * 1000;
+                    } catch (NumberFormatException e) {}
+                }
+                String expires = connection.getHeaderField("Expires");
+                if (expires != null && !expires.isEmpty()) {
+                    try {
+                        expireTimestamp = FORMAT.parse(expires).getTime();
+                    } catch (ParseException e) {}
+                }
+                String lastModified = connection.getHeaderField("Last-Modified");
+                if (lastModified != null && !lastModified.isEmpty()) {
+                    try {
+                        lastModifiedTimestamp = FORMAT.parse(lastModified).getTime();
+                    } catch (ParseException e) {
+                        lastModifiedTimestamp = requestTime;
+                    }
+                } else {
                     lastModifiedTimestamp = requestTime;
                 }
-            } else {
-                lastModifiedTimestamp = requestTime;
-            }
-            if (entry != null) {
-                if (etag != null && !etag.isEmpty()) {
-                    entry.setEtag(etag);
-                }
-                entry.setTime(lastModifiedTimestamp);
-                if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                    File file = entry.getFile();
-                    if (file.exists()) {
-                        FileInputStream fileStream = new FileInputStream(file);
-                        try {
-                            return IOUtils.toByteArray(fileStream);
-                        } finally {
-                            fileStream.close();
+                if (entry != null) {
+                    if (etag != null && !etag.isEmpty()) {
+                        entry.setEtag(etag);
+                    }
+                    entry.setTime(lastModifiedTimestamp);
+                    if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
+                        File file = entry.getFile();
+                        if (file.exists()) {
+                            FileInputStream fileStream = new FileInputStream(file);
+                            try {
+                                return IOUtils.toByteArray(fileStream);
+                            } finally {
+                                fileStream.close();
+                            }
+                            
                         }
-                        
                     }
                 }
+                byte[] data = IOUtils.toByteArray(in);
+                if (readType(data) == null)
+                    throw new FoundVideoException();
+                TEXTURE_STORAGE.save(url, etag, lastModifiedTimestamp, expireTimestamp, data);
+                return data;
+            } finally {
+                IOUtils.closeQuietly(in);
             }
-            byte[] data = IOUtils.toByteArray(in);
-            if (readType(data) == null)
-                throw new FoundVideoException();
-            TEXTURE_STORAGE.save(url, etag, lastModifiedTimestamp, expireTimestamp, data);
-            return data;
         } finally {
-            IOUtils.closeQuietly(in);
+            if (connection instanceof HttpURLConnection httpConnection)
+                httpConnection.disconnect();
         }
     }
     
