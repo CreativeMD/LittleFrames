@@ -99,6 +99,8 @@ public class FrameVideoDisplay extends FrameDisplay {
         lock.lock();
         if (needsUpdate) {
             RenderSystem.bindTexture(texture);
+            if (buffer.position() > 0)
+                throw new Error("Position is not " + buffer.position());
             synchronized (this) {
                 if (buffer != null && first) {
                     GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
