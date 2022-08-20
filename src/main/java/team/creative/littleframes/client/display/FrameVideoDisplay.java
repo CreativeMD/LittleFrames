@@ -152,7 +152,8 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void release() {
-        player.mediaPlayer().release();
+        if (player != null)
+            player.mediaPlayer().release();
         player = null;
     }
     
