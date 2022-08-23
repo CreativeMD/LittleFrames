@@ -15,6 +15,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.Vec2f;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
 import team.creative.littleframes.client.display.FrameDisplay;
@@ -45,6 +46,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public int renderDistance = 128;
     
     public float volume = 1;
+    public float minDistance = 5;
+    public float maxDistance = 20;
+    
     public boolean loop = true;
     public int tick = 0;
     public boolean playing = true;
@@ -89,7 +93,7 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(url, volume, loop);
+        return display = cache.createDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
     }
     
     public AlignedBox getBox() {
@@ -165,6 +169,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         nbt.putFloat("brightness", brightness);
         
         nbt.putFloat("volume", volume);
+        nbt.putFloat("min", minDistance);
+        nbt.putFloat("max", maxDistance);
+        
         nbt.putBoolean("playing", playing);
         nbt.putInt("tick", tick);
         nbt.putBoolean("loop", loop);
@@ -198,6 +205,15 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             brightness = 1;
         
         volume = nbt.getFloat("volume");
+        if (nbt.contains("min"))
+            minDistance = nbt.getFloat("min");
+        else
+            minDistance = 5;
+        if (nbt.contains("max"))
+            maxDistance = nbt.getFloat("max");
+        else
+            maxDistance = 20;
+        
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");

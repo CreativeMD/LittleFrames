@@ -52,7 +52,8 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         if (display == null)
             return;
         
-        display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.playing, frame.loop, frame.tick);
+        display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options
+                .getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();

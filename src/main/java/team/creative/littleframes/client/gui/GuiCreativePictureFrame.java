@@ -82,6 +82,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             frame.flipX = nbt.getBoolean("flipX");
             frame.flipY = nbt.getBoolean("flipY");
             frame.volume = nbt.getFloat("volume");
+            frame.minDistance = nbt.getFloat("min");
+            frame.maxDistance = nbt.getFloat("max");
             frame.alpha = nbt.getFloat("transparency");
             frame.brightness = nbt.getFloat("brightness");
         }
@@ -90,11 +92,11 @@ public class GuiCreativePictureFrame extends GuiLayer {
     });
     
     public GuiCreativePictureFrame(BECreativePictureFrame frame) {
-        this(frame, false, 16);
+        this(frame, 16);
     }
     
-    public GuiCreativePictureFrame(BECreativePictureFrame frame, boolean editFacing, int scaleSize) {
-        super("creative_frame", 200, editFacing ? 220 : 200);
+    public GuiCreativePictureFrame(BECreativePictureFrame frame, int scaleSize) {
+        super("creative_frame", 200, 210);
         this.frame = frame;
         this.scaleMultiplier = 1F / (scaleSize);
     }
@@ -103,26 +105,28 @@ public class GuiCreativePictureFrame extends GuiLayer {
     public void create() {
         GuiButton save = new GuiButton("save", x -> {
             CompoundTag nbt = new CompoundTag();
-            GuiTextfield url = get("url", GuiTextfield.class);
-            GuiCounterDecimal sizeX = get("sizeX", GuiCounterDecimal.class);
-            GuiCounterDecimal sizeY = get("sizeY", GuiCounterDecimal.class);
+            GuiTextfield url = get("url");
+            GuiCounterDecimal sizeX = get("sizeX");
+            GuiCounterDecimal sizeY = get("sizeY");
             
-            GuiStateButton buttonPosX = get("posX", GuiStateButton.class);
-            GuiStateButton buttonPosY = get("posY", GuiStateButton.class);
-            GuiSlider rotation = get("rotation", GuiSlider.class);
+            GuiStateButton buttonPosX = get("posX");
+            GuiStateButton buttonPosY = get("posY");
+            GuiSlider rotation = get("rotation");
             
-            GuiCheckBox flipX = (GuiCheckBox) get("flipX");
-            GuiCheckBox flipY = (GuiCheckBox) get("flipY");
-            GuiCheckBox visibleFrame = (GuiCheckBox) get("visibleFrame");
-            GuiCheckBox bothSides = (GuiCheckBox) get("bothSides");
+            GuiCheckBox flipX = get("flipX");
+            GuiCheckBox flipY = get("flipY");
+            GuiCheckBox visibleFrame = get("visibleFrame");
+            GuiCheckBox bothSides = get("bothSides");
             
-            GuiSteppedSlider renderDistance = get("distance", GuiSteppedSlider.class);
+            GuiSteppedSlider renderDistance = get("distance");
             
-            GuiSlider transparency = get("transparency", GuiSlider.class);
-            GuiSlider brightness = get("brightness", GuiSlider.class);
+            GuiSlider transparency = get("transparency");
+            GuiSlider brightness = get("brightness");
             
-            GuiCheckBox loop = (GuiCheckBox) get("loop");
-            GuiSlider volume = get("volume", GuiSlider.class);
+            GuiCheckBox loop = get("loop");
+            GuiSlider volume = get("volume");
+            GuiSteppedSlider min = get("range_min");
+            GuiSteppedSlider max = get("range_max");
             
             nbt.putByte("posX", (byte) buttonPosX.getState());
             nbt.putByte("posY", (byte) buttonPosY.getState());
@@ -141,6 +145,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             
             nbt.putBoolean("loop", loop.value);
             nbt.putFloat("volume", (float) volume.value);
+            nbt.putFloat("min", min.getValue());
+            nbt.putFloat("max", max.getValue());
             
             nbt.putString("url", url.getText());
             nbt.putFloat("x", Math.max(0.1F, sizeX.getValue()));
@@ -267,6 +273,13 @@ public class GuiCreativePictureFrame extends GuiLayer {
         play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
         play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
         play.add(new GuiSlider("volume", frame.volume, 0, 1));
+        
+        GuiParent range = new GuiParent(GuiFlow.STACK_X);
+        add(range);
+        
+        range.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
+        range.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512).setExpandableX());
+        range.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512).setExpandableX());
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X);
         bottom.align = Align.RIGHT;

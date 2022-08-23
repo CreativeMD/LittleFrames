@@ -34,9 +34,9 @@ public class LittlePictureFramePacket extends CreativePacket {
                 
                 if (frame.display != null) {
                     if (playing)
-                        frame.display.resume(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+                        frame.display.resume(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
                     else
-                        frame.display.pause(frame.getURL(), frame.volume, frame.playing, frame.loop, frame.tick);
+                        frame.display.pause(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
                 }
             }
         } catch (LittleActionException e) {}

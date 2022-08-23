@@ -17,6 +17,7 @@
     "gui.creative_frame.brightness": "brightness",
     "gui.creative_frame.distance": "distance",
     "gui.creative_frame.volume": "volume",
+    "gui.creative_frame.range": "range",
     "gui.creative_frame.loop": "loop",
     "gui.creative_frame.reloadtooltip": "Hold shift to reload all",
     "gui.creative_frame.reload": "reload",

@@ -12,6 +12,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import team.creative.creativecore.client.CreativeCoreClient;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.vlc.VLCDiscovery;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
@@ -26,13 +27,13 @@ public class FrameVideoDisplay extends FrameDisplay {
     private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/3EKo7Jx.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
     
-    public static FrameDisplay createVideoDisplay(String url, float volume, boolean loop) {
+    public static FrameDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         if (VLCDiscovery.load())
-            return new FrameVideoDisplay(url, volume, loop);
+            return new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
         String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
         TextureCache cache = TextureCache.get(failURL);
         if (cache.ready())
-            return cache.createDisplay(failURL, volume, loop, true);
+            return cache.createDisplay(pos, failURL, volume, minDistance, maxDistance, loop, true);
         return null;
     }
     
@@ -40,6 +41,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public int height = 1;
     public CallbackMediaPlayerComponent player;
     
+    private final Vec3d pos;
     private IntBuffer buffer;
     public int texture;
     private boolean stream = false;
@@ -49,8 +51,9 @@ public class FrameVideoDisplay extends FrameDisplay {
     private boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
-    public FrameVideoDisplay(String url, float volume, boolean loop) {
+    public FrameVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         super();
+        this.pos = pos;
         texture = GlStateManager._genTexture();
         
         player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
@@ -84,16 +87,31 @@ public class FrameVideoDisplay extends FrameDisplay {
             public void allocatedBuffers(ByteBuffer[] buffers) {}
             
         }, null);
-        //player.mediaPlayer().submit(() -> {
-        player.mediaPlayer().audio().setVolume((int) (volume * 100F));
+        volume = getVolume(volume, minDistance, maxDistance);
+        player.mediaPlayer().audio().setVolume((int) volume);
         lastSetVolume = volume;
         player.mediaPlayer().controls().setRepeat(loop);
         player.mediaPlayer().media().start(url);
-        //});
+    }
+    
+    public int getVolume(float volume, float minDistance, float maxDistance) {
+        float distance = (float) pos.distance(Minecraft.getInstance().player.getPosition(CreativeCoreClient.getFrameTime()));
+        if (minDistance > maxDistance) {
+            float temp = maxDistance;
+            maxDistance = minDistance;
+            minDistance = temp;
+        }
+        
+        if (distance > minDistance)
+            if (distance > maxDistance)
+                volume = 0;
+            else
+                volume *= 1 - ((distance - minDistance) / (maxDistance - minDistance));
+        return (int) (volume * 100F);
     }
     
     @Override
-    public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
+    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
             return;
         lock.lock();
@@ -114,19 +132,20 @@ public class FrameVideoDisplay extends FrameDisplay {
         if (player.mediaPlayer().media().isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
+            volume = getVolume(volume, minDistance, maxDistance);
             if (volume != lastSetVolume) {
-                player.mediaPlayer().audio().setVolume((int) (volume * 100F)); //player.mediaPlayer().submit(() -> player.mediaPlayer().audio().setVolume((int) (volume * 100F)));
+                player.mediaPlayer().audio().setVolume((int) volume);
                 lastSetVolume = volume;
             }
             if (player.mediaPlayer().controls().getRepeat() != loop)
-                player.mediaPlayer().controls().setRepeat(loop); // player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setRepeat(loop));
+                player.mediaPlayer().controls().setRepeat(loop);
             long tickTime = 50;
             long newDuration = player.mediaPlayer().status().length();
             if (!stream && newDuration != -1 && newDuration != 0 && player.mediaPlayer().media().info().duration() == 0)
                 stream = true;
             if (stream) {
                 if (player.mediaPlayer().status().isPlaying() != realPlaying)
-                    player.mediaPlayer().controls().setPause(!realPlaying); // player.mediaPlayer().submit(() -> player.mediaPlayer().controls().setPause(!realPlaying));
+                    player.mediaPlayer().controls().setPause(!realPlaying);
             } else {
                 if (player.mediaPlayer().status().length() > 0) {
                     if (player.mediaPlayer().status().isPlaying() != realPlaying)
@@ -163,19 +182,15 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     @Override
-    public void pause(String url, float volume, boolean playing, boolean loop, int tick) {
-        //player.mediaPlayer().submit(() -> {
+    public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         player.mediaPlayer().controls().setTime(tick * 50);
         player.mediaPlayer().controls().pause();
-        //});
     }
     
     @Override
-    public void resume(String url, float volume, boolean playing, boolean loop, int tick) {
-        //player.mediaPlayer().submit(() -> {
+    public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         player.mediaPlayer().controls().setTime(tick * 50);
         player.mediaPlayer().controls().play();
-        //});
     }
     
     @Override

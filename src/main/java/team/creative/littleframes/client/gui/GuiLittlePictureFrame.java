@@ -15,7 +15,6 @@ import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
@@ -49,6 +48,8 @@ public class GuiLittlePictureFrame extends GuiLayer {
             frame.fitMode = LittlePictureFrame.FitMode.values()[nbt.getInt("fit")];
             frame.loop = nbt.getBoolean("loop");
             frame.volume = nbt.getFloat("volume");
+            frame.minDistance = nbt.getFloat("min");
+            frame.maxDistance = nbt.getFloat("max");
             frame.alpha = nbt.getFloat("transparency");
             frame.brightness = nbt.getFloat("brightness");
         }
@@ -65,16 +66,18 @@ public class GuiLittlePictureFrame extends GuiLayer {
     public void create() {
         GuiButton save = new GuiButton("save", x -> {
             CompoundTag nbt = new CompoundTag();
-            GuiTextfield url = get("url", GuiTextfield.class);
-            GuiSteppedSlider renderDistance = get("distance", GuiSteppedSlider.class);
+            GuiTextfield url = get("url");
+            GuiSteppedSlider renderDistance = get("distance");
             
-            GuiStateButton fit = (GuiStateButton) get("fit");
+            GuiStateButtonMapped<FitMode> fit = get("fit");
             
-            GuiSlider transparency = get("transparency", GuiSlider.class);
-            GuiSlider brightness = get("brightness", GuiSlider.class);
+            GuiSlider transparency = get("transparency");
+            GuiSlider brightness = get("brightness");
             
-            GuiCheckBox loop = get("loop", GuiCheckBox.class);
-            GuiSlider volume = get("volume", GuiSlider.class);
+            GuiCheckBox loop = get("loop");
+            GuiSlider volume = get("volume");
+            GuiSteppedSlider min = get("range_min");
+            GuiSteppedSlider max = get("range_max");
             
             nbt.putInt("fit", fit.getState());
             
@@ -85,6 +88,8 @@ public class GuiLittlePictureFrame extends GuiLayer {
             
             nbt.putBoolean("loop", loop.value);
             nbt.putFloat("volume", (float) volume.value);
+            nbt.putFloat("min", min.getValue());
+            nbt.putFloat("max", max.getValue());
             
             nbt.putString("url", url.getText());
             
@@ -136,6 +141,9 @@ public class GuiLittlePictureFrame extends GuiLayer {
         play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
         play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
         play.add(new GuiSlider("volume", frame.volume, 0, 1));
+        play.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
+        play.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512));
+        play.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512));
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X);
         bottom.align = Align.RIGHT;

@@ -13,7 +13,7 @@ public class FramePictureDisplay extends FrameDisplay {
     }
     
     @Override
-    public void prepare(String url, float volume, boolean playing, boolean loop, int tick) {
+    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         long time = tick * 50 + (playing ? (long) (CreativeCoreClient.getFrameTime() * 50) : 0);
         if (texture.getDuration() > 0 && time > texture.getDuration())
             if (loop)
@@ -22,10 +22,10 @@ public class FramePictureDisplay extends FrameDisplay {
     }
     
     @Override
-    public void pause(String url, float volume, boolean playing, boolean loop, int tick) {}
+    public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
     
     @Override
-    public void resume(String url, float volume, boolean playing, boolean loop, int tick) {}
+    public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
     
     @Override
     public int texture() {

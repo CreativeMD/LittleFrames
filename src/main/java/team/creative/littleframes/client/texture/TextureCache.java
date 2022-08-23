@@ -20,6 +20,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
@@ -123,14 +124,14 @@ public class TextureCache {
         return last;
     }
     
-    public FrameDisplay createDisplay(String url, float volume, boolean loop) {
-        return createDisplay(url, volume, loop, false);
+    public FrameDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
+        return createDisplay(pos, url, volume, minDistance, maxDistance, loop, false);
     }
     
-    public FrameDisplay createDisplay(String url, float volume, boolean loop, boolean noVideo) {
+    public FrameDisplay createDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop, boolean noVideo) {
         volume *= Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER);
         if (textures == null && !noVideo && LittleFrames.CONFIG.useVLC)
-            return FrameVideoDisplay.createVideoDisplay(url, volume, loop);
+            return FrameVideoDisplay.createVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
         return new FramePictureDisplay(this);
     }
     
