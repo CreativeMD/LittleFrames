@@ -156,7 +156,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
         url.setMaxStringLength(512);
         add(url);
         GuiLabel error = new GuiLabel("error").setDefaultColor(ColorUtils.RED);
-        if (frame.cache != null && frame.cache.getError() != null)
+        if (frame.isClient() && frame.cache != null && frame.cache.getError() != null)
             error.setTranslate(frame.cache.getError());
         add(error);
         
