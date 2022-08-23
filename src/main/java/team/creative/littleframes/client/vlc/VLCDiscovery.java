@@ -19,10 +19,11 @@ public class VLCDiscovery {
         successful = discovery.discover();
         loaded = true;
         if (successful) {
-            LittleFrames.LOGGER.info("Loaded VLC");
+            LittleFrames.LOGGER.info("Loaded VLC in '{}'", discovery.discoveredPath());
             factory = new MediaPlayerFactory("--quiet");
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-        }
+        } else
+            LittleFrames.LOGGER.info("Failed to load VLC");
         return successful;
     }
     
