@@ -61,7 +61,6 @@ public class FrameVideoDisplay extends FrameDisplay {
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
                 lock.lock();
-                buffer.rewind();
                 buffer.put(nativeBuffers[0].asIntBuffer());
                 buffer.rewind();
                 needsUpdate = true;
@@ -71,12 +70,10 @@ public class FrameVideoDisplay extends FrameDisplay {
             
             @Override
             public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-                synchronized (FrameVideoDisplay.this) {
-                    FrameVideoDisplay.this.width = sourceWidth;
-                    FrameVideoDisplay.this.height = sourceHeight;
-                    FrameVideoDisplay.this.first = true;
-                }
                 lock.lock();
+                FrameVideoDisplay.this.width = sourceWidth;
+                FrameVideoDisplay.this.height = sourceHeight;
+                FrameVideoDisplay.this.first = true;
                 buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
                 needsUpdate = true;
                 lock.unlock();
@@ -117,15 +114,11 @@ public class FrameVideoDisplay extends FrameDisplay {
         lock.lock();
         if (needsUpdate) {
             RenderSystem.bindTexture(texture);
-            if (buffer.position() > 0)
-                throw new Error("Position is not " + buffer.position());
-            synchronized (this) {
-                if (buffer != null && first) {
-                    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                    first = false;
-                } else
-                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-            }
+            if (first) {
+                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+                first = false;
+            } else
+                GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
             needsUpdate = false;
         }
         lock.unlock();
