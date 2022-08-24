@@ -37,18 +37,18 @@ public class FrameVideoDisplay extends FrameDisplay {
         return null;
     }
     
-    public int width = 1;
-    public int height = 1;
+    public volatile int width = 1;
+    public volatile int height = 1;
     public CallbackMediaPlayerComponent player;
     
     private final Vec3d pos;
-    private IntBuffer buffer;
+    private volatile IntBuffer buffer;
     public int texture;
     private boolean stream = false;
     private float lastSetVolume;
-    private boolean needsUpdate = false;
+    private volatile boolean needsUpdate = false;
     private ReentrantLock lock = new ReentrantLock();
-    private boolean first = true;
+    private volatile boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
     public FrameVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
@@ -61,22 +61,28 @@ public class FrameVideoDisplay extends FrameDisplay {
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
                 lock.lock();
-                buffer.put(nativeBuffers[0].asIntBuffer());
-                buffer.rewind();
-                needsUpdate = true;
-                lock.unlock();
+                try {
+                    buffer.put(nativeBuffers[0].asIntBuffer());
+                    buffer.rewind();
+                    needsUpdate = true;
+                } finally {
+                    lock.unlock();
+                }
             }
         }, new BufferFormatCallback() {
             
             @Override
             public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
                 lock.lock();
-                FrameVideoDisplay.this.width = sourceWidth;
-                FrameVideoDisplay.this.height = sourceHeight;
-                FrameVideoDisplay.this.first = true;
-                buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
-                needsUpdate = true;
-                lock.unlock();
+                try {
+                    FrameVideoDisplay.this.width = sourceWidth;
+                    FrameVideoDisplay.this.height = sourceHeight;
+                    FrameVideoDisplay.this.first = true;
+                    buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                    needsUpdate = true;
+                } finally {
+                    lock.unlock();
+                }
                 return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
             }
             
@@ -112,16 +118,23 @@ public class FrameVideoDisplay extends FrameDisplay {
         if (player == null)
             return;
         lock.lock();
-        if (needsUpdate) {
-            RenderSystem.bindTexture(texture);
-            if (first) {
-                GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                first = false;
-            } else
-                GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-            needsUpdate = false;
+        try {
+            if (needsUpdate) {
+                // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
+                GlStateManager._pixelStore(3314, 0);
+                GlStateManager._pixelStore(3316, 0);
+                GlStateManager._pixelStore(3315, 0);
+                RenderSystem.bindTexture(texture);
+                if (first) {
+                    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+                    first = false;
+                } else
+                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+                needsUpdate = false;
+            }
+        } finally {
+            lock.unlock();
         }
-        lock.unlock();
         if (player.mediaPlayer().media().isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
@@ -155,7 +168,6 @@ public class FrameVideoDisplay extends FrameDisplay {
                                 newTime %= player.mediaPlayer().status().length();
                         lastCorrectedTime = newTime;
                         player.mediaPlayer().controls().setTime(newTime);
-                        
                     }
                 }
             }
@@ -166,6 +178,10 @@ public class FrameVideoDisplay extends FrameDisplay {
     public void release() {
         if (player != null)
             player.mediaPlayer().release();
+        if (texture != -1) {
+            GlStateManager._deleteTexture(texture);
+            texture = -1;
+        }
         player = null;
     }
     
