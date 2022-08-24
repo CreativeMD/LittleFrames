@@ -60,6 +60,9 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
         int texture = display.texture();
+        
+        if (texture == -1)
+            return;
         RenderSystem.bindTexture(texture);
         RenderSystem.setShaderTexture(0, texture);
         
