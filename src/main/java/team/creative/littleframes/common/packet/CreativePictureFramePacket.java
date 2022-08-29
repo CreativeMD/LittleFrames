@@ -27,10 +27,12 @@ public class CreativePictureFramePacket extends CreativePacket {
         if (be instanceof BECreativePictureFrame frame) {
             frame.playing = playing;
             frame.tick = tick;
-            if (playing)
-                frame.display.resume(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
-            else
-                frame.display.pause(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+            if (frame.display != null) {
+                if (playing)
+                    frame.display.resume(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+                else
+                    frame.display.pause(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+            }
         }
     }
     
