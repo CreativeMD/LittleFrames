@@ -65,7 +65,7 @@ public class TextureSeeker extends Thread {
             ByteArrayInputStream in = null;
             try {
                 in = new ByteArrayInputStream(data);
-                if (type.equalsIgnoreCase("gif")) {
+                if (type != null && type.equalsIgnoreCase("gif")) {
                     GifDecoder gif = new GifDecoder();
                     int status = gif.read(in);
                     if (status == GifDecoder.STATUS_OK) {
@@ -95,6 +95,8 @@ public class TextureSeeker extends Thread {
                 isVideo = true;
             } else
                 exception = e;
+        } catch (NoConnectionException e) {
+            exception = e;
         } catch (Exception e) {
             exception = e;
             LOGGER.error("An exception occurred while loading LittleFrames image", e);
@@ -118,7 +120,7 @@ public class TextureSeeker extends Thread {
         }
     }
     
-    public static byte[] load(String url) throws IOException, FoundVideoException {
+    public static byte[] load(String url) throws IOException, FoundVideoException, NoConnectionException {
         TextureStorage.CacheEntry entry = TEXTURE_STORAGE.getEntry(url);
         long requestTime = System.currentTimeMillis();
         URLConnection connection = new URL(url).openConnection();
@@ -137,8 +139,13 @@ public class TextureSeeker extends Thread {
             InputStream in = null;
             try {
                 in = connection.getInputStream();
-                if (responseCode != HttpURLConnection.HTTP_NOT_MODIFIED && !connection.getContentType().startsWith("image"))
-                    throw new FoundVideoException();
+                if (responseCode != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                    String type = connection.getContentType();
+                    if (type == null)
+                        throw new NoConnectionException();
+                    if (type.startsWith("image"))
+                        throw new FoundVideoException();
+                }
                 
                 String etag = connection.getHeaderField("ETag");
                 long lastModifiedTimestamp;
@@ -232,7 +239,13 @@ public class TextureSeeker extends Thread {
         return reader.getFormatName();
     }
     
-    public static class FoundVideoException extends Exception {
+    public static class FoundVideoException extends Exception {}
+    
+    public static class NoConnectionException extends Exception {
+        
+        public NoConnectionException() {
+            super("");
+        }
         
     }
     
