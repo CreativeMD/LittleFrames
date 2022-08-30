@@ -143,7 +143,7 @@ public class TextureSeeker extends Thread {
                     String type = connection.getContentType();
                     if (type == null)
                         throw new NoConnectionException();
-                    if (type.startsWith("image"))
+                    if (!type.startsWith("image"))
                         throw new FoundVideoException();
                 }
                 
