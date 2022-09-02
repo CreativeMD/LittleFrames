@@ -2,6 +2,8 @@ package team.creative.littleframes.client.display;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.lwjgl.opengl.GL11;
@@ -27,9 +29,22 @@ public class FrameVideoDisplay extends FrameDisplay {
     private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/3EKo7Jx.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
     
+    private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
+    
+    public static void unload() {
+        synchronized (OPEN_DISPLAYS) {
+            for (FrameVideoDisplay display : OPEN_DISPLAYS)
+                display.free();
+            OPEN_DISPLAYS.clear();
+        }
+    }
+    
     public static FrameDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
-        if (VLCDiscovery.load())
-            return new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
+        if (VLCDiscovery.load()) {
+            FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
+            OPEN_DISPLAYS.add(display);
+            return display;
+        }
         String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
         TextureCache cache = TextureCache.get(failURL);
         if (cache.ready())
@@ -174,8 +189,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         }
     }
     
-    @Override
-    public void release() {
+    public void free() {
         if (player != null)
             player.mediaPlayer().release();
         if (texture != -1) {
@@ -183,6 +197,14 @@ public class FrameVideoDisplay extends FrameDisplay {
             texture = -1;
         }
         player = null;
+    }
+    
+    @Override
+    public void release() {
+        free();
+        synchronized (OPEN_DISPLAYS) {
+            OPEN_DISPLAYS.remove(this);
+        }
     }
     
     @Override

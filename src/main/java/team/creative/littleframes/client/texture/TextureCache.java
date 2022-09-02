@@ -54,6 +54,7 @@ public class TextureCache {
             for (TextureCache cache : cached.values())
                 cache.remove();
             cached.clear();
+            FrameVideoDisplay.unload();
         }
     }
     
