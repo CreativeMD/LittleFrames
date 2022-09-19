@@ -226,8 +226,12 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     }
     
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (blockEntity instanceof BECreativePictureFrame be && be.playing)
-            be.tick++;
+        if (blockEntity instanceof BECreativePictureFrame be) {
+            if (level.isClientSide && be.display != null)
+                be.display.tick(be.url, be.volume, be.minDistance, be.maxDistance, be.playing, be.loop, be.tick);
+            if (be.playing)
+                be.tick++;
+        }
     }
     
     @Override

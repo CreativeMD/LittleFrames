@@ -8,6 +8,8 @@ public abstract class FrameDisplay {
     
     public abstract void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
     
+    public abstract void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
+    
     public abstract void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);
     
     public abstract void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick);

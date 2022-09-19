@@ -128,6 +128,14 @@ public class FrameVideoDisplay extends FrameDisplay {
         return (int) (volume * 100F);
     }
     
+    public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        volume = getVolume(volume, minDistance, maxDistance);
+        if (volume != lastSetVolume) {
+            player.mediaPlayer().audio().setVolume((int) volume);
+            lastSetVolume = volume;
+        }
+    }
+    
     @Override
     public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
@@ -153,11 +161,6 @@ public class FrameVideoDisplay extends FrameDisplay {
         if (player.mediaPlayer().media().isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
-            volume = getVolume(volume, minDistance, maxDistance);
-            if (volume != lastSetVolume) {
-                player.mediaPlayer().audio().setVolume((int) volume);
-                lastSetVolume = volume;
-            }
             if (player.mediaPlayer().controls().getRepeat() != loop)
                 player.mediaPlayer().controls().setRepeat(loop);
             long tickTime = 50;

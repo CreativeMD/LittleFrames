@@ -22,6 +22,9 @@ public class FramePictureDisplay extends FrameDisplay {
     }
     
     @Override
+    public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
+    
+    @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
     
     @Override
