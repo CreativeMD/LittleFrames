@@ -128,36 +128,16 @@ public class FrameVideoDisplay extends FrameDisplay {
         return (int) (volume * 100F);
     }
     
+    @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (player == null)
+            return;
         volume = getVolume(volume, minDistance, maxDistance);
         if (volume != lastSetVolume) {
             player.mediaPlayer().audio().setVolume((int) volume);
             lastSetVolume = volume;
         }
-    }
-    
-    @Override
-    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
-            return;
-        lock.lock();
-        try {
-            if (needsUpdate) {
-                // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
-                GlStateManager._pixelStore(3314, 0);
-                GlStateManager._pixelStore(3316, 0);
-                GlStateManager._pixelStore(3315, 0);
-                RenderSystem.bindTexture(texture);
-                if (first) {
-                    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                    first = false;
-                } else
-                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
-                needsUpdate = false;
-            }
-        } finally {
-            lock.unlock();
-        }
+        
         if (player.mediaPlayer().media().isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
@@ -189,6 +169,30 @@ public class FrameVideoDisplay extends FrameDisplay {
                     }
                 }
             }
+        }
+    }
+    
+    @Override
+    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (player == null)
+            return;
+        lock.lock();
+        try {
+            if (needsUpdate) {
+                // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
+                GlStateManager._pixelStore(3314, 0);
+                GlStateManager._pixelStore(3316, 0);
+                GlStateManager._pixelStore(3315, 0);
+                RenderSystem.bindTexture(texture);
+                if (first) {
+                    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+                    first = false;
+                } else
+                    GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, 0, 0, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+                needsUpdate = false;
+            }
+        } finally {
+            lock.unlock();
         }
     }
     
