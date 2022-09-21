@@ -17,6 +17,7 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.vlc.VLCDiscovery;
+import team.creative.littleframes.client.vlc.VLCLoader;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
@@ -54,6 +55,8 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     public volatile int width = 1;
     public volatile int height = 1;
+    
+    public VLCLoader playerLoader;
     public CallbackMediaPlayerComponent player;
     
     private final Vec3d pos;
@@ -71,7 +74,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
+        playerLoader = VLCDiscovery.createLoader(new RenderCallback() {
             
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
@@ -104,15 +107,13 @@ public class FrameVideoDisplay extends FrameDisplay {
             @Override
             public void allocatedBuffers(ByteBuffer[] buffers) {}
             
-        }, null);
-        volume = getVolume(volume, minDistance, maxDistance);
-        player.mediaPlayer().audio().setVolume((int) volume);
-        lastSetVolume = volume;
-        player.mediaPlayer().controls().setRepeat(loop);
-        player.mediaPlayer().media().start(url);
+        });
+        
     }
     
     public int getVolume(float volume, float minDistance, float maxDistance) {
+        if (player == null)
+            return 0;
         float distance = (float) pos.distance(Minecraft.getInstance().player.getPosition(CreativeCoreClient.getFrameTime()));
         if (minDistance > maxDistance) {
             float temp = maxDistance;
@@ -130,8 +131,20 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (playerLoader != null && playerLoader.finished()) {
+            player = playerLoader.getPlayer();
+            playerLoader = null;
+            
+            volume = getVolume(volume, minDistance, maxDistance);
+            player.mediaPlayer().audio().setVolume((int) volume);
+            lastSetVolume = volume;
+            player.mediaPlayer().controls().setRepeat(loop);
+            player.mediaPlayer().media().start(url);
+        }
+        
         if (player == null)
             return;
+        
         volume = getVolume(volume, minDistance, maxDistance);
         if (volume != lastSetVolume) {
             player.mediaPlayer().audio().setVolume((int) volume);
@@ -221,12 +234,16 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (player == null)
+            return;
         player.mediaPlayer().controls().setTime(tick * 50);
         player.mediaPlayer().controls().pause();
     }
     
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
+        if (player == null)
+            return;
         player.mediaPlayer().controls().setTime(tick * 50);
         player.mediaPlayer().controls().play();
     }

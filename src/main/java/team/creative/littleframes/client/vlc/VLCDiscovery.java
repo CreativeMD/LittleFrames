@@ -3,6 +3,8 @@ package team.creative.littleframes.client.vlc;
 import team.creative.littleframes.LittleFrames;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class VLCDiscovery {
     
@@ -11,7 +13,7 @@ public class VLCDiscovery {
     private static NativeDiscovery discovery;
     public static MediaPlayerFactory factory;
     
-    public static boolean load() {
+    public static synchronized boolean load() {
         if (loaded)
             return successful;
         discovery = new NativeDiscovery(new LinuxNativeDiscoveryStrategyFixed(), new MacOsNativeDiscoveryStrategyFixed(), new WindowsNativeDiscoveryStrategyFixed());
@@ -25,6 +27,10 @@ public class VLCDiscovery {
         } else
             LittleFrames.LOGGER.info("Failed to load VLC");
         return successful;
+    }
+    
+    public static VLCLoader createLoader(RenderCallback renderCallback, BufferFormatCallback bufferCallback) {
+        return new VLCLoader(renderCallback, bufferCallback);
     }
     
     public static class ShutdownHook extends Thread {
