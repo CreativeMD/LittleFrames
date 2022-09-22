@@ -269,8 +269,11 @@ public class LittlePictureFrame extends LittleStructure {
     @Override
     public void tick() {
         super.tick();
-        if (isClient() && display != null)
-            display.tick(url, volume, minDistance, maxDistance, playing, loop, tick);
+        if (isClient()) {
+            FrameDisplay display = requestDisplay();
+            if (display != null)
+                display.tick(url, volume, minDistance, maxDistance, playing, loop, tick);
+        }
         if (playing)
             tick++;
     }
