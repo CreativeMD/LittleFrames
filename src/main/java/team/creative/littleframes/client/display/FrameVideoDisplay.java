@@ -26,8 +26,8 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class FrameVideoDisplay extends FrameDisplay {
     
-    private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/qDIb9iV.png";
-    private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/3EKo7Jx.png";
+    private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/VF3LuvM.png";
+    private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/2aN8ZQC.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
     
     private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
