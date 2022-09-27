@@ -1,9 +1,8 @@
 package team.creative.littleframes.client.vlc;
 
 import team.creative.littleframes.LittleFrames;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class VLCDiscovery {
     
@@ -11,6 +10,7 @@ public class VLCDiscovery {
     private static volatile boolean startedLoading = false;
     private static volatile boolean successful = false;
     private static volatile NativeDiscovery discovery;
+    public static volatile MediaPlayerFactory factory;
     
     public static boolean isLoaded() {
         return loaded;
@@ -38,9 +38,11 @@ public class VLCDiscovery {
             
             successful = discovery.discover();
             loaded = true;
-            if (successful)
+            if (successful) {
+                factory = new MediaPlayerFactory("--quiet");
                 LittleFrames.LOGGER.info("Loaded VLC in '{}'", discovery.discoveredPath());
-            else
+                Runtime.getRuntime().addShutdownHook(new Thread(() -> factory.release()));
+            } else
                 LittleFrames.LOGGER.info("Failed to load VLC");
         } catch (Exception e) {
             e.printStackTrace();
@@ -49,10 +51,6 @@ public class VLCDiscovery {
             LittleFrames.LOGGER.error("Failed to load VLC");
         }
         return successful;
-    }
-    
-    public static VLCLoader createLoader(RenderCallback renderCallback, BufferFormatCallback bufferCallback) {
-        return new VLCLoader(renderCallback, bufferCallback);
     }
     
 }

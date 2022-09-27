@@ -17,7 +17,6 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.vlc.VLCDiscovery;
-import team.creative.littleframes.client.vlc.VLCLoader;
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
@@ -73,7 +72,6 @@ public class FrameVideoDisplay extends FrameDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public VLCLoader playerLoader;
     public CallbackMediaPlayerComponent player;
     public MediaPlayerFactory factory;
     
@@ -92,7 +90,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        playerLoader = VLCDiscovery.createLoader(new RenderCallback() {
+        player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
             
             @Override
             public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
@@ -125,7 +123,12 @@ public class FrameVideoDisplay extends FrameDisplay {
             @Override
             public void allocatedBuffers(ByteBuffer[] buffers) {}
             
-        });
+        }, null);
+        volume = getVolume(volume, minDistance, maxDistance);
+        player.mediaPlayer().audio().setVolume((int) volume);
+        lastSetVolume = volume;
+        player.mediaPlayer().controls().setRepeat(loop);
+        player.mediaPlayer().media().start(url);
         
     }
     
@@ -149,18 +152,6 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (playerLoader != null && playerLoader.finished()) {
-            factory = playerLoader.factory;
-            player = playerLoader.getPlayer();
-            playerLoader = null;
-            
-            volume = getVolume(volume, minDistance, maxDistance);
-            player.mediaPlayer().audio().setVolume((int) volume);
-            lastSetVolume = volume;
-            player.mediaPlayer().controls().setRepeat(loop);
-            player.mediaPlayer().media().start(url);
-        }
-        
         if (player == null)
             return;
         
