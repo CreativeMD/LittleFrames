@@ -102,11 +102,6 @@ dependencies {
         exclude group: 'net.java.dev.jna', module: 'jna'
         exclude group: 'net.java.dev.jna', module: 'jna-platform'
     }
-    
-    library("uk.co.caprica:vlcj-natives:5.0.0-SNAPSHOT") {
-        exclude group: 'net.java.dev.jna', module: 'jna'
-        exclude group: 'net.java.dev.jna', module: 'jna-platform'
-    }
 }
 
 jar {
