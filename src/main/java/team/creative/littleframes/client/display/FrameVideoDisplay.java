@@ -17,7 +17,6 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.vlc.VLCDiscovery;
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
@@ -73,7 +72,6 @@ public class FrameVideoDisplay extends FrameDisplay {
     public volatile int height = 1;
     
     public CallbackMediaPlayerComponent player;
-    public MediaPlayerFactory factory;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
