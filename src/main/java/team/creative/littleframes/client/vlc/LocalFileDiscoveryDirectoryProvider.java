@@ -4,7 +4,7 @@ package team.creative.littleframes.client.vlc;
 import java.nio.file.Path;
 
 import net.minecraftforge.fml.loading.FMLPaths;
-import uk.co.caprica.vlcj.binding.RuntimeUtil;
+import uk.co.caprica.vlcj.binding.support.runtime.RuntimeUtil;
 import uk.co.caprica.vlcj.factory.discovery.provider.DiscoveryDirectoryProvider;
 
 public class LocalFileDiscoveryDirectoryProvider implements DiscoveryDirectoryProvider {

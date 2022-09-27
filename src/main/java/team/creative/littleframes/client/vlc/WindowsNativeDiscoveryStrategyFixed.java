@@ -19,8 +19,8 @@
 
 package team.creative.littleframes.client.vlc;
 
-import uk.co.caprica.vlcj.binding.LibC;
-import uk.co.caprica.vlcj.binding.RuntimeUtil;
+import uk.co.caprica.vlcj.binding.lib.LibC;
+import uk.co.caprica.vlcj.binding.support.runtime.RuntimeUtil;
 
 /** Default implementation of a native discovery strategy that searches directories on the Windows operating system. */
 public class WindowsNativeDiscoveryStrategyFixed extends DirectoryProviderDiscoveryStrategyFixed {
