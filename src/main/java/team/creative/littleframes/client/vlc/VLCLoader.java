@@ -1,11 +1,13 @@
 package team.creative.littleframes.client.vlc;
 
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
 
 public class VLCLoader extends Thread {
     
+    public MediaPlayerFactory factory;
     private CallbackMediaPlayerComponent player;
     private final RenderCallback renderCallback;
     private final BufferFormatCallback bufferCallback;
@@ -19,8 +21,11 @@ public class VLCLoader extends Thread {
     
     @Override
     public void run() {
-        if (VLCDiscovery.load())
-            player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, renderCallback, bufferCallback, null);
+        if (VLCDiscovery.load()) {
+            factory = new MediaPlayerFactory("--quiet");
+            player = new CallbackMediaPlayerComponent(factory, null, null, false, renderCallback, bufferCallback, null);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> factory.release()));
+        }
         done = true;
     }
     

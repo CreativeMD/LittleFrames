@@ -18,6 +18,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.client.vlc.VLCDiscovery;
 import team.creative.littleframes.client.vlc.VLCLoader;
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.base.MediaPlayer;
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
@@ -32,6 +33,19 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
     
+    public static void tick() {
+        synchronized (OPEN_DISPLAYS) {
+            for (FrameVideoDisplay display : OPEN_DISPLAYS) {
+                if (Minecraft.getInstance().isPaused())
+                    if (display.stream) {
+                        if (display.player.mediaPlayer().status().isPlaying())
+                            display.player.mediaPlayer().controls().setPause(true);
+                    } else if (display.player.mediaPlayer().status().length() > 0 && display.player.mediaPlayer().status().isPlaying())
+                        display.player.mediaPlayer().controls().setPause(true);
+            }
+        }
+    }
+    
     public static void unload() {
         synchronized (OPEN_DISPLAYS) {
             for (FrameVideoDisplay display : OPEN_DISPLAYS)
@@ -41,11 +55,14 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     public static FrameDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
-        if (VLCDiscovery.load()) {
-            FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
-            OPEN_DISPLAYS.add(display);
-            return display;
-        }
+        if (VLCDiscovery.isLoadedOrRequest()) {
+            if (VLCDiscovery.isAvailable()) {
+                FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
+                OPEN_DISPLAYS.add(display);
+                return display;
+            }
+        } else
+            return null;
         String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
         TextureCache cache = TextureCache.get(failURL);
         if (cache.ready())
@@ -58,6 +75,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     public VLCLoader playerLoader;
     public CallbackMediaPlayerComponent player;
+    public MediaPlayerFactory factory;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
@@ -132,6 +150,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (playerLoader != null && playerLoader.finished()) {
+            factory = playerLoader.factory;
             player = playerLoader.getPlayer();
             playerLoader = null;
             
@@ -169,16 +188,13 @@ public class FrameVideoDisplay extends FrameDisplay {
                         player.mediaPlayer().controls().setPause(!realPlaying);
                     
                     long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
-                    if (player.mediaPlayer().status().isSeekable() && time > player.mediaPlayer().status().time())
-                        if (loop)
+                    if (player.mediaPlayer().status().isSeekable()) {
+                        if (time > player.mediaPlayer().status().time() && loop)
                             time %= player.mediaPlayer().status().length();
-                    if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
-                        long newTime = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
-                        if (player.mediaPlayer().status().isSeekable() && newTime > player.mediaPlayer().status().length())
-                            if (loop)
-                                newTime %= player.mediaPlayer().status().length();
-                        lastCorrectedTime = newTime;
-                        player.mediaPlayer().controls().setTime(newTime);
+                        if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
+                            lastCorrectedTime = time;
+                            player.mediaPlayer().controls().setTime(time);
+                        }
                     }
                 }
             }
@@ -207,6 +223,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         } finally {
             lock.unlock();
         }
+        
     }
     
     public void free() {

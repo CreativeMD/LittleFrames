@@ -16,6 +16,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
+import net.minecraftforge.event.TickEvent.ClientTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -41,6 +42,12 @@ public class TextureCache {
                 }
             }
         }
+    }
+    
+    @SubscribeEvent
+    public static void render(ClientTickEvent event) {
+        if (event.phase == Phase.START)
+            FrameVideoDisplay.tick();
     }
     
     public static void reloadAll() {
