@@ -179,13 +179,11 @@ public class FrameVideoDisplay extends FrameDisplay {
                         player.mediaPlayer().controls().setPause(!realPlaying);
                     
                     long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
-                    if (player.mediaPlayer().status().isSeekable()) {
-                        if (time > player.mediaPlayer().status().time() && loop)
-                            time %= player.mediaPlayer().status().length();
-                        if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
-                            lastCorrectedTime = time;
-                            player.mediaPlayer().controls().setTime(time);
-                        }
+                    if (time > player.mediaPlayer().status().time() && loop)
+                        time %= player.mediaPlayer().status().length();
+                    if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
+                        lastCorrectedTime = time;
+                        player.mediaPlayer().controls().setTime(time);
                     }
                 }
             }
