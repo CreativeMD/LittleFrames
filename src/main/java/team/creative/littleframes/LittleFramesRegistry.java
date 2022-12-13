@@ -3,7 +3,6 @@ package team.creative.littleframes;
 import java.util.function.Supplier;
 
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +26,7 @@ public class LittleFramesRegistry {
     
     private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
         RegistryObject<T> ret = BLOCKS.register(name, sup);
-        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties().tab(CreativeModeTab.TAB_DECORATIONS)));
+        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties()));
         return ret;
     }
     

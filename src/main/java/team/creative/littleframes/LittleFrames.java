@@ -4,7 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
@@ -37,6 +39,8 @@ public class LittleFrames {
         LittleFramesRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleFramesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
         LittleFramesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerTabs);
     }
     
     private void init(final FMLCommonSetupEvent event) {
@@ -49,5 +53,10 @@ public class LittleFrames {
             LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry
                     .register("little_picture_frame", LittlePictureFrame.class, LittlePictureFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
         }
+    }
+    
+    private void registerTabs(CreativeModeTabEvent.BuildContents event) {
+        if (event.getTab() == CreativeModeTabs.BUILDING_BLOCKS)
+            event.accept(LittleFramesRegistry.CREATIVE_PICTURE_FRAME.get());
     }
 }
