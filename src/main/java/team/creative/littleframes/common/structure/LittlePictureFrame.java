@@ -1,5 +1,6 @@
 package team.creative.littleframes.common.structure;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
@@ -16,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -243,14 +245,18 @@ public class LittlePictureFrame extends LittleStructure {
                 box.shrink(vAxis, height - width / videoRatio);
         }
         
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         Matrix4f mat = pose.last().pose();
+        Matrix3f mat3f = pose.last().normal();
+        Vec3i normal = face.facing.normal;
         for (BoxCorner corner : face.corners)
-            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
-                    .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0).endVertex();
+            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
+                    .uv(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
+                            .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
+                    .color(-1).normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
     }
     

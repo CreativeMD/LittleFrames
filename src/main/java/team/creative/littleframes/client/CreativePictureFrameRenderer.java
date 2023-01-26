@@ -1,5 +1,6 @@
 package team.creative.littleframes.client;
 
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
 
@@ -15,6 +16,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.core.Vec3i;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
@@ -80,23 +82,27 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         pose.mulPose(facing.rotation().rotation((float) Math.toRadians(-frame.rotation)));
         pose.translate(-0.5, -0.5, -0.5);
         
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
         Matrix4f mat = pose.last().pose();
+        Matrix3f mat3f = pose.last().normal();
+        Vec3i normal = face.facing.normal;
         for (BoxCorner corner : face.corners)
             builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(-1)
+                    .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
         
         if (frame.bothSides) {
-            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
             
             for (int i = face.corners.length - 1; i >= 0; i--) {
                 BoxCorner corner = face.corners[i];
                 builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).endVertex();
+                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(-1)
+                        .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
             }
             tesselator.end();
         }
