@@ -287,7 +287,7 @@ public class LittlePictureFrame extends LittleStructure {
     @Override
     public void unload() {
         super.unload();
-        if (getLevel().isClientSide && display != null)
+        if (isClient() && display != null)
             display.release();
     }
     
