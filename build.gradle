@@ -99,8 +99,8 @@ dependencies {
     implementation project(':LittleTiles')
 	
 	library("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") {
-        exclude group: 'net.java.dev.jna', module: 'jna'
-        exclude group: 'net.java.dev.jna', module: 'jna-platform'
+        exclude group: 'net.java.dev.jna', module: 'jna-jpms'
+        exclude group: 'net.java.dev.jna', module: 'jna-platform-jpms'
     }
 }
 
