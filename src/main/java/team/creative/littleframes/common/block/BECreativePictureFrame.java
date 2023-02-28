@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fml.loading.FMLPaths;
 import team.creative.creativecore.common.be.BlockEntityCreative;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -26,7 +27,10 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     
     @OnlyIn(Dist.CLIENT)
     public static String replaceVariables(String url) {
-        return url.replace("$(name)", Minecraft.getInstance().player.getDisplayName().getString()).replace("$(uuid)", Minecraft.getInstance().player.getStringUUID());
+        String result = url.replace("$(name)", Minecraft.getInstance().player.getDisplayName().getString()).replace("$(uuid)", Minecraft.getInstance().player.getStringUUID());
+        if (result.startsWith("minecraft://"))
+            result = result.replace("minecraft://", "file:///" + FMLPaths.GAMEDIR.get().toAbsolutePath().toString().replace("\\", "/") + "/");
+        return result;
     }
     
     private String url = "";
