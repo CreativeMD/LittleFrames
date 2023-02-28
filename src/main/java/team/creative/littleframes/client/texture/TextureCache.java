@@ -280,15 +280,20 @@ public class TextureCache {
         RenderSystem.bindTexture(textureID); //Bind texture ID
         
         //Setup wrap mode
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
         
         //Setup texture scaling filtering
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
+        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
         
         if (!hasAlpha)
-            GL11.glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
+            RenderSystem.pixelStore(GL11.GL_UNPACK_ALIGNMENT, 1);
+        
+        // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
+        GlStateManager._pixelStore(3314, 0);
+        GlStateManager._pixelStore(3316, 0);
+        GlStateManager._pixelStore(3315, 0);
         
         //Send texel data to OpenGL
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, hasAlpha ? GL11.GL_RGBA8 : GL11.GL_RGB8, width, height, 0, hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
