@@ -2,7 +2,6 @@ package team.creative.littleframes.common.structure;
 
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
-import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
 
 import com.mojang.blaze3d.platform.GlStateManager;
@@ -34,7 +33,7 @@ import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
+import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
@@ -62,7 +61,7 @@ public class LittlePictureFrame extends LittleStructure {
     public Facing facing;
     
     @StructureDirectional
-    public Vector3f topRight;
+    public Vec3f topRight;
     
     private String url = "";
     public float brightness = 1;
@@ -254,9 +253,8 @@ public class LittlePictureFrame extends LittleStructure {
         Vec3i normal = face.facing.normal;
         for (BoxCorner corner : face.corners)
             builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacingPositive(uAxis) != (VectorUtils.get(uAxis, topRight) > 0) ? 1 : 0, corner
-                            .isFacingPositive(vAxis) != (VectorUtils.get(vAxis, topRight) > 0) ? 1 : 0)
-                    .color(-1).normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
+                    .uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).color(-1)
+                    .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
     }
     
