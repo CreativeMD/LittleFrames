@@ -56,10 +56,15 @@ minecraft {
 			arg 'creativecore.mixins.json'
 			arg '--mixin.config'
 			arg 'creativecore.forge.mixins.json'
+			arg '--mixin.config'
+            arg 'littletiles.mixins.json'
 
             mods {
 				creativecore {
                     source project(':CreativeLoaderForge').sourceSets.main
+                }
+                littletiles {
+                    source project(':LittleTiles').sourceSets.main
                 }
                 littleframes {
                     source sourceSets.main
@@ -76,10 +81,15 @@ minecraft {
             arg 'creativecore.mixins.json'
             arg '--mixin.config'
             arg 'creativecore.forge.mixins.json'
+            arg '--mixin.config'
+            arg 'littletiles.mixins.json'
             
             mods {
                 creativecore {
                     source project(':CreativeLoaderForge').sourceSets.main
+                }
+                littletiles {
+                    source project(':LittleTiles').sourceSets.main
                 }
                 littleframes {
                     source sourceSets.main
