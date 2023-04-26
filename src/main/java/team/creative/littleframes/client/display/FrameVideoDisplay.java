@@ -71,13 +71,13 @@ public class FrameVideoDisplay extends FrameDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public CallbackMediaPlayerComponent player;
+    public volatile CallbackMediaPlayerComponent player;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
     public int texture;
     private boolean stream = false;
-    private float lastSetVolume;
+    private volatile float lastSetVolume;
     private volatile boolean needsUpdate = false;
     private ReentrantLock lock = new ReentrantLock();
     private volatile boolean first = true;
@@ -88,46 +88,50 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
-            
-            @Override
-            public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-                lock.lock();
-                try {
-                    buffer.put(nativeBuffers[0].asIntBuffer());
-                    buffer.rewind();
-                    needsUpdate = true;
-                } finally {
-                    lock.unlock();
+        var thread = new Thread(() -> {
+            player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
+                
+                @Override
+                public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+                    lock.lock();
+                    try {
+                        buffer.put(nativeBuffers[0].asIntBuffer());
+                        buffer.rewind();
+                        needsUpdate = true;
+                    } finally {
+                        lock.unlock();
+                    }
                 }
-            }
-        }, new BufferFormatCallback() {
-            
-            @Override
-            public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-                lock.lock();
-                try {
-                    FrameVideoDisplay.this.width = sourceWidth;
-                    FrameVideoDisplay.this.height = sourceHeight;
-                    FrameVideoDisplay.this.first = true;
-                    buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
-                    needsUpdate = true;
-                } finally {
-                    lock.unlock();
+            }, new BufferFormatCallback() {
+                
+                @Override
+                public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
+                    lock.lock();
+                    try {
+                        FrameVideoDisplay.this.width = sourceWidth;
+                        FrameVideoDisplay.this.height = sourceHeight;
+                        FrameVideoDisplay.this.first = true;
+                        buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                        needsUpdate = true;
+                    } finally {
+                        lock.unlock();
+                    }
+                    return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
                 }
-                return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
-            }
-            
-            @Override
-            public void allocatedBuffers(ByteBuffer[] buffers) {}
-            
-        }, null);
-        volume = getVolume(volume, minDistance, maxDistance);
-        player.mediaPlayer().audio().setVolume((int) volume);
-        lastSetVolume = volume;
-        player.mediaPlayer().controls().setRepeat(loop);
-        player.mediaPlayer().media().start(url);
-        
+                
+                @Override
+                public void allocatedBuffers(ByteBuffer[] buffers) {}
+                
+            }, null);
+            float tempVolume = getVolume(volume, minDistance, maxDistance);
+            player.mediaPlayer().audio().setVolume((int) tempVolume);
+            lastSetVolume = tempVolume;
+            player.mediaPlayer().controls().setRepeat(loop);
+            player.mediaPlayer().media().start(url);
+        });
+        thread.setName("VLC/start");
+        thread.setDaemon(true);
+        thread.start();
     }
     
     public int getVolume(float volume, float minDistance, float maxDistance) {
@@ -216,8 +220,13 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     public void free() {
-        if (player != null)
-            player.mediaPlayer().release();
+        if (player != null) {
+            var tempPlayer = player;
+            var thread = new Thread(() -> tempPlayer.mediaPlayer().release());
+            thread.setName("VLC/start");
+            thread.setDaemon(true);
+            thread.start();
+        }
         if (texture != -1) {
             GlStateManager._deleteTexture(texture);
             texture = -1;
