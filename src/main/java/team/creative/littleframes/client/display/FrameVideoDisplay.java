@@ -71,7 +71,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public volatile CallbackMediaPlayerComponent player;
+    public CallbackMediaPlayerComponent player;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
@@ -88,47 +88,45 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        var thread = new Thread(() -> {
-            player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
-                
-                @Override
-                public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-                    lock.lock();
-                    try {
-                        buffer.put(nativeBuffers[0].asIntBuffer());
-                        buffer.rewind();
-                        needsUpdate = true;
-                    } finally {
-                        lock.unlock();
-                    }
+        player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
+            
+            @Override
+            public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
+                lock.lock();
+                try {
+                    buffer.put(nativeBuffers[0].asIntBuffer());
+                    buffer.rewind();
+                    needsUpdate = true;
+                } finally {
+                    lock.unlock();
                 }
-            }, new BufferFormatCallback() {
-                
-                @Override
-                public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
-                    lock.lock();
-                    try {
-                        FrameVideoDisplay.this.width = sourceWidth;
-                        FrameVideoDisplay.this.height = sourceHeight;
-                        FrameVideoDisplay.this.first = true;
-                        buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
-                        needsUpdate = true;
-                    } finally {
-                        lock.unlock();
-                    }
-                    return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
+            }
+        }, new BufferFormatCallback() {
+            
+            @Override
+            public BufferFormat getBufferFormat(int sourceWidth, int sourceHeight) {
+                lock.lock();
+                try {
+                    FrameVideoDisplay.this.width = sourceWidth;
+                    FrameVideoDisplay.this.height = sourceHeight;
+                    FrameVideoDisplay.this.first = true;
+                    buffer = MemoryTracker.create(sourceWidth * sourceHeight * 4).asIntBuffer();
+                    needsUpdate = true;
+                } finally {
+                    lock.unlock();
                 }
-                
-                @Override
-                public void allocatedBuffers(ByteBuffer[] buffers) {}
-                
-            }, null);
-            float tempVolume = getVolume(volume, minDistance, maxDistance);
-            player.mediaPlayer().audio().setVolume((int) tempVolume);
-            lastSetVolume = tempVolume;
-            player.mediaPlayer().controls().setRepeat(loop);
-            player.mediaPlayer().media().start(url);
-        });
+                return new BufferFormat("RGBA", sourceWidth, sourceHeight, new int[] { sourceWidth * 4 }, new int[] { sourceHeight });
+            }
+            
+            @Override
+            public void allocatedBuffers(ByteBuffer[] buffers) {}
+            
+        }, null);
+        float tempVolume = getVolume(volume, minDistance, maxDistance);
+        player.mediaPlayer().audio().setVolume((int) tempVolume);
+        lastSetVolume = tempVolume;
+        player.mediaPlayer().controls().setRepeat(loop);
+        var thread = new Thread(() -> player.mediaPlayer().media().start(url));
         thread.setName("VLC/start");
         thread.setDaemon(true);
         thread.start();
