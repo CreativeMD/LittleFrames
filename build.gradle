@@ -61,7 +61,7 @@ minecraft {
 
             mods {
 				creativecore {
-                    source project(':CreativeLoaderForge').sourceSets.main
+                    source project(':CreativeCore').sourceSets.main
                 }
                 littletiles {
                     source project(':LittleTiles').sourceSets.main
@@ -86,7 +86,7 @@ minecraft {
             
             mods {
                 creativecore {
-                    source project(':CreativeLoaderForge').sourceSets.main
+                    source project(':CreativeCore').sourceSets.main
                 }
                 littletiles {
                     source project(':LittleTiles').sourceSets.main
