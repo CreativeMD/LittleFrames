@@ -43,7 +43,7 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
     }
     
     @Override
-    public void render(BECreativePictureFrame frame, float partialTicks, PoseStack pose, MultiBufferSource buffer, int p_112311_, int p_112312_) {
+    public void render(BECreativePictureFrame frame, float partialTicks, PoseStack pose, MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
         if (frame.isURLEmpty() || frame.alpha == 0) {
             if (frame.display != null)
                 frame.display.release();
@@ -59,7 +59,8 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem
+                .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
         int texture = display.texture();
         
@@ -82,26 +83,26 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         pose.mulPose(facing.rotation().rotation((float) Math.toRadians(-frame.rotation)));
         pose.translate(-0.5, -0.5, -0.5);
         
-        RenderSystem.setShader(GameRenderer::getPositionTexColorNormalShader);
+        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         Matrix3f mat3f = pose.last().normal();
         Vec3i normal = face.facing.normal;
         for (BoxCorner corner : face.corners)
             builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(-1)
+                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0)
                     .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
         tesselator.end();
         
         if (frame.bothSides) {
-            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR_NORMAL);
+            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
             
             for (int i = face.corners.length - 1; i >= 0; i--) {
                 BoxCorner corner = face.corners[i];
                 builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(-1)
+                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0)
                         .normal(mat3f, normal.getX(), normal.getY(), normal.getZ()).endVertex();
             }
             tesselator.end();
