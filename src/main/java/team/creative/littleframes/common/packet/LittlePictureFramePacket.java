@@ -25,7 +25,7 @@ public class LittlePictureFramePacket extends CreativePacket {
     @Override
     public void executeClient(Player player) {
         try {
-            LittleStructure structure = location.find(player.level);
+            LittleStructure structure = location.find(player.level());
             if (structure instanceof LittlePictureFrame) {
                 LittlePictureFrame frame = (LittlePictureFrame) structure;
                 

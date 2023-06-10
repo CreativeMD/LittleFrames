@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
-import net.minecraft.world.level.material.Material;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -51,7 +50,7 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
     }
     
     public BlockCreativePictureFrame() {
-        super(BlockBehaviour.Properties.of(Material.WOOD).explosionResistance(2.5F).destroyTime(2.0F).noOcclusion());
+        super(BlockBehaviour.Properties.of().explosionResistance(2.5F).destroyTime(2.0F).noOcclusion());
     }
     
     @Override

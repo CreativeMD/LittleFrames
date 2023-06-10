@@ -45,7 +45,7 @@ public class LittleFramesConfig {
     }
     
     public boolean canUse(Player player, String url, boolean ignoreToggle) {
-        Level level = player.level;
+        Level level = player.level();
         if (!level.isClientSide && (level.getServer().isSingleplayer() || player.hasPermissions(level.getServer().getOperatorUserPermissionLevel()))) {
             return true;
         }

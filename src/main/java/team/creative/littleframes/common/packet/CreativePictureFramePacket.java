@@ -23,7 +23,7 @@ public class CreativePictureFramePacket extends CreativePacket {
     
     @Override
     public void executeClient(Player player) {
-        BlockEntity be = player.level.getBlockEntity(pos);
+        BlockEntity be = player.level().getBlockEntity(pos);
         if (be instanceof BECreativePictureFrame frame) {
             frame.playing = playing;
             frame.tick = tick;
