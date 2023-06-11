@@ -33,6 +33,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.LittleFrames;
+import team.creative.littleframes.LittleTilesIntegration;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
@@ -112,23 +113,23 @@ public class LittlePictureFrame extends LittleStructure {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(getPos()), url, volume, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
     }
     
     public void play() {
         playing = true;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     public void pause() {
         playing = false;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     @Override
@@ -187,7 +188,7 @@ public class LittlePictureFrame extends LittleStructure {
     
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        LittleFrames.LITTLE_FRAME_GUI.open(player, this);
+        LittleTilesIntegration.LITTLE_FRAME_GUI.open(player, this);
         return InteractionResult.SUCCESS;
     }
     
