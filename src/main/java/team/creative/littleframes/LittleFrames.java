@@ -13,14 +13,11 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littleframes.client.LittleFramesClient;
-import team.creative.littleframes.client.gui.GuiLittlePictureFrame;
 import team.creative.littleframes.common.packet.CreativePictureFramePacket;
 import team.creative.littleframes.common.packet.LittlePictureFramePacket;
 import team.creative.littleframes.common.structure.LittlePictureFrame;
-import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
@@ -34,9 +31,6 @@ public class LittleFrames {
     public static LittleFramesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleFrames.MODID);
     public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleFrames.MODID, "main"));
-    
-    public static final LittleStructureGuiCreator LITTLE_FRAME_GUI = GuiCreator
-            .register("little_frame", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittlePictureFrame((LittlePictureFrame) structure)));
     
     public LittleFrames() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
@@ -58,6 +52,7 @@ public class LittleFrames {
             NETWORK.registerType(LittlePictureFramePacket.class, LittlePictureFramePacket::new);
             LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry
                     .register("little_picture_frame", LittlePictureFrame.class, LittlePictureFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
+            LittleTilesIntegration.init();
         }
     }
     
