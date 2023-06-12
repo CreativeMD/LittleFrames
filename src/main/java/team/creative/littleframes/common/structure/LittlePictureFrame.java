@@ -112,23 +112,23 @@ public class LittlePictureFrame extends LittleStructure {
             return null;
         if (display != null)
             return display;
-        return display = cache.createDisplay(new Vec3d(getPos()), url, volume, minDistance, maxDistance, loop);
+        return display = cache.createDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
     }
     
     public void play() {
         playing = true;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     public void pause() {
         playing = false;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     public void stop() {
         playing = false;
         tick = 0;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getLevel(), getPos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
     }
     
     @Override
