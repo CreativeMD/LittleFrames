@@ -91,6 +91,8 @@ minecraft {
 }
 
 dependencies {
+    implementation fg.deobf("curse.maven:rubidium-574856:4573226")
+    
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
     implementation project(':CreativeCore')
