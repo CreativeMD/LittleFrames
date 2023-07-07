@@ -20,6 +20,8 @@ import javax.imageio.ImageReadParam;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
 
+import me.srrapero720.watermedia.api.images.LocalStorage;
+import me.srrapero720.watermedia.api.images.PictureFetcher;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -30,10 +32,8 @@ import net.minecraft.client.Minecraft;
 import team.creative.littleframes.LittleFrames;
 
 public class TextureSeeker extends Thread {
-    
     public static final Logger LOGGER = LogManager.getLogger(LittleFrames.class);
-    
-    public static final TextureStorage TEXTURE_STORAGE = new TextureStorage();
+
     public static final DateFormat FORMAT = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z");
     public static final Object LOCK = new Object();
     public static final int MAXIMUM_ACTIVE_DOWNLOADS = 5;
@@ -112,7 +112,7 @@ public class TextureSeeker extends Thread {
                 cache.processFailed("download.exception.notfound");
             else
                 cache.processFailed("download.exception.invalid");
-            TEXTURE_STORAGE.deleteEntry(cache.url);
+            LocalStorage.deleteEntry(cache.url);
         }
         
         synchronized (TextureSeeker.LOCK) {
@@ -121,16 +121,16 @@ public class TextureSeeker extends Thread {
     }
     
     public static byte[] load(String url) throws IOException, FoundVideoException, NoConnectionException {
-        TextureStorage.CacheEntry entry = TEXTURE_STORAGE.getEntry(url);
+        LocalStorage.Entry entry = LocalStorage.getEntry(url);
         long requestTime = System.currentTimeMillis();
         URLConnection connection = new URL(url).openConnection();
         try {
             connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
             int responseCode = -1;
             if (connection instanceof HttpURLConnection httpConnection) {
-                if (entry != null && entry.getFile().exists()) {
-                    if (entry.getEtag() != null)
-                        httpConnection.setRequestProperty("If-None-Match", entry.getEtag());
+                if (entry != null && LocalStorage.getFile(entry.getUrl()).exists()) {
+                    if (entry.getTag() != null)
+                        httpConnection.setRequestProperty("If-None-Match", entry.getTag());
                     else if (entry.getTime() != -1)
                         httpConnection.setRequestProperty("If-Modified-Since", FORMAT.format(new Date(entry.getTime())));
                 }
@@ -174,11 +174,11 @@ public class TextureSeeker extends Thread {
                 }
                 if (entry != null) {
                     if (etag != null && !etag.isEmpty()) {
-                        entry.setEtag(etag);
+                        entry.setTag(etag);
                     }
                     entry.setTime(lastModifiedTimestamp);
                     if (responseCode == HttpURLConnection.HTTP_NOT_MODIFIED) {
-                        File file = entry.getFile();
+                        File file = LocalStorage.getFile(entry.getUrl());
                         if (file.exists()) {
                             FileInputStream fileStream = new FileInputStream(file);
                             try {
@@ -193,7 +193,7 @@ public class TextureSeeker extends Thread {
                 byte[] data = IOUtils.toByteArray(in);
                 if (readType(data) == null)
                     throw new FoundVideoException();
-                TEXTURE_STORAGE.save(url, etag, lastModifiedTimestamp, expireTimestamp, data);
+                LocalStorage.saveFile(url, etag, lastModifiedTimestamp, expireTimestamp, data);
                 return data;
             } finally {
                 IOUtils.closeQuietly(in);
