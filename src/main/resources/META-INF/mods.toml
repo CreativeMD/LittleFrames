@@ -32,3 +32,10 @@ license="${mod_license}"
     ordering="NONE"
     side="BOTH"
     versionRange="${creativecore_version}"
+
+[[dependencies.${mod_id}]]
+    modId="watermedia"
+    mandatory=true
+    ordering="NONE"
+    side="CLIENT"
+    versionRange="${watermedia_version_range}"
