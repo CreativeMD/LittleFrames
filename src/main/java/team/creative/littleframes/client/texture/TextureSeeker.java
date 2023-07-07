@@ -15,7 +15,7 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.URL;
+import java.net.URI;
 import java.net.URLConnection;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -115,7 +115,7 @@ public class TextureSeeker extends Thread {
     public static byte[] load(String url) throws IOException, FoundVideoException, NoConnectionException {
         LocalStorage.Entry entry = LocalStorage.getEntry(url);
         long requestTime = System.currentTimeMillis();
-        URLConnection connection = new URL(url).openConnection();
+        URLConnection connection = URI.create(url).toURL().openConnection();
         try {
             connection.addRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:25.0) Gecko/20100101 Firefox/25.0");
             int responseCode = -1;
