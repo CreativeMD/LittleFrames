@@ -110,7 +110,7 @@ public class TextureCache {
     }
     
     private void trySeek() {
-        if (seeker != null || !canSeek) return;
+        if (seeker != null || !canSeek || url == null) return;
         synchronized (TextureSeeker.LOCK) {
             if (TextureSeeker.activeDownloads < TextureSeeker.MAXIMUM_ACTIVE_DOWNLOADS)
                 this.seeker = new TextureSeeker(this);
@@ -231,6 +231,7 @@ public class TextureCache {
     }
     
     public void remove() {
+        if (!canSeek) return; // If can't seek then DO NOT delete texture...
         ready = false;
         if (textures != null)
             for (int i = 0; i < textures.length; i++)
