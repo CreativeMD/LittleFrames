@@ -20,6 +20,8 @@ group= "team.creative" + project.mod_id
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+project.evaluationDependsOn(":LittleTiles")
+
 configurations {
     library
     implementation.extendsFrom library
@@ -50,6 +52,12 @@ minecraft {
             arg 'littletiles.mixins.json'
 
             mods {
+				creativecore {
+                    source project(':CreativeCore').sourceSets.main
+                }
+                littletiles {
+                    source project(':LittleTiles').sourceSets.main
+                }
                 "${mod_id}" {
                     source sourceSets.main
                 }
@@ -69,6 +77,12 @@ minecraft {
             arg 'littletiles.mixins.json'
             
             mods {
+                creativecore {
+                    source project(':CreativeCore').sourceSets.main
+                }
+                littletiles {
+                    source project(':LittleTiles').sourceSets.main
+                }
                 "${mod_id}" {
                     source sourceSets.main
                 }
@@ -81,13 +95,11 @@ dependencies {
     implementation fg.deobf("curse.maven:rubidium-574856:4573226")
     implementation fg.deobf("curse.maven:oculus-581495:4578741")
     implementation fg.deobf("curse.maven:watermedia-869524:4627579")
-
-    // Temp
-    implementation fg.deobf("curse.maven:creativecore-257814:4619971")
-    implementation fg.deobf("curse.maven:littletiles-257818:4619974")
-
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
+    
+    implementation project(':CreativeCore')
+    implementation project(':LittleTiles')
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
