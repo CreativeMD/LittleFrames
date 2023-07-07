@@ -13,7 +13,7 @@ import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
     
-    private GuiButton saveButton;
+    private final GuiButton saveButton;
     
     public GuiUrlTextfield(GuiButton saveButton, String name, String text) {
         super(name);

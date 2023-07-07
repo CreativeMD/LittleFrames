@@ -1,11 +1,19 @@
 package team.creative.littleframes.client.texture;
 
+import me.srrapero720.watermedia.api.external.GifDecoder;
+import me.srrapero720.watermedia.api.images.LocalStorage;
+import net.minecraft.client.Minecraft;
+import org.apache.commons.io.IOUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import team.creative.littleframes.LittleFrames;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReadParam;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -14,22 +22,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Iterator;
-
-import javax.imageio.ImageIO;
-import javax.imageio.ImageReadParam;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
-
-import me.srrapero720.watermedia.api.images.LocalStorage;
-import me.srrapero720.watermedia.api.images.PictureFetcher;
-import org.apache.commons.io.IOUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import me.srrapero720.watermedia.api.external.GifDecoder;
-
-import net.minecraft.client.Minecraft;
-import team.creative.littleframes.LittleFrames;
 
 public class TextureSeeker extends Thread {
     public static final Logger LOGGER = LogManager.getLogger(LittleFrames.class);
