@@ -24,7 +24,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.madgag.gif.fmsware.GifDecoder;
+import me.srrapero720.watermedia.api.external.GifDecoder;
 
 import net.minecraft.client.Minecraft;
 import team.creative.littleframes.LittleFrames;
