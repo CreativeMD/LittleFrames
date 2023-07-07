@@ -83,6 +83,7 @@ public class TextureCache {
     private long[] delay;
     private long duration;
     private boolean isVideo;
+    private final boolean canSeek;
     
     private TextureSeeker seeker;
     private boolean ready = false;
@@ -95,13 +96,27 @@ public class TextureCache {
     
     public TextureCache(String url) {
         this.url = url;
+        this.canSeek = true;
         use();
         trySeek();
     }
+
+    // Tweak between WaterMedia and LittleFrames
+    public TextureCache(BufferedImage image) {
+        this.url = null;
+        this.canSeek = false;
+        process(image);
+    }
+
+    // Tweak between WaterMedia and LittleFrames
+    public TextureCache(GifDecoder image) {
+        this.url = null;
+        this.canSeek = false;
+        process(image);
+    }
     
     private void trySeek() {
-        if (seeker != null)
-            return;
+        if (seeker != null || !canSeek) return;
         synchronized (TextureSeeker.LOCK) {
             if (TextureSeeker.activeDownloads < TextureSeeker.MAXIMUM_ACTIVE_DOWNLOADS)
                 this.seeker = new TextureSeeker(this);

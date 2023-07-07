@@ -3,6 +3,7 @@ package team.creative.littleframes.client.display;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
+import me.lib720.caprica.vlcj.binding.support.runtime.RuntimeUtil;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
@@ -20,9 +21,6 @@ import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class FrameVideoDisplay extends FrameDisplay {
-    
-    private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/VF3LuvM.png";
-    private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/2aN8ZQC.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
     
     private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
@@ -54,9 +52,9 @@ public class FrameVideoDisplay extends FrameDisplay {
             OPEN_DISPLAYS.add(display);
             return display;
         } else {
-            String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
-            TextureCache cache = TextureCache.get(failURL);
-            if (cache.ready()) return cache.createDisplay(pos, failURL, volume, minDistance, maxDistance, loop, true);
+            TextureCache cache = new TextureCache(RuntimeUtil.isWindows()
+                    ? WaterMediaAPI.VLC_FAILED.image : WaterMediaAPI.VLC_FAILED_INSTALL.image);
+            if (cache.ready()) return cache.createDisplay(pos, null, volume, minDistance, maxDistance, loop, true);
         }
         return null;
     }
