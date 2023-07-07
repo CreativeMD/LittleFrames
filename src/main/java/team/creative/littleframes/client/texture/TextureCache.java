@@ -29,7 +29,7 @@ import team.creative.littleframes.client.display.FrameVideoDisplay;
 
 public class TextureCache {
     
-    private static HashMap<String, TextureCache> cached = new HashMap<>();
+    private static final HashMap<String, TextureCache> cached = new HashMap<>();
     
     @SubscribeEvent
     public static void render(RenderTickEvent event) {

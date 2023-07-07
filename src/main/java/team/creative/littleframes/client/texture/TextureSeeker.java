@@ -42,7 +42,7 @@ public class TextureSeeker extends Thread {
     
     private static final Minecraft mc = Minecraft.getInstance();
     
-    private TextureCache cache;
+    private final TextureCache cache;
     
     public TextureSeeker(TextureCache cache) {
         this.cache = cache;
