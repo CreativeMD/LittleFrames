@@ -110,7 +110,7 @@ public class TextureCache {
     }
     
     private void trySeek() {
-        if (seeker != null || !canSeek || url == null) return;
+        if (seeker != null || !canSeek || url == null || url.isEmpty()) return;
         synchronized (TextureSeeker.LOCK) {
             if (TextureSeeker.activeDownloads < TextureSeeker.MAXIMUM_ACTIVE_DOWNLOADS)
                 this.seeker = new TextureSeeker(this);
