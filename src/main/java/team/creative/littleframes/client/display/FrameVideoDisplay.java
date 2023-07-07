@@ -229,14 +229,14 @@ public class FrameVideoDisplay extends FrameDisplay {
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null) return;
-        player.seekTo(WaterMediaAPI.gameTicksToMs(tick));
+        player.seekGameTicksTo(tick);
         player.pause();
     }
     
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null) return;
-        player.seekTo(WaterMediaAPI.gameTicksToMs(tick));
+        player.seekGameTicksTo(tick);
         player.play();
     }
     
