@@ -93,16 +93,12 @@ minecraft {
 dependencies {
     implementation fg.deobf("curse.maven:rubidium-574856:4573226")
     implementation fg.deobf("curse.maven:oculus-581495:4578741")
+    implementation fg.deobf("curse.maven:watermedia-869524:4627579")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
     implementation project(':CreativeCore')
     implementation project(':LittleTiles')
-	
-	library("uk.co.caprica:vlcj:5.0.0-SNAPSHOT") {
-        exclude group: 'net.java.dev.jna', module: 'jna-jpms'
-        exclude group: 'net.java.dev.jna', module: 'jna-platform-jpms'
-    }
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
