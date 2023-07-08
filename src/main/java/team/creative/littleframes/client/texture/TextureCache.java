@@ -3,6 +3,9 @@ package team.creative.littleframes.client.texture;
 import com.mojang.blaze3d.platform.GlStateManager;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.external.GifDecoder;
+import me.srrapero720.watermedia.api.images.LocalStorage;
+import me.srrapero720.watermedia.api.images.PictureFetcher;
+import me.srrapero720.watermedia.api.images.RenderablePicture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -10,6 +13,7 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
@@ -18,6 +22,7 @@ import team.creative.littleframes.client.display.FrameVideoDisplay;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -79,7 +84,7 @@ public class TextureCache {
     private boolean isVideo;
     private final boolean canSeek;
     
-    private TextureSeeker seeker;
+    private PictureFetcher seeker;
     private boolean ready = false;
     private String error;
     
@@ -111,9 +116,34 @@ public class TextureCache {
     
     private void trySeek() {
         if (seeker != null || !canSeek || url == null || url.isEmpty()) return;
-        synchronized (TextureSeeker.LOCK) {
-            if (TextureSeeker.activeDownloads < TextureSeeker.MAXIMUM_ACTIVE_DOWNLOADS)
-                this.seeker = new TextureSeeker(this);
+        if (PictureFetcher.canSeek()) {
+            seeker = new PictureFetcher(url) {
+                private final Minecraft MC = Minecraft.getInstance();
+
+                @Override
+                public void onFailed(@NotNull Exception e) {
+                    // This going to be enhanced on next watermedia version using GifLoadingException
+                    if (e instanceof IOException && e.getMessage().isEmpty())
+                        processFailed("download.exception.gif");
+                    else if (e instanceof PictureFetcher.VideoContentException)
+                        processFailed("No image found");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                        processFailed("download.exception.forbidden");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
+                        processFailed("download.exception.notfound");
+                    else
+                        processFailed("download.exception.invalid");
+                }
+
+                @Override
+                public void onSuccess(RenderablePicture renderablePicture) {
+                    if (renderablePicture.decoder != null) {
+                        MC.executeBlocking(() -> process(renderablePicture.decoder));
+                    } else if (renderablePicture.image != null) {
+                        MC.executeBlocking(() -> process(renderablePicture.image));
+                    }
+                }
+            };
         }
     }
     
