@@ -125,8 +125,12 @@ public class TextureCache {
                     // This going to be enhanced on next watermedia version using GifLoadingException
                     if (e instanceof IOException && e.getMessage().isEmpty())
                         processFailed("download.exception.gif");
-                    else if (e instanceof PictureFetcher.VideoContentException)
-                        processFailed("No image found");
+                    else if (e instanceof PictureFetcher.VideoContentException) {
+                        if (LittleFrames.CONFIG.useVLC) {
+                            processVideo();
+                            isVideo = true;
+                        } else processFailed("No image found");
+                    }
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
                         processFailed("download.exception.forbidden");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
