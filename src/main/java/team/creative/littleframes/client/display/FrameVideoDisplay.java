@@ -155,7 +155,8 @@ public class FrameVideoDisplay extends FrameDisplay {
             long newDuration = player.getDuration();
 
             // This doesn't works... you can try play a Twitch video and looks pretty laggy
-            if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0) stream = true;
+//            if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0) stream = true;
+            stream = player.isStream();
             if (stream) {
                 if (player.isPlaying() != realPlaying)
                     player.setPauseMode(!realPlaying);
