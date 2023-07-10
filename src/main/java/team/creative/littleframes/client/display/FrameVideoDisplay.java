@@ -70,7 +70,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     private boolean stream = false;
     private volatile float lastSetVolume;
     private volatile boolean needsUpdate = false;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
