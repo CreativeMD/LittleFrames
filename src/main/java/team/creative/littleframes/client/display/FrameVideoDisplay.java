@@ -152,12 +152,10 @@ public class FrameVideoDisplay extends FrameDisplay {
             
             if (player.getRepeatMode() != loop) player.setRepeatMode(loop);
             long tickTime = 50;
-            long newDuration = player.getDuration();
-
             // This doesn't works... you can try play a Twitch video and looks pretty laggy
-//            if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0) stream = true;
-            stream = player.isStream();
-            if (stream) {
+            // long newDuration = player.getDuration();
+            // if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0) stream = true;
+            if (player.isStream()) {
                 if (player.isPlaying() != realPlaying)
                     player.setPauseMode(!realPlaying);
             } else {
