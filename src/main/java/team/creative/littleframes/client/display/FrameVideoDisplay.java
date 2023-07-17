@@ -3,7 +3,7 @@ package team.creative.littleframes.client.display;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.lib720.caprica.vlcj.binding.support.runtime.RuntimeUtil;
+import me.srrapero720.watermedia.Util;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
@@ -52,8 +52,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             OPEN_DISPLAYS.add(display);
             return display;
         } else {
-            TextureCache cache = new TextureCache(RuntimeUtil.isWindows()
-                    ? WaterMediaAPI.VLC_FAILED.image : WaterMediaAPI.VLC_FAILED_INSTALL.image);
+            TextureCache cache = new TextureCache(Util.ARCH.wrapped ? WaterMediaAPI.VLC_FAILED.image : WaterMediaAPI.VLC_FAILED_INSTALL.image);
             if (cache.ready()) return cache.createDisplay(pos, null, volume, minDistance, maxDistance, loop, true);
         }
         return null;
