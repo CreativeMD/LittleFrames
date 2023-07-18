@@ -10,14 +10,7 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.controls.simple.*;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
@@ -26,7 +19,6 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.client.texture.TextureSeeker;
 import team.creative.littleframes.common.structure.LittlePictureFrame;
 import team.creative.littleframes.common.structure.LittlePictureFrame.FitMode;
 
@@ -151,12 +143,10 @@ public class GuiLittlePictureFrame extends GuiLayer {
         save.setEnabled(LittleFrames.CONFIG.canUse(getPlayer(), url.getText()));
         bottom.add(save);
         bottom.add(new GuiButton("reload", x -> {
-            synchronized (TextureSeeker.LOCK) {
-                if (Screen.hasShiftDown())
-                    TextureCache.reloadAll();
-                else if (frame.cache != null)
-                    frame.cache.reload();
-            }
+            if (Screen.hasShiftDown())
+                TextureCache.reloadAll();
+            else if (frame.cache != null)
+                frame.cache.reload();
         }).setTranslate("gui.creative_frame.reload").setTooltip(new TextBuilder().translate("gui.creative_frame.reloadtooltip").build()));
     }
     

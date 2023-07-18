@@ -1,19 +1,11 @@
 package team.creative.littleframes.client.texture;
 
-import java.awt.Dimension;
-import java.awt.image.BufferedImage;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-
-import com.madgag.gif.fmsware.GifDecoder;
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-
+import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.external.GifDecoder;
+import me.srrapero720.watermedia.api.images.LocalStorage;
+import me.srrapero720.watermedia.api.images.PictureFetcher;
+import me.srrapero720.watermedia.api.images.RenderablePicture;
 import net.minecraft.client.Minecraft;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.event.TickEvent.ClientTickEvent;
@@ -21,15 +13,22 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import org.jetbrains.annotations.NotNull;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+
 public class TextureCache {
     
-    private static HashMap<String, TextureCache> cached = new HashMap<>();
+    private static final HashMap<String, TextureCache> cached = new HashMap<>();
     
     @SubscribeEvent
     public static void render(RenderTickEvent event) {
@@ -83,8 +82,9 @@ public class TextureCache {
     private long[] delay;
     private long duration;
     private boolean isVideo;
+    private final boolean canSeek;
     
-    private TextureSeeker seeker;
+    private PictureFetcher seeker;
     private boolean ready = false;
     private String error;
     
@@ -95,22 +95,65 @@ public class TextureCache {
     
     public TextureCache(String url) {
         this.url = url;
+        this.canSeek = true;
         use();
         trySeek();
     }
+
+    // Tweak between WaterMedia and LittleFrames
+    public TextureCache(BufferedImage image) {
+        this.url = null;
+        this.canSeek = false;
+        process(image);
+    }
+
+    // Tweak between WaterMedia and LittleFrames
+    public TextureCache(GifDecoder image) {
+        this.url = null;
+        this.canSeek = false;
+        process(image);
+    }
     
     private void trySeek() {
-        if (seeker != null)
-            return;
-        synchronized (TextureSeeker.LOCK) {
-            if (TextureSeeker.activeDownloads < TextureSeeker.MAXIMUM_ACTIVE_DOWNLOADS)
-                this.seeker = new TextureSeeker(this);
+        if (seeker != null || !canSeek || url == null || url.isEmpty()) return;
+        if (PictureFetcher.canSeek()) {
+            seeker = new PictureFetcher(url) {
+                private final Minecraft MC = Minecraft.getInstance();
+
+                @Override
+                public void onFailed(@NotNull Exception e) {
+                    // This going to be enhanced on next watermedia version using GifLoadingException
+                    if (e instanceof IOException && e.getMessage().isEmpty())
+                        processFailed("download.exception.gif");
+                    else if (e instanceof PictureFetcher.VideoContentException) {
+                        if (LittleFrames.CONFIG.useVLC) {
+                            processVideo();
+                            isVideo = true;
+                        } else processFailed("No image found");
+                    }
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                        processFailed("download.exception.forbidden");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
+                        processFailed("download.exception.notfound");
+                    else
+                        processFailed("download.exception.invalid");
+                }
+
+                @Override
+                public void onSuccess(RenderablePicture renderablePicture) {
+                    if (renderablePicture.decoder != null) {
+                        MC.executeBlocking(() -> process(renderablePicture.decoder));
+                    } else if (renderablePicture.image != null) {
+                        MC.executeBlocking(() -> process(renderablePicture.image));
+                    }
+                }
+            };
         }
     }
     
     private int getTexture(int index) {
         if (textures[index] == -1 && decoder != null) {
-            textures[index] = uploadFrame(decoder.getFrame(index), width, height);
+            textures[index] = WaterMediaAPI.preRender(decoder.getFrame(index), width, height);
             remaining--;
             if (remaining <= 0)
                 decoder = null;
@@ -165,7 +208,7 @@ public class TextureCache {
     public void process(BufferedImage image) {
         width = image.getWidth();
         height = image.getHeight();
-        textures = new int[] { uploadFrame(image, width, height) };
+        textures = new int[] { WaterMediaAPI.preRender(image, width, height) };
         delay = new long[] { 0 };
         duration = 0;
         seeker = null;
@@ -222,6 +265,7 @@ public class TextureCache {
     }
     
     public void remove() {
+        if (!canSeek) return; // If can't seek then DO NOT delete texture...
         ready = false;
         if (textures != null)
             for (int i = 0; i < textures.length; i++)
@@ -251,54 +295,5 @@ public class TextureCache {
     public int getFrameCount() {
         return textures.length;
     }
-    
-    private static int uploadFrame(BufferedImage image, int width, int height) {
-        int[] pixels = new int[width * height];
-        image.getRGB(0, 0, width, height, pixels, 0, width);
-        boolean hasAlpha = false;
-        if (image.getColorModel().hasAlpha()) {
-            for (int pixel : pixels) {
-                if ((pixel >> 24 & 0xFF) < 0xFF) {
-                    hasAlpha = true;
-                    break;
-                }
-            }
-        }
-        int bytesPerPixel = hasAlpha ? 4 : 3;
-        ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * bytesPerPixel);
-        for (int pixel : pixels) {
-            buffer.put((byte) ((pixel >> 16) & 0xFF)); // Red component
-            buffer.put((byte) ((pixel >> 8) & 0xFF)); // Green component
-            buffer.put((byte) (pixel & 0xFF)); // Blue component
-            if (hasAlpha) {
-                buffer.put((byte) ((pixel >> 24) & 0xFF)); // Alpha component. Only for RGBA
-            }
-        }
-        buffer.flip();
-        
-        int textureID = GlStateManager._genTexture(); //Generate texture ID
-        RenderSystem.bindTexture(textureID); //Bind texture ID
-        
-        //Setup wrap mode
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_S, GL12.GL_CLAMP_TO_EDGE);
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, GL12.GL_CLAMP_TO_EDGE);
-        
-        //Setup texture scaling filtering
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MIN_FILTER, GL11.GL_LINEAR);
-        RenderSystem.texParameter(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_MAG_FILTER, GL11.GL_LINEAR);
-        
-        if (!hasAlpha)
-            RenderSystem.pixelStore(GL11.GL_UNPACK_ALIGNMENT, 1);
-        
-        // fixes random crash, when values are too high it causes a jvm crash, caused weird behavior when game is paused
-        GlStateManager._pixelStore(3314, 0);
-        GlStateManager._pixelStore(3316, 0);
-        GlStateManager._pixelStore(3315, 0);
-        
-        //Send texel data to OpenGL
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, hasAlpha ? GL11.GL_RGBA8 : GL11.GL_RGB8, width, height, 0, hasAlpha ? GL11.GL_RGBA : GL11.GL_RGB, GL11.GL_UNSIGNED_BYTE, buffer);
-        
-        //Return the texture ID so we can bind it later again
-        return textureID;
-    }
+
 }

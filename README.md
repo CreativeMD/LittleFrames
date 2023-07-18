@@ -1,6 +1,6 @@
 # LittleFrames
 
-In order to make it work you need to build https://github.com/CreativeMD/vlcj + https://github.com/CreativeMD/vlcj-natives yourself.
+You need to add in gradle LittleTiles and CreativeCore to make it work
 
 Steps
 * Clone these two repositories to your computer
