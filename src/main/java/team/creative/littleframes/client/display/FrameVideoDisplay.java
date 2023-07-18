@@ -1,32 +1,26 @@
 package team.creative.littleframes.client.display;
 
+import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.platform.MemoryTracker;
+import com.mojang.blaze3d.systems.RenderSystem;
+import me.srrapero720.watermedia.Util;
+import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
+import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+import me.srrapero720.watermedia.api.WaterMediaAPI;
+import me.srrapero720.watermedia.api.video.VideoLANPlayer;
+import net.minecraft.client.Minecraft;
+import org.lwjgl.opengl.GL11;
+import team.creative.creativecore.client.CreativeCoreClient;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
+import team.creative.littleframes.client.texture.TextureCache;
+
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.lwjgl.opengl.GL11;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.platform.MemoryTracker;
-import com.mojang.blaze3d.systems.RenderSystem;
-
-import net.minecraft.client.Minecraft;
-import team.creative.creativecore.client.CreativeCoreClient;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littleframes.client.texture.TextureCache;
-import team.creative.littleframes.client.vlc.VLCDiscovery;
-import uk.co.caprica.vlcj.player.base.MediaPlayer;
-import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
-import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback;
-
 public class FrameVideoDisplay extends FrameDisplay {
-    
-    private static final String VLC_DOWNLOAD_32 = "https://i.imgur.com/VF3LuvM.png";
-    private static final String VLC_DOWNLOAD_64 = "https://i.imgur.com/2aN8ZQC.png";
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
     
     private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
@@ -36,10 +30,10 @@ public class FrameVideoDisplay extends FrameDisplay {
             for (FrameVideoDisplay display : OPEN_DISPLAYS) {
                 if (Minecraft.getInstance().isPaused())
                     if (display.stream) {
-                        if (display.player.mediaPlayer().status().isPlaying())
-                            display.player.mediaPlayer().controls().setPause(true);
-                    } else if (display.player.mediaPlayer().status().length() > 0 && display.player.mediaPlayer().status().isPlaying())
-                        display.player.mediaPlayer().controls().setPause(true);
+                        if (display.player.isPlaying())
+                            display.player.setPauseMode(true);
+                    } else if (display.player.getDuration() > 0 && display.player.isPlaying())
+                        display.player.setPauseMode(true);
             }
         }
     }
@@ -53,25 +47,21 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     public static FrameDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
-        if (VLCDiscovery.isLoadedOrRequest()) {
-            if (VLCDiscovery.isAvailable()) {
-                FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
-                OPEN_DISPLAYS.add(display);
-                return display;
-            }
-        } else
-            return null;
-        String failURL = System.getProperty("sun.arch.data.model").equals("32") ? VLC_DOWNLOAD_32 : VLC_DOWNLOAD_64;
-        TextureCache cache = TextureCache.get(failURL);
-        if (cache.ready())
-            return cache.createDisplay(pos, failURL, volume, minDistance, maxDistance, loop, true);
+        if (WaterMediaAPI.isVLCReady()) {
+            FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
+            OPEN_DISPLAYS.add(display);
+            return display;
+        } else {
+            TextureCache cache = new TextureCache(Util.ARCH.wrapped ? WaterMediaAPI.VLC_FAILED.image : WaterMediaAPI.VLC_FAILED_INSTALL.image);
+            if (cache.ready()) return cache.createDisplay(pos, null, volume, minDistance, maxDistance, loop, true);
+        }
         return null;
     }
     
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public CallbackMediaPlayerComponent player;
+    public VideoLANPlayer player;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
@@ -79,7 +69,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     private boolean stream = false;
     private volatile float lastSetVolume;
     private volatile boolean needsUpdate = false;
-    private ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock = new ReentrantLock();
     private volatile boolean first = true;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
@@ -88,18 +78,14 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        player = new CallbackMediaPlayerComponent(VLCDiscovery.factory, null, null, false, new RenderCallback() {
-            
-            @Override
-            public void display(MediaPlayer mediaPlayer, ByteBuffer[] nativeBuffers, BufferFormat bufferFormat) {
-                lock.lock();
-                try {
-                    buffer.put(nativeBuffers[0].asIntBuffer());
-                    buffer.rewind();
-                    needsUpdate = true;
-                } finally {
-                    lock.unlock();
-                }
+        player = new VideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+            lock.lock();
+            try {
+                buffer.put(nativeBuffers[0].asIntBuffer());
+                buffer.rewind();
+                needsUpdate = true;
+            } finally {
+                lock.unlock();
             }
         }, new BufferFormatCallback() {
             
@@ -121,15 +107,12 @@ public class FrameVideoDisplay extends FrameDisplay {
             @Override
             public void allocatedBuffers(ByteBuffer[] buffers) {}
             
-        }, null);
+        });
         float tempVolume = getVolume(volume, minDistance, maxDistance);
-        player.mediaPlayer().audio().setVolume((int) tempVolume);
+        player.setVolume((int) tempVolume);
         lastSetVolume = tempVolume;
-        player.mediaPlayer().controls().setRepeat(loop);
-        var thread = new Thread(() -> player.mediaPlayer().media().start(url));
-        thread.setName("VLC/start");
-        thread.setDaemon(true);
-        thread.start();
+        player.setRepeatMode(loop);
+        player.start(url); // <-- this method is ASYNC. doesn't need a new thread
     }
     
     public int getVolume(float volume, float minDistance, float maxDistance) {
@@ -157,34 +140,35 @@ public class FrameVideoDisplay extends FrameDisplay {
         
         volume = getVolume(volume, minDistance, maxDistance);
         if (volume != lastSetVolume) {
-            player.mediaPlayer().audio().setVolume((int) volume);
+            player.setVolume((int) volume);
             lastSetVolume = volume;
         }
-        
-        if (player.mediaPlayer().media().isValid()) {
+
+        // IMPORTANT: WaterMedia changes behavior of this method trying to avoid deadlocks on ArchLinux
+        // More info: https://github.com/SrRapero720/watermedia/issues/3
+        if (player.isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
-            if (player.mediaPlayer().controls().getRepeat() != loop)
-                player.mediaPlayer().controls().setRepeat(loop);
+            if (player.getRepeatMode() != loop) player.setRepeatMode(loop);
             long tickTime = 50;
-            long newDuration = player.mediaPlayer().status().length();
-            if (!stream && newDuration != -1 && newDuration != 0 && player.mediaPlayer().media().info().duration() == 0)
-                stream = true;
-            if (stream) {
-                if (player.mediaPlayer().status().isPlaying() != realPlaying)
-                    player.mediaPlayer().controls().setPause(!realPlaying);
+            // This doesn't works... you can try play a Twitch video and looks pretty laggy
+            // long newDuration = player.getDuration();
+            // if (!stream && newDuration != -1 && newDuration != 0 && player.getMediaInfoDuration() == 0) stream = true;
+            if (player.isStream()) {
+                if (player.isPlaying() != realPlaying)
+                    player.setPauseMode(!realPlaying);
             } else {
-                if (player.mediaPlayer().status().length() > 0) {
-                    if (player.mediaPlayer().status().isPlaying() != realPlaying)
-                        player.mediaPlayer().controls().setPause(!realPlaying);
+                if (player.getDuration() > 0) {
+                    if (player.isPlaying() != realPlaying)
+                        player.setPauseMode(!realPlaying);
                     
-                    if (player.mediaPlayer().status().isSeekable()) {
+                    if (player.isSeekable()) {
                         long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
-                        if (time > player.mediaPlayer().status().time() && loop)
-                            time %= player.mediaPlayer().status().length();
-                        if (Math.abs(time - player.mediaPlayer().status().time()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
+                        if (time > player.getTime() && loop)
+                            time %= player.getDuration();
+                        if (Math.abs(time - player.getTime()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
                             lastCorrectedTime = time;
-                            player.mediaPlayer().controls().setTime(time);
+                            player.seekTo(time); // WaterMedia 3.0 (next major update with VLC 4) includes seekFastTo
                         }
                     }
                 }
@@ -220,10 +204,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public void free() {
         if (player != null) {
             var tempPlayer = player;
-            var thread = new Thread(() -> tempPlayer.mediaPlayer().release());
-            thread.setName("VLC/start");
-            thread.setDaemon(true);
-            thread.start();
+            tempPlayer.release();
         }
         if (texture != -1) {
             GlStateManager._deleteTexture(texture);
@@ -241,24 +222,20 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     @Override
-    public int texture() {
-        return texture;
-    }
+    public int texture() { return texture; }
     
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
-            return;
-        player.mediaPlayer().controls().setTime(tick * 50);
-        player.mediaPlayer().controls().pause();
+        if (player == null) return;
+        player.seekGameTicksTo(tick);
+        player.pause();
     }
     
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null)
-            return;
-        player.mediaPlayer().controls().setTime(tick * 50);
-        player.mediaPlayer().controls().play();
+        if (player == null) return;
+        player.seekGameTicksTo(tick);
+        player.play();
     }
     
     @Override

@@ -13,7 +13,7 @@ import team.creative.littleframes.LittleFrames;
 
 public class GuiUrlTextfield extends GuiTextfield {
     
-    private GuiButton saveButton;
+    private final GuiButton saveButton;
     
     public GuiUrlTextfield(GuiButton saveButton, String name, String text) {
         super(name, text);
@@ -44,9 +44,9 @@ public class GuiUrlTextfield extends GuiTextfield {
     @Override
     public List<Component> getTooltip() {
         if (!canUse(false))
-            return new TextBuilder().text(ChatFormatting.RED + "" + ChatFormatting.BOLD).translate("label.littleframes.not_whitelisted.name").build();
+            return new TextBuilder().text(ChatFormatting.RED + "" + ChatFormatting.BOLD).translate("label.littleframes.not_whitelisted").build();
         else if (!canUse(true))
-            return new TextBuilder().text(ChatFormatting.GOLD + "").translate("label.littleframes.whitelist_warning.name").build();
+            return new TextBuilder().text(ChatFormatting.GOLD + "").translate("label.littleframes.whitelist_warning").build();
         return null;
     }
     
