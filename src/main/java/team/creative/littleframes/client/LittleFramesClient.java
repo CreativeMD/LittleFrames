@@ -44,14 +44,14 @@ public class LittleFramesClient {
         
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
-        CreativeCoreClient
-                .registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"), new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
-                    
-                    @Override
-                    public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
-                        return Collections.singletonList(new RenderBox(0, 0, 0, BlockCreativePictureFrame.frameThickness, 1, 1, Blocks.OAK_PLANKS));
-                    }
-                });
+        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"),
+            new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
+                
+                @Override
+                public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
+                    return Collections.singletonList(new RenderBox(0, 0, 0, BlockCreativePictureFrame.frameThickness, 1, 1, Blocks.OAK_PLANKS));
+                }
+            });
         
         CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"), new CreativeBlockModel() {
             
@@ -69,7 +69,7 @@ public class LittleFramesClient {
             
             @Override
             public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
-                if (!data.get(visibility))
+                if (data.has(visibility) && !data.get(visibility))
                     return Collections.EMPTY_LIST;
                 RenderBox box = new RenderBox(BlockCreativePictureFrame.box(state.getValue(BlockCreativePictureFrame.FACING)), Blocks.OAK_PLANKS);
                 return Collections.singletonList(box);

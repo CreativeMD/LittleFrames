@@ -1,9 +1,17 @@
 package team.creative.littleframes.client.texture;
 
+import java.awt.Dimension;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+
+import org.jetbrains.annotations.NotNull;
+
 import com.mojang.blaze3d.platform.GlStateManager;
+
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.external.GifDecoder;
-import me.srrapero720.watermedia.api.images.LocalStorage;
 import me.srrapero720.watermedia.api.images.PictureFetcher;
 import me.srrapero720.watermedia.api.images.RenderablePicture;
 import net.minecraft.client.Minecraft;
@@ -13,18 +21,11 @@ import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.event.TickEvent.RenderTickEvent;
 import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import org.jetbrains.annotations.NotNull;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 
 public class TextureCache {
     
@@ -99,14 +100,14 @@ public class TextureCache {
         use();
         trySeek();
     }
-
+    
     // Tweak between WaterMedia and LittleFrames
     public TextureCache(BufferedImage image) {
         this.url = null;
         this.canSeek = false;
         process(image);
     }
-
+    
     // Tweak between WaterMedia and LittleFrames
     public TextureCache(GifDecoder image) {
         this.url = null;
@@ -115,11 +116,12 @@ public class TextureCache {
     }
     
     private void trySeek() {
-        if (seeker != null || !canSeek || url == null || url.isEmpty()) return;
+        if (seeker != null || !canSeek || url == null || url.isEmpty())
+            return;
         if (PictureFetcher.canSeek()) {
             seeker = new PictureFetcher(url) {
                 private final Minecraft MC = Minecraft.getInstance();
-
+                
                 @Override
                 public void onFailed(@NotNull Exception e) {
                     // This going to be enhanced on next watermedia version using GifLoadingException
@@ -129,16 +131,16 @@ public class TextureCache {
                         if (LittleFrames.CONFIG.useVLC) {
                             processVideo();
                             isVideo = true;
-                        } else processFailed("No image found");
-                    }
-                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                        } else
+                            processFailed("No image found");
+                    } else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
                         processFailed("download.exception.forbidden");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
                         processFailed("download.exception.notfound");
                     else
                         processFailed("download.exception.invalid");
                 }
-
+                
                 @Override
                 public void onSuccess(RenderablePicture renderablePicture) {
                     if (renderablePicture.decoder != null) {
@@ -265,7 +267,8 @@ public class TextureCache {
     }
     
     public void remove() {
-        if (!canSeek) return; // If can't seek then DO NOT delete texture...
+        if (!canSeek)
+            return; // If can't seek then DO NOT delete texture...
         ready = false;
         if (textures != null)
             for (int i = 0; i < textures.length; i++)
@@ -295,5 +298,5 @@ public class TextureCache {
     public int getFrameCount() {
         return textures.length;
     }
-
+    
 }
