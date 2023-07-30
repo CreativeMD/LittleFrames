@@ -3,11 +3,11 @@ package team.creative.littleframes.client.display;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.platform.MemoryTracker;
 import com.mojang.blaze3d.systems.RenderSystem;
-import me.srrapero720.watermedia.Util;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat;
 import me.lib720.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback;
+import me.srrapero720.watermedia.Util;
 import me.srrapero720.watermedia.api.WaterMediaAPI;
-import me.srrapero720.watermedia.api.video.VideoLANPlayer;
+import me.srrapero720.watermedia.api.video.SafeVideoLANPlayer;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.opengl.GL11;
 import team.creative.creativecore.client.CreativeCoreClient;
@@ -61,7 +61,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public volatile int width = 1;
     public volatile int height = 1;
     
-    public VideoLANPlayer player;
+    public SafeVideoLANPlayer player;
     
     private final Vec3d pos;
     private volatile IntBuffer buffer;
@@ -78,7 +78,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         this.pos = pos;
         texture = GlStateManager._genTexture();
         
-        player = new VideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
+        player = new SafeVideoLANPlayer(null, (mediaPlayer, nativeBuffers, bufferFormat) -> {
             lock.lock();
             try {
                 buffer.put(nativeBuffers[0].asIntBuffer());
