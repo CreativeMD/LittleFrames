@@ -80,7 +80,7 @@ minecraft {
 dependencies {
     implementation fg.deobf("curse.maven:rubidium-574856:4573226")
     implementation fg.deobf("curse.maven:oculus-581495:4578741")
-    implementation fg.deobf("curse.maven:watermedia-869524:4648608")
+    implementation fg.deobf("curse.maven:watermedia-869524:4672598")
 
     // Temp
     implementation fg.deobf("curse.maven:creativecore-257814:4619971")
