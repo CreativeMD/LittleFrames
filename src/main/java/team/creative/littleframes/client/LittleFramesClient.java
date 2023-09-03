@@ -3,6 +3,9 @@ package team.creative.littleframes.client;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -28,7 +31,7 @@ import team.creative.creativecore.client.render.model.CreativeBlockModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
-import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.client.display.FrameVideoDisplay;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
 import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
@@ -40,7 +43,7 @@ public class LittleFramesClient {
     }
     
     public static void setup(FMLClientSetupEvent event) {
-        MinecraftForge.EVENT_BUS.register(TextureCache.class);
+        MinecraftForge.EVENT_BUS.register(LittleFramesClient.class);
         
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
@@ -77,6 +80,19 @@ public class LittleFramesClient {
         });
         
         BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativePictureFrameRenderer());
+    }
+
+    @SubscribeEvent
+    public static void render(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START)
+            FrameVideoDisplay.tick();
+    }
+
+    @SubscribeEvent
+    public static void unload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            FrameVideoDisplay.unload();
+        }
     }
     
 }

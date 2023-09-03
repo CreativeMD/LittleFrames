@@ -7,6 +7,8 @@ plugins {
 }
 
 repositories {
+    mavenLocal()
+    maven { url 'https://jitpack.io' }
     maven {
         url "https://cursemaven.com"
         content {
@@ -92,12 +94,14 @@ minecraft {
 }
 
 dependencies {
-    minecraftLibrary fg.deobf("curse.maven:rubidium-574856:4684247")
-    minecraftLibrary fg.deobf("curse.maven:oculus-581495:4578741")
-    implementation fg.deobf("curse.maven:watermedia-869524:4672598")
-    
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
 
+    // TEST
+    implementation fg.deobf("curse.maven:rubidium-574856:4573226")
+    implementation fg.deobf("curse.maven:oculus-581495:4578741")
+
+    // DEPENDENCIES
+    implementation "com.github.SrRapero720.watermedia:build:${watermedia_version}"
     implementation project(':CreativeCore')
     implementation project(':LittleTiles')
 }
