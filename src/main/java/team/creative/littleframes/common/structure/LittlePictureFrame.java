@@ -1,8 +1,5 @@
 package team.creative.littleframes.common.structure;
 
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
-
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -10,7 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
-
+import me.srrapero720.watermedia.api.image.ImageCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,6 +21,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
@@ -35,7 +34,8 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleTilesIntegration;
 import team.creative.littleframes.client.display.FrameDisplay;
-import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.client.display.FramePictureDisplay;
+import team.creative.littleframes.client.display.FrameVideoDisplay;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
 import team.creative.littleframes.common.packet.LittlePictureFramePacket;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -44,6 +44,8 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
+
+import static team.creative.littleframes.LittleFrames.LOGGER;
 
 public class LittlePictureFrame extends LittleStructure {
     
@@ -71,9 +73,10 @@ public class LittlePictureFrame extends LittleStructure {
     public boolean loop = true;
     public int tick = 0;
     public boolean playing = true;
+    public boolean released = false;
     
     @OnlyIn(Dist.CLIENT)
-    public TextureCache cache;
+    public ImageCache cache;
     
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay display;
@@ -103,17 +106,55 @@ public class LittlePictureFrame extends LittleStructure {
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay requestDisplay() {
         String url = getURL();
+        if (released) {
+            cache = null;
+            return null;
+        }
         if (cache == null || !cache.url.equals(url)) {
-            cache = TextureCache.get(url);
-            if (display != null)
-                display.release();
+            cache = ImageCache.get(url, Minecraft.getInstance());
+            cleanDisplay();
+        }
+
+        switch (cache.getStatus()) {
+            case READY -> {
+                if (display != null) return display;
+                if (cache.isVideo()) return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
+                else return display = new FramePictureDisplay(cache);
+            }
+            case WAITING -> {
+                cleanDisplay();
+                cache.load();
+                return display;
+            }
+            case FAILED -> { return null; }
+            case FORGOTTEN -> {
+                LOGGER.warn("Cached picture is forgotten, cleaning and reloading");
+                cache = null;
+                return null;
+            }
+            case LOADING -> {
+                // missing impl
+                 return null;
+            }
+            default -> {
+                LOGGER.warn("WATERMeDIA Behavior is modified, this shouldn't be executed");
+                return null;
+            }
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void cleanDisplay() {
+        if (display != null) {
+            display.release();
             display = null;
         }
-        if (!cache.isVideo() && (!cache.ready() || cache.getError() != null))
-            return null;
-        if (display != null)
-            return display;
-        return display = cache.createDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void release() {
+        cleanDisplay();
+        released = true;
     }
     
     public void play() {
@@ -266,7 +307,7 @@ public class LittlePictureFrame extends LittleStructure {
         super.tick();
         if (isClient()) {
             FrameDisplay display = requestDisplay();
-            if (display != null)
+            if (display != null && display.canTick())
                 display.tick(url, volume, minDistance, maxDistance, playing, loop, tick);
         }
         if (playing)
@@ -277,7 +318,7 @@ public class LittlePictureFrame extends LittleStructure {
     public void unload() {
         super.unload();
         if (isClient() && display != null)
-            display.release();
+            release();
     }
     
     public static enum FitMode {

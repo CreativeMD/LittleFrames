@@ -1,5 +1,7 @@
 package team.creative.littleframes.client.gui;
 
+import me.srrapero720.watermedia.api.image.ImageCache;
+import me.srrapero720.watermedia.api.image.ImageFetch;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
@@ -18,7 +20,6 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.structure.LittlePictureFrame;
 import team.creative.littleframes.common.structure.LittlePictureFrame.FitMode;
 
@@ -98,8 +99,21 @@ public class GuiLittlePictureFrame extends GuiLayer {
         url.setMaxStringLength(512);
         add(url);
         GuiLabel error = new GuiLabel("error").setDefaultColor(ColorUtils.RED);
-        if (frame.cache != null && frame.cache.getError() != null)
-            error.setTranslate(frame.cache.getError());
+        if (frame.isClient() && frame.cache != null) {
+            if (frame.cache.getStatus().equals(ImageCache.Status.FAILED)) {
+                Exception e = frame.cache.getException();
+                if (frame.cache.isVideo()) {
+                    if (!LittleFrames.CONFIG.useVLC) error.setTitle(Component.literal("Image not found"));
+                } else {
+                    if (e instanceof ImageFetch.GifDecodingException) error.setTranslate("download.exception.gif");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                        error.setTranslate("download.exception.forbidden");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
+                        error.setTranslate("download.exception.notfound");
+                    else error.setTranslate("download.exception.invalid");
+                }
+            }
+        }
         add(error);
         GuiStateButtonMapped<FitMode> button = new GuiStateButtonMapped<FitMode>("fit", new TextMapBuilder<FitMode>()
                 .addComponent(FitMode.values(), x -> Component.translatable("gui.little_frame.fitmode." + x.name())));
@@ -143,10 +157,8 @@ public class GuiLittlePictureFrame extends GuiLayer {
         save.setEnabled(LittleFrames.CONFIG.canUse(getPlayer(), url.getText()));
         bottom.add(save);
         bottom.add(new GuiButton("reload", x -> {
-            if (Screen.hasShiftDown())
-                TextureCache.reloadAll();
-            else if (frame.cache != null)
-                frame.cache.reload();
+            if (Screen.hasShiftDown()) ImageCache.reloadAll();
+            else if (frame.cache != null) frame.cache.reload();
         }).setTranslate("gui.creative_frame.reload").setTooltip(new TextBuilder().translate("gui.creative_frame.reloadtooltip").build()));
     }
     
