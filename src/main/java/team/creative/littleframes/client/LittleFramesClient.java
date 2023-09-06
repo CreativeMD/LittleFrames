@@ -3,9 +3,6 @@ package team.creative.littleframes.client;
 import java.util.Collections;
 import java.util.List;
 
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -23,7 +20,10 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -81,13 +81,13 @@ public class LittleFramesClient {
         
         BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativePictureFrameRenderer());
     }
-
+    
     @SubscribeEvent
     public static void render(TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START)
             FrameVideoDisplay.tick();
     }
-
+    
     @SubscribeEvent
     public static void unload(LevelEvent.Unload event) {
         if (event.getLevel().isClientSide()) {

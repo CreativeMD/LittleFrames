@@ -7,8 +7,8 @@ import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
 
 public class LittleTilesIntegration {
     
-    public static final LittleStructureGuiCreator LITTLE_FRAME_GUI = GuiCreator
-            .register("little_frame", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittlePictureFrame((LittlePictureFrame) structure)));
+    public static final LittleStructureGuiCreator LITTLE_FRAME_GUI = GuiCreator.register("little_frame",
+        new LittleStructureGuiCreator((nbt, player, structure) -> new GuiLittlePictureFrame((LittlePictureFrame) structure)));
     
     public static void init() {}
 }

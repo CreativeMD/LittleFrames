@@ -12,7 +12,14 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.*;
+import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
+import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
+import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.GuiIcon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
@@ -103,20 +110,23 @@ public class GuiLittlePictureFrame extends GuiLayer {
             if (frame.cache.getStatus().equals(ImageCache.Status.FAILED)) {
                 Exception e = frame.cache.getException();
                 if (frame.cache.isVideo()) {
-                    if (!LittleFrames.CONFIG.useVLC) error.setTitle(Component.literal("Image not found"));
+                    if (!LittleFrames.CONFIG.useVLC)
+                        error.setTitle(Component.literal("Image not found"));
                 } else {
-                    if (e instanceof ImageFetch.GifDecodingException) error.setTranslate("download.exception.gif");
+                    if (e instanceof ImageFetch.GifDecodingException)
+                        error.setTranslate("download.exception.gif");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
                         error.setTranslate("download.exception.forbidden");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
                         error.setTranslate("download.exception.notfound");
-                    else error.setTranslate("download.exception.invalid");
+                    else
+                        error.setTranslate("download.exception.invalid");
                 }
             }
         }
         add(error);
-        GuiStateButtonMapped<FitMode> button = new GuiStateButtonMapped<FitMode>("fit", new TextMapBuilder<FitMode>()
-                .addComponent(FitMode.values(), x -> Component.translatable("gui.little_frame.fitmode." + x.name())));
+        GuiStateButtonMapped<FitMode> button = new GuiStateButtonMapped<FitMode>("fit", new TextMapBuilder<FitMode>().addComponent(FitMode.values(), x -> Component.translatable(
+            "gui.little_frame.fitmode." + x.name())));
         button.select(frame.fitMode);
         add(button);
         
@@ -157,8 +167,10 @@ public class GuiLittlePictureFrame extends GuiLayer {
         save.setEnabled(LittleFrames.CONFIG.canUse(getPlayer(), url.getText()));
         bottom.add(save);
         bottom.add(new GuiButton("reload", x -> {
-            if (Screen.hasShiftDown()) ImageCache.reloadAll();
-            else if (frame.cache != null) frame.cache.reload();
+            if (Screen.hasShiftDown())
+                ImageCache.reloadAll();
+            else if (frame.cache != null)
+                frame.cache.reload();
         }).setTranslate("gui.creative_frame.reload").setTooltip(new TextBuilder().translate("gui.creative_frame.reloadtooltip").build()));
     }
     

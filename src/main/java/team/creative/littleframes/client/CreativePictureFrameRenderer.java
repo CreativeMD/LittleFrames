@@ -52,13 +52,13 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         if (display == null)
             return;
         
-        display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options
-                .getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+        display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance,
+            frame.playing, frame.loop, frame.tick);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
-        RenderSystem
-                .blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+            GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
         RenderSystem.setShaderColor(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
         int texture = display.texture();
         
@@ -87,8 +87,8 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         for (BoxCorner corner : face.corners)
-            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
+            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
+                    .getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
         tesselator.end();
         
         if (frame.bothSides) {
@@ -96,8 +96,8 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
             
             for (int i = face.corners.length - 1; i >= 0; i--) {
                 BoxCorner corner = face.corners[i];
-                builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                        .uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face.getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
+                builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
+                        .getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
             }
             tesselator.end();
         }

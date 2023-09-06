@@ -1,5 +1,7 @@
 package team.creative.littleframes.common.block;
 
+import static team.creative.littleframes.LittleFrames.LOGGER;
+
 import me.srrapero720.watermedia.api.image.ImageCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -24,8 +26,6 @@ import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
 import team.creative.littleframes.common.packet.CreativePictureFramePacket;
-
-import static team.creative.littleframes.LittleFrames.LOGGER;
 
 public class BECreativePictureFrame extends BlockEntityCreative {
     
@@ -60,7 +60,7 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public boolean loop = true;
     public int tick = 0;
     public boolean playing = true;
-
+    
     private boolean released = false;
     
     @OnlyIn(Dist.CLIENT)
@@ -90,7 +90,7 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public void setURL(String url) {
         this.url = url;
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay requestDisplay() {
         String url = getURL();
@@ -102,19 +102,24 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             cache = ImageCache.get(url, Minecraft.getInstance());
             cleanDisplay();
         }
-
+        
         switch (cache.getStatus()) {
             case READY -> {
-                if (display != null) return display;
-                if (cache.isVideo()) return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
-                else return display = new FramePictureDisplay(cache);
+                if (display != null)
+                    return display;
+                if (cache.isVideo())
+                    return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(worldPosition), url, volume, minDistance, maxDistance, loop);
+                else
+                    return display = new FramePictureDisplay(cache);
             }
             case WAITING -> {
                 cleanDisplay();
                 cache.load();
                 return display;
             }
-            case LOADING, FAILED -> { return null; }
+            case LOADING, FAILED -> {
+                return null;
+            }
             case FORGOTTEN -> {
                 LOGGER.warn("Cached picture is forgotten, cleaning and reloading");
                 cache = null;
@@ -126,7 +131,7 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             }
         }
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     private void cleanDisplay() {
         if (display != null) {
@@ -134,14 +139,13 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             display = null;
         }
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     private void release() {
         cleanDisplay();
         released = true;
     }
-
-
+    
     public AlignedBox getBox() {
         Direction direction = getBlockState().getValue(BlockCreativePictureFrame.FACING);
         Facing facing = Facing.get(direction);
@@ -285,13 +289,15 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     
     @Override
     public void setRemoved() {
-        if (isClient() && display != null) release();
+        if (isClient() && display != null)
+            release();
         super.setRemoved();
     }
     
     @Override
     public void onChunkUnloaded() {
-        if (isClient() && display != null) release();
+        if (isClient() && display != null)
+            release();
         super.onChunkUnloaded();
     }
 }

@@ -17,6 +17,6 @@ public abstract class FrameDisplay {
     public abstract int texture();
     
     public abstract void release();
-
+    
     public abstract boolean canTick();
 }

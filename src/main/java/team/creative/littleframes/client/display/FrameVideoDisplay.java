@@ -1,14 +1,15 @@
 package team.creative.littleframes.client.display;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.mojang.blaze3d.platform.MemoryTracker;
+
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
 import net.minecraft.client.Minecraft;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class FrameVideoDisplay extends FrameDisplay {
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
@@ -85,18 +86,20 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null) return;
+        if (player == null)
+            return;
         
         volume = getVolume(volume, minDistance, maxDistance);
         if (volume != lastSetVolume) {
             player.setVolume((int) volume);
             lastSetVolume = volume;
         }
-
+        
         if (player.isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
-            if (player.getRepeatMode() != loop) player.setRepeatMode(loop);
+            if (player.getRepeatMode() != loop)
+                player.setRepeatMode(loop);
             long tickTime = 50;
             stream = player.isLive();
             if (stream) {
@@ -123,7 +126,8 @@ public class FrameVideoDisplay extends FrameDisplay {
     
     @Override
     public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null) return;
+        if (player == null)
+            return;
         player.prepareTexture();
     }
     
@@ -144,18 +148,22 @@ public class FrameVideoDisplay extends FrameDisplay {
     }
     
     @Override
-    public int texture() { return player.getTexture(); }
+    public int texture() {
+        return player.getTexture();
+    }
     
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null) return;
+        if (player == null)
+            return;
         player.seekTo(WaterMediaAPI.math_ticksToMillis(tick));
         player.pause();
     }
     
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        if (player == null) return;
+        if (player == null)
+            return;
         player.seekTo(WaterMediaAPI.math_ticksToMillis(tick));
         player.play();
     }
@@ -169,7 +177,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     public int getHeight() {
         return player.getHeight();
     }
-
+    
     @Override
     public boolean canTick() {
         return (player != null && player.isSafeUse());

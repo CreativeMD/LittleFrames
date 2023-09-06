@@ -50,8 +50,8 @@ public class LittleFrames {
         
         if (ModList.get().isLoaded("littletiles")) {
             NETWORK.registerType(LittlePictureFramePacket.class, LittlePictureFramePacket::new);
-            LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry
-                    .register("little_picture_frame", LittlePictureFrame.class, LittlePictureFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
+            LittleStructureBuilder.register(new LittleStructureBuilderType(LittleStructureRegistry.register("little_picture_frame", LittlePictureFrame.class,
+                LittlePictureFrame::new, new LittleAttributeBuilder().tickRendering().ticking()), "frame"));
             LittleTilesIntegration.init();
         }
     }

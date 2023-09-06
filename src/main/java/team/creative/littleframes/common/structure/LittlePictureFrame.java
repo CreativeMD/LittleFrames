@@ -1,5 +1,10 @@
 package team.creative.littleframes.common.structure;
 
+import static team.creative.littleframes.LittleFrames.LOGGER;
+
+import org.joml.Matrix4f;
+import org.lwjgl.opengl.GL11;
+
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
@@ -7,6 +12,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+
 import me.srrapero720.watermedia.api.image.ImageCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
@@ -21,8 +27,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import org.joml.Matrix4f;
-import org.lwjgl.opengl.GL11;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
@@ -44,8 +48,6 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.directional.StructureDirectional;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
-
-import static team.creative.littleframes.LittleFrames.LOGGER;
 
 public class LittlePictureFrame extends LittleStructure {
     
@@ -114,19 +116,24 @@ public class LittlePictureFrame extends LittleStructure {
             cache = ImageCache.get(url, Minecraft.getInstance());
             cleanDisplay();
         }
-
+        
         switch (cache.getStatus()) {
             case READY -> {
-                if (display != null) return display;
-                if (cache.isVideo()) return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
-                else return display = new FramePictureDisplay(cache);
+                if (display != null)
+                    return display;
+                if (cache.isVideo())
+                    return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
+                else
+                    return display = new FramePictureDisplay(cache);
             }
             case WAITING -> {
                 cleanDisplay();
                 cache.load();
                 return display;
             }
-            case FAILED -> { return null; }
+            case FAILED -> {
+                return null;
+            }
             case FORGOTTEN -> {
                 LOGGER.warn("Cached picture is forgotten, cleaning and reloading");
                 cache = null;
@@ -134,7 +141,7 @@ public class LittlePictureFrame extends LittleStructure {
             }
             case LOADING -> {
                 // missing impl
-                 return null;
+                return null;
             }
             default -> {
                 LOGGER.warn("WATERMeDIA Behavior is modified, this shouldn't be executed");
@@ -142,7 +149,7 @@ public class LittlePictureFrame extends LittleStructure {
             }
         }
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     private void cleanDisplay() {
         if (display != null) {
@@ -150,7 +157,7 @@ public class LittlePictureFrame extends LittleStructure {
             display = null;
         }
     }
-
+    
     @OnlyIn(Dist.CLIENT)
     private void release() {
         cleanDisplay();
@@ -284,9 +291,8 @@ public class LittlePictureFrame extends LittleStructure {
         builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         for (BoxCorner corner : face.corners)
-            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z))
-                    .uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0)
-                    .color(255, 255, 255, 255).endVertex();
+            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner
+                    .isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).color(255, 255, 255, 255).endVertex();
         tesselator.end();
     }
     
