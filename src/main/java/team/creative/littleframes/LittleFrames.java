@@ -30,7 +30,7 @@ public class LittleFrames {
     
     public static LittleFramesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleFrames.MODID);
-    public static final CreativeNetwork NETWORK = new CreativeNetwork("1.0", LOGGER, new ResourceLocation(LittleFrames.MODID, "main"));
+    public static final CreativeNetwork NETWORK = new CreativeNetwork(1, LOGGER, new ResourceLocation(LittleFrames.MODID, "main"));
     
     public LittleFrames() {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
