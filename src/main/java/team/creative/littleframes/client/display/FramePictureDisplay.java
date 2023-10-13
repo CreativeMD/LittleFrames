@@ -25,10 +25,10 @@ public class FramePictureDisplay extends FrameDisplay {
     @Override
     public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         long time = WaterMediaAPI.math_ticksToMillis(tick) + (playing ? (long) (CreativeCoreClient.getFrameTime() * 50) : 0);
-        long duration = cache.getRenderer().duration;
+        long duration = image.duration;
         if ((duration > 0) && (time > duration) && loop)
             time %= duration;
-        textureId = cache.getRenderer().texture(time);
+        textureId = image.texture(time);
     }
     
     @Override
