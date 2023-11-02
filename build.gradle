@@ -197,7 +197,7 @@ tasks.modrinth.enabled = System.getenv("MODRINTH_TOKEN") != null
 tasks.modrinth.group = 'publishing'
 modrinth {
     token = System.getenv("MODRINTH_TOKEN")
-    projectId = project.mod_id
+    projectId = project.modrinth_id
     versionNumber = project.mod_version
     versionType = project.release_type
     uploadFile = jar
