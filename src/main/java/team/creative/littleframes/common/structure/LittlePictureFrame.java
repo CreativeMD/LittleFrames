@@ -294,6 +294,8 @@ public class LittlePictureFrame extends LittleStructure {
             builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0, corner
                     .isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).color(255, 255, 255, 255).endVertex();
         tesselator.end();
+        
+        RenderSystem.setShaderColor(1, 1, 1, 1);
     }
     
     @Override

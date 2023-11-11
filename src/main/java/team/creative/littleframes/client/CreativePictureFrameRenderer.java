@@ -102,6 +102,7 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
             tesselator.end();
         }
         
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         pose.popPose();
     }
     
