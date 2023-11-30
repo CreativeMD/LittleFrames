@@ -9,7 +9,6 @@ plugins {
 }
 
 repositories {
-    mavenLocal()
     maven { url 'https://jitpack.io' }
     maven {
         url "https://cursemaven.com"
@@ -17,7 +16,9 @@ repositories {
             includeGroup "curse.maven"
         }
     }
-    mavenLocal()
+    maven {
+        url "https://maven.blamejared.com"
+    }
 }
 
 group= "team.creative" + project.mod_id
@@ -99,7 +100,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
 
     // TEST
-    //minecraftLibrary fg.deobf("curse.maven:rubidium-574856:4573226")
+    minecraftLibrary fg.deobf("org.embeddedt:embeddium-1.20.1:0.2.11-git.23aedfb+mc1.20.1")
     minecraftLibrary fg.deobf("curse.maven:oculus-581495:4767500")
 
     // DEPENDENCIES
