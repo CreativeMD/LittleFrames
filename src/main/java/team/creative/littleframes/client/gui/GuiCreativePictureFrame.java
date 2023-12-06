@@ -149,8 +149,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             nbt.putFloat("max", max.getValue());
             
             nbt.putString("url", url.getText());
-            nbt.putFloat("x", Math.max(0.1F, sizeX.getValue()));
-            nbt.putFloat("y", Math.max(0.1F, sizeY.getValue()));
+            nbt.putFloat("x", Math.max(0.1F, (float) sizeX.getValue()));
+            nbt.putFloat("y", Math.max(0.1F, (float) sizeY.getValue()));
             SET_DATA.send(nbt);
         });
         save.setTranslate("gui.save");
@@ -187,18 +187,19 @@ public class GuiCreativePictureFrame extends GuiLayer {
         add(size);
         
         size.add(new GuiCounterDecimal("sizeX", frame.getSizeX(), 0, Float.MAX_VALUE) {
+            
             @Override
-            public float stepUp(float value) {
-                int scaled = (int) (value / scaleMultiplier);
+            public void stepUp() {
+                int scaled = (int) (getValue() / scaleMultiplier);
                 scaled++;
-                return Math.min(max, scaled * scaleMultiplier);
+                setValue(Math.min(max, scaled * scaleMultiplier));
             }
             
             @Override
-            public float stepDown(float value) {
-                int scaled = (int) (value / scaleMultiplier);
+            public void stepDown() {
+                int scaled = (int) (getValue() / scaleMultiplier);
                 scaled--;
-                return Math.max(min, scaled * scaleMultiplier);
+                setValue(Math.max(max, scaled * scaleMultiplier));
             }
         });
         
@@ -206,7 +207,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiCounterDecimal sizeXField = get("sizeX", GuiCounterDecimal.class);
             GuiCounterDecimal sizeYField = get("sizeY", GuiCounterDecimal.class);
             
-            float x = sizeXField.getValue();
+            double x = sizeXField.getValue();
             
             if (frame.display != null)
                 sizeYField.setValue(frame.display.getHeight() / (frame.display.getWidth() / x));
@@ -214,17 +215,17 @@ public class GuiCreativePictureFrame extends GuiLayer {
         
         size.add(new GuiCounterDecimal("sizeY", frame.getSizeY(), 0, Float.MAX_VALUE) {
             @Override
-            public float stepUp(float value) {
-                int scaled = (int) (value / scaleMultiplier);
+            public void stepUp() {
+                int scaled = (int) (getValue() / scaleMultiplier);
                 scaled++;
-                return Math.min(max, scaled * scaleMultiplier);
+                setValue(Math.min(max, scaled * scaleMultiplier));
             }
             
             @Override
-            public float stepDown(float value) {
-                int scaled = (int) (value / scaleMultiplier);
+            public void stepDown() {
+                int scaled = (int) (getValue() / scaleMultiplier);
                 scaled--;
-                return Math.max(min, scaled * scaleMultiplier);
+                setValue(Math.max(max, scaled * scaleMultiplier));
             }
         });
         
@@ -232,7 +233,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiCounterDecimal sizeXField = get("sizeX", GuiCounterDecimal.class);
             GuiCounterDecimal sizeYField = get("sizeY", GuiCounterDecimal.class);
             
-            float y = sizeYField.getValue();
+            double y = sizeYField.getValue();
             
             if (frame.display != null)
                 sizeXField.setValue(frame.display.getWidth() / (frame.display.getHeight() / y));
