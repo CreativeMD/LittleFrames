@@ -39,5 +39,6 @@
     "config.littleframes.disableAdventure.comment": "If true, players in adventure mode will not be able to edit frames",
     "config.littleframes.onlyCreative.comment": "If true, only players in creative mode can edit frames",
     "config.littleframes.whitelistEnabled.comment": "If true, only URLs listed in the whitelist can be used for a frame",
-    "config.littleframes.whitelist.comment": "A list of URLs that can be used for frames"
+    "config.littleframes.whitelist.comment": "A list of URLs that can be used for frames",
+    "structure.little_picture_frame": "Little Picture Frame"
 }
