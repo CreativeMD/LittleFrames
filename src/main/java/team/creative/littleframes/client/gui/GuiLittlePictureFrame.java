@@ -10,6 +10,7 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
+import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
@@ -58,7 +59,7 @@ public class GuiLittlePictureFrame extends GuiLayer {
     });
     
     public GuiLittlePictureFrame(LittlePictureFrame frame) {
-        super("little_frame");
+        super("little_frame", 200, 180);
         this.frame = frame;
     }
     
@@ -154,12 +155,14 @@ public class GuiLittlePictureFrame extends GuiLayer {
         play.add(new GuiIconButton("pause", GuiIcon.PAUSE, x -> PAUSE.send(EndTag.INSTANCE)));
         play.add(new GuiIconButton("stop", GuiIcon.STOP, x -> STOP.send(EndTag.INSTANCE)));
         
-        play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
-        play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
-        play.add(new GuiSlider("volume", frame.volume, 0, 1));
-        play.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
-        play.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512));
-        play.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512));
+        add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
+        add(new GuiLabeledControl("gui.creative_frame.volume", new GuiSlider("volume", frame.volume, 0, 1).setExpandableX()));
+        
+        GuiParent range = new GuiParent();
+        add(range);
+        range.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
+        range.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512).setExpandableX());
+        range.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512).setExpandableX());
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X);
         bottom.align = Align.RIGHT;
