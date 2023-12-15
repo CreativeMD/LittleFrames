@@ -61,6 +61,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public int tick = 0;
     public boolean playing = true;
     
+    public int refreshInterval = -1;
+    public int refreshCounter = 0;
+    
     private boolean released = false;
     
     @OnlyIn(Dist.CLIENT)
@@ -225,6 +228,10 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         nbt.putBoolean("playing", playing);
         nbt.putInt("tick", tick);
         nbt.putBoolean("loop", loop);
+        if (refreshInterval < 0)
+            nbt.remove("refresh");
+        else
+            nbt.putInt("refresh", refreshInterval);
     }
     
     @Override
@@ -267,6 +274,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");
+        refreshInterval = nbt.contains("refresh") ? nbt.getInt("refresh") : -1;
+        if (refreshInterval > 0)
+            refreshCounter = refreshInterval;
     }
     
     @Override
@@ -281,6 +291,16 @@ public class BECreativePictureFrame extends BlockEntityCreative {
                 FrameDisplay display = be.requestDisplay();
                 if (display != null && display.canTick())
                     display.tick(be.url, be.volume, be.minDistance, be.maxDistance, be.playing, be.loop, be.tick);
+                
+                if (be.refreshInterval > 0) {
+                    if (be.refreshCounter <= 0) {
+                        be.refreshCounter = be.refreshInterval;
+                        if (be.cache != null)
+                            be.cache.reload();
+                        System.out.println("Reloaded");
+                    } else
+                        be.refreshCounter--;
+                }
             }
             if (be.playing)
                 be.tick++;

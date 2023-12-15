@@ -9,12 +9,14 @@ import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiCounterDecimal;
+import team.creative.creativecore.common.gui.controls.simple.GuiDuration;
 import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
@@ -86,6 +88,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
             frame.maxDistance = nbt.getFloat("max");
             frame.alpha = nbt.getFloat("transparency");
             frame.brightness = nbt.getFloat("brightness");
+            frame.refreshCounter = frame.refreshInterval = nbt.getInt("refresh");
         }
         
         frame.markDirty();
@@ -128,6 +131,9 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiSteppedSlider min = get("range_min");
             GuiSteppedSlider max = get("range_max");
             
+            GuiCheckBox autoRefresh = get("autoRefresh");
+            GuiDuration duration = get("duration");
+            
             nbt.putByte("posX", (byte) buttonPosX.getState());
             nbt.putByte("posY", (byte) buttonPosY.getState());
             
@@ -151,6 +157,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             nbt.putString("url", url.getText());
             nbt.putFloat("x", Math.max(0.1F, (float) sizeX.getValue()));
             nbt.putFloat("y", Math.max(0.1F, (float) sizeY.getValue()));
+            
+            nbt.putInt("refresh", autoRefresh.value ? duration.getDuration() : -1);
             SET_DATA.send(nbt);
         });
         save.setTranslate("gui.save");
@@ -297,6 +305,12 @@ public class GuiCreativePictureFrame extends GuiLayer {
         range.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
         range.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512).setExpandableX());
         range.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512).setExpandableX());
+        
+        GuiParent refresh = new GuiParent();
+        refresh.spacing = 10;
+        add(refresh.setVAlign(VAlign.CENTER));
+        refresh.add(new GuiCheckBox("autoRefresh", frame.refreshInterval > 0).setTranslate("gui.creative_frame.autoReload"));
+        refresh.add(new GuiDuration("duration", frame.refreshInterval, false, true, true, true));
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X);
         bottom.align = Align.RIGHT;

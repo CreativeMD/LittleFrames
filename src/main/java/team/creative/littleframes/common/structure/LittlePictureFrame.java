@@ -75,6 +75,10 @@ public class LittlePictureFrame extends LittleStructure {
     public boolean loop = true;
     public int tick = 0;
     public boolean playing = true;
+    
+    public int refreshInterval = -1;
+    public int refreshCounter = 0;
+    
     public boolean released = false;
     
     @OnlyIn(Dist.CLIENT)
@@ -210,6 +214,9 @@ public class LittlePictureFrame extends LittleStructure {
         tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");
         fitMode = FitMode.values()[nbt.getInt("fitMode")];
+        refreshInterval = nbt.contains("refresh") ? nbt.getInt("refresh") : -1;
+        if (refreshInterval > 0)
+            refreshCounter = refreshInterval;
     }
     
     @Override
@@ -227,6 +234,10 @@ public class LittlePictureFrame extends LittleStructure {
         nbt.putInt("tick", tick);
         nbt.putBoolean("loop", loop);
         nbt.putInt("fitMode", fitMode.ordinal());
+        if (refreshInterval < 0)
+            nbt.remove("refresh");
+        else
+            nbt.putInt("refresh", refreshInterval);
     }
     
     @Override
@@ -317,6 +328,15 @@ public class LittlePictureFrame extends LittleStructure {
             FrameDisplay display = requestDisplay();
             if (display != null && display.canTick())
                 display.tick(url, volume, minDistance, maxDistance, playing, loop, tick);
+            
+            if (refreshInterval > 0) {
+                if (refreshCounter <= 0) {
+                    refreshCounter = refreshInterval;
+                    if (cache != null)
+                        cache.reload();
+                } else
+                    refreshCounter--;
+            }
         }
         if (playing)
             tick++;
