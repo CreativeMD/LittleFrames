@@ -74,7 +74,6 @@ public class LittlePictureFrame extends LittleStructure {
     
     public boolean loop = true;
     public int tick = 0;
-    public boolean playing = true;
     
     public int refreshInterval = -1;
     public int refreshCounter = 0;
@@ -169,19 +168,20 @@ public class LittlePictureFrame extends LittleStructure {
     }
     
     public void play() {
-        playing = true;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
+        if (!getOutput(0).getState().any())
+            getOutput(0).toggle();
     }
     
     public void pause() {
-        playing = false;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
+        if (getOutput(0).getState().any())
+            getOutput(0).toggle();
     }
     
     public void stop() {
-        playing = false;
+        if (getOutput(0).getState().any())
+            getOutput(0).toggle();
         tick = 0;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), playing, tick), getStructureLevel(), getStructurePos());
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), getOutput(0).getState().any(), tick), getStructureLevel(), getStructurePos());
     }
     
     @Override
@@ -210,7 +210,6 @@ public class LittlePictureFrame extends LittleStructure {
         else
             maxDistance = 20;
         
-        playing = nbt.getBoolean("playing");
         tick = nbt.getInt("tick");
         loop = nbt.getBoolean("loop");
         fitMode = FitMode.values()[nbt.getInt("fitMode")];
@@ -230,7 +229,6 @@ public class LittlePictureFrame extends LittleStructure {
         nbt.putFloat("min", minDistance);
         nbt.putFloat("max", maxDistance);
         
-        nbt.putBoolean("playing", playing);
         nbt.putInt("tick", tick);
         nbt.putBoolean("loop", loop);
         nbt.putInt("fitMode", fitMode.ordinal());
@@ -264,7 +262,8 @@ public class LittlePictureFrame extends LittleStructure {
         if (display == null)
             return;
         
-        display.prepare(getURL(), volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), minDistance, maxDistance, playing, loop, tick);
+        display.prepare(getURL(), volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), minDistance, maxDistance, getOutput(0).getState().any(), loop,
+            tick);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
@@ -327,7 +326,7 @@ public class LittlePictureFrame extends LittleStructure {
         if (isClient()) {
             FrameDisplay display = requestDisplay();
             if (display != null && display.canTick())
-                display.tick(url, volume, minDistance, maxDistance, playing, loop, tick);
+                display.tick(url, volume, minDistance, maxDistance, getOutput(0).getState().any(), loop, tick);
             
             if (refreshInterval > 0) {
                 if (refreshCounter <= 0) {
@@ -338,7 +337,7 @@ public class LittlePictureFrame extends LittleStructure {
                     refreshCounter--;
             }
         }
-        if (playing)
+        if (getOutput(0).getState().any())
             tick++;
     }
     
