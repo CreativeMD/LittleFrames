@@ -6,7 +6,7 @@ license="LGPL-3.0-only"
 [[mods]]
     modId="littleframes"
     logoFile="littleframes.png"
-    version="1.3.5"
+    version="1.3.6"
     displayName="LittleFrames"
     displayURL="https://modrinth.com/mod/littlepictureframes"
     authors="CreativeMD"
