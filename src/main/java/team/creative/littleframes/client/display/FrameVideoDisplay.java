@@ -1,9 +1,8 @@
 package team.creative.littleframes.client.display;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-
-import com.mojang.blaze3d.platform.MemoryTracker;
 
 import me.srrapero720.watermedia.api.WaterMediaAPI;
 import me.srrapero720.watermedia.api.player.SyncVideoPlayer;
@@ -58,7 +57,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         super();
         this.pos = pos;
         
-        player = new SyncVideoPlayer(Minecraft.getInstance(), MemoryTracker::create);
+        player = new SyncVideoPlayer(Minecraft.getInstance(), ByteBuffer::allocateDirect);
         float tempVolume = getVolume(volume, minDistance, maxDistance);
         player.setVolume((int) tempVolume);
         lastSetVolume = tempVolume;
