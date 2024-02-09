@@ -20,6 +20,7 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -244,7 +245,7 @@ public class LittlePictureFrame extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
         LittleTilesIntegration.LITTLE_FRAME_GUI.open(player, this);
         return InteractionResult.SUCCESS;
     }
