@@ -14,17 +14,17 @@ import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiCounterDecimal;
 import team.creative.creativecore.common.gui.controls.simple.GuiDuration;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -291,9 +291,9 @@ public class GuiCreativePictureFrame extends GuiLayer {
         GuiParent play = new GuiParent(GuiFlow.STACK_X);
         add(play);
         
-        play.add(new GuiIconButton("play", GuiIcon.PLAY, button -> PLAY.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("pause", GuiIcon.PAUSE, button -> PAUSE.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("stop", GuiIcon.STOP, button -> STOP.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("play", Icon.PLAY, button -> PLAY.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("pause", Icon.PAUSE, button -> PAUSE.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("stop", Icon.STOP, button -> STOP.send(EndTag.INSTANCE)));
         
         play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
         play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));

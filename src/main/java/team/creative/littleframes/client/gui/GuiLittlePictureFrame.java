@@ -15,16 +15,16 @@ import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiDuration;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -159,9 +159,9 @@ public class GuiLittlePictureFrame extends GuiLayer {
         GuiParent play = new GuiParent(GuiFlow.STACK_X);
         add(play);
         
-        play.add(new GuiIconButton("play", GuiIcon.PLAY, x -> PLAY.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("pause", GuiIcon.PAUSE, x -> PAUSE.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("stop", GuiIcon.STOP, x -> STOP.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("play", Icon.PLAY, x -> PLAY.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("pause", Icon.PAUSE, x -> PAUSE.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("stop", Icon.STOP, x -> STOP.send(EndTag.INSTANCE)));
         
         add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
         add(new GuiLabeledControl("gui.creative_frame.volume", new GuiSlider("volume", frame.volume, 0, 1).setExpandableX()));
