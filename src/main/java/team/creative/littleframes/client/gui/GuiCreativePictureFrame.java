@@ -1,5 +1,6 @@
 package team.creative.littleframes.client.gui;
 
+import me.srrapero720.watermedia.api.image.ImageAPI;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
@@ -12,13 +13,12 @@ import team.creative.creativecore.common.gui.controls.parent.GuiRow;
 import team.creative.creativecore.common.gui.controls.parent.GuiTable;
 import team.creative.creativecore.common.gui.controls.simple.*;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextListBuilder;
 import team.creative.littleframes.LittleFrames;
-import team.creative.littleframes.client.texture.TextureCache;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
 
 public class GuiCreativePictureFrame extends GuiLayer {
@@ -122,26 +122,26 @@ public class GuiCreativePictureFrame extends GuiLayer {
             nbt.putByte("posX", (byte) buttonPosX.getState());
             nbt.putByte("posY", (byte) buttonPosY.getState());
             
-            nbt.putFloat("rotation", (float) rotation.value);
+            nbt.putFloat("rotation", (float) rotation.getValue());
             
             nbt.putBoolean("flipX", flipX.value);
             nbt.putBoolean("flipY", flipY.value);
             nbt.putBoolean("visibleFrame", visibleFrame.value);
             nbt.putBoolean("bothSides", bothSides.value);
             
-            nbt.putInt("render", (int) renderDistance.value);
+            nbt.putInt("render", (int) renderDistance.getValue());
             
-            nbt.putFloat("transparency", (float) transparency.value);
-            nbt.putFloat("brightness", (float) brightness.value);
+            nbt.putFloat("transparency", (float) transparency.getValue());
+            nbt.putFloat("brightness", (float) brightness.getValue());
             
             nbt.putBoolean("loop", loop.value);
-            nbt.putFloat("volume", (float) volume.value);
-            nbt.putFloat("min", min.getValue());
-            nbt.putFloat("max", max.getValue());
+            nbt.putFloat("volume", (float) volume.getValue());
+            nbt.putFloat("min", (float) min.getValue());
+            nbt.putFloat("max", (float) max.getValue());
             
             nbt.putString("url", url.getText());
-            nbt.putFloat("x", Math.max(0.1F, sizeX.getValue()));
-            nbt.putFloat("y", Math.max(0.1F, sizeY.getValue()));
+            nbt.putFloat("x", (float) Math.max(0.1F, sizeX.getValue()));
+            nbt.putFloat("y", (float) Math.max(0.1F, sizeY.getValue()));
             SET_DATA.send(nbt);
         });
         save.setTranslate("gui.save");
@@ -153,61 +153,33 @@ public class GuiCreativePictureFrame extends GuiLayer {
         url.setMaxStringLength(512);
         add(url);
         GuiLabel error = new GuiLabel("error").setDefaultColor(ColorUtils.RED);
-        if (frame.isClient() && frame.cache != null && frame.cache.getError() != null)
-            error.setTranslate(frame.cache.getError());
+        if (frame.isClient() && frame.cache != null && frame.cache.getException() != null)
+            error.setTranslate(frame.cache.getException().getLocalizedMessage());
         add(error);
         
         GuiParent size = new GuiParent(GuiFlow.STACK_X);
         size.align = Align.STRETCH;
         add(size);
         
-        size.add(new GuiCounterDecimal("sizeX", frame.getSizeX(), 0, Float.MAX_VALUE) {
-            @Override
-            public float stepUp(float value) {
-                int scaled = (int) (value / scaleMultiplier);
-                scaled++;
-                return Math.min(max, scaled * scaleMultiplier);
-            }
-            
-            @Override
-            public float stepDown(float value) {
-                int scaled = (int) (value / scaleMultiplier);
-                scaled--;
-                return Math.max(min, scaled * scaleMultiplier);
-            }
-        });
+        size.add(new GuiCounterDecimal("sizeX", frame.getSizeX(), 0, Float.MAX_VALUE).setStep(scaleMultiplier));
         
         size.add(new GuiButton("reX", but -> {
             GuiCounterDecimal sizeXField = get("sizeX", GuiCounterDecimal.class);
             GuiCounterDecimal sizeYField = get("sizeY", GuiCounterDecimal.class);
             
-            float x = sizeXField.getValue();
+            float x = (float) sizeXField.getValue();
             
             if (frame.display != null)
                 sizeYField.setValue(frame.display.getHeight() / (frame.display.getWidth() / x));
         }).setTitle(Component.literal("x->y")));
         
-        size.add(new GuiCounterDecimal("sizeY", frame.getSizeY(), 0, Float.MAX_VALUE) {
-            @Override
-            public float stepUp(float value) {
-                int scaled = (int) (value / scaleMultiplier);
-                scaled++;
-                return Math.min(max, scaled * scaleMultiplier);
-            }
-            
-            @Override
-            public float stepDown(float value) {
-                int scaled = (int) (value / scaleMultiplier);
-                scaled--;
-                return Math.max(min, scaled * scaleMultiplier);
-            }
-        });
+        size.add(new GuiCounterDecimal("sizeY", frame.getSizeY(), 0, Float.MAX_VALUE).setStep(scaleMultiplier));
         
         size.add(new GuiButton("reY", but -> {
             GuiCounterDecimal sizeXField = get("sizeX", GuiCounterDecimal.class);
             GuiCounterDecimal sizeYField = get("sizeY", GuiCounterDecimal.class);
             
-            float y = sizeYField.getValue();
+            float y = (float) sizeYField.getValue();
             
             if (frame.display != null)
                 sizeXField.setValue(frame.display.getWidth() / (frame.display.getHeight() / y));
@@ -257,9 +229,9 @@ public class GuiCreativePictureFrame extends GuiLayer {
         GuiParent play = new GuiParent(GuiFlow.STACK_X);
         add(play);
         
-        play.add(new GuiIconButton("play", GuiIcon.PLAY, button -> PLAY.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("pause", GuiIcon.PAUSE, button -> PAUSE.send(EndTag.INSTANCE)));
-        play.add(new GuiIconButton("stop", GuiIcon.STOP, button -> STOP.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("play", Icon.PLAY, button -> PLAY.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("pause", Icon.PAUSE, button -> PAUSE.send(EndTag.INSTANCE)));
+        play.add(new GuiButtonIcon("stop", Icon.STOP, button -> STOP.send(EndTag.INSTANCE)));
         
         play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
         play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
@@ -279,7 +251,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
         bottom.add(save);
         bottom.add(new GuiButton("reload", x -> {
             if (Screen.hasShiftDown())
-                TextureCache.reloadAll();
+                ImageAPI.reloadCache();
             else if (frame.cache != null)
                 frame.cache.reload();
         }).setTranslate("gui.creative_frame.reload").setTooltip(new TextBuilder().translate("gui.creative_frame.reloadtooltip").build()));

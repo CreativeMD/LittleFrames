@@ -3,6 +3,10 @@ package team.creative.littleframes.client;
 import java.util.Collections;
 import java.util.List;
 
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.level.LevelEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import org.jetbrains.annotations.NotNull;
 
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
@@ -19,7 +23,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.data.ModelData;
 import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
@@ -28,11 +31,12 @@ import team.creative.creativecore.client.render.model.CreativeBlockModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.LittleFramesRegistry;
-import team.creative.littleframes.client.texture.TextureCache;
+import team.creative.littleframes.client.display.FrameVideoDisplay;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
 import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
 @OnlyIn(Dist.CLIENT)
+@Mod.EventBusSubscriber(modid = LittleFrames.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class LittleFramesClient {
     
     public static void load(IEventBus bus) {
@@ -40,7 +44,6 @@ public class LittleFramesClient {
     }
     
     public static void setup(FMLClientSetupEvent event) {
-        MinecraftForge.EVENT_BUS.register(TextureCache.class);
         
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
@@ -77,6 +80,20 @@ public class LittleFramesClient {
         });
         
         BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativePictureFrameRenderer());
+    }
+
+
+    @SubscribeEvent
+    public static void render(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.START)
+            FrameVideoDisplay.tick();
+    }
+
+    @SubscribeEvent
+    public static void unload(LevelEvent.Unload event) {
+        if (event.getLevel().isClientSide()) {
+            FrameVideoDisplay.unload();
+        }
     }
     
 }

@@ -1,41 +1,43 @@
 modLoader="javafml"
-loaderVersion="${loader_version_range}"
-issueTrackerURL="https://github.com/${github_project}/issues"
-license="${mod_license}"
+loaderVersion="[43,)"
+issueTrackerURL="https://github.com/CreativeMD/LittleFrames/issues"
+license="LGPL-3.0-only"
 
 [[mods]]
-    modId="${mod_id}"
-    logoFile="${mod_id}.png"
-    version="${mod_version}"
-    displayName="${mod_name}"
-    displayURL="${mod_display_url}"
-    authors="${mod_authors}"
-    description='''${mod_description}'''
-    
-[[dependencies.${mod_id}]]
+    modId="littleframes"
+    logoFile="littleframes.png"
+    version="1.3.9"
+    displayName="LittleFrames"
+    displayURL="https://modrinth.com/mod/littlepictureframes"
+    displayTest="MATCH_VERSION"
+    authors="CreativeMD"
+    description='''Adds ways to display images/videos/audio ingame.'''
+
+[[dependencies.littleframes]]
     modId="forge"
     mandatory=true
-    versionRange="${forge_version_range}"
+    versionRange="[43.2,)"
     ordering="NONE"
     side="BOTH"
 
-[[dependencies.${mod_id}]]
+[[dependencies.littleframes]]
     modId="minecraft"
     mandatory=true
-    versionRange="${minecraft_version_range}"
+    versionRange="[1.19.2,1.19.3)"
     ordering="NONE"
     side="BOTH"
-    
-[[dependencies.${mod_id}]]
-    modId="creativecore"
-    mandatory=true
-    ordering="NONE"
-    side="BOTH"
-    versionRange="${creativecore_version}"
 
-[[dependencies.${mod_id}]]
-    modId="watermedia"
-    mandatory=true
-    ordering="NONE"
-    side="CLIENT"
-    versionRange="${watermedia_version_range}"
+[[dependencies.littleframes]]
+   modId="creativecore"
+   mandatory=true
+   ordering="NONE"
+   side="BOTH"
+   versionRange="2.11.27"
+
+[[dependencies.littleframes]]
+   modId="watermedia"
+   mandatory=true
+   ordering="NONE"
+   side="CLIENT"
+   versionRange="[2.0,2.1)"
+

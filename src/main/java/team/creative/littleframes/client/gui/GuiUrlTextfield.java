@@ -18,6 +18,7 @@ public class GuiUrlTextfield extends GuiTextfield {
     public GuiUrlTextfield(GuiButton saveButton, String name, String text) {
         super(name, text);
         this.saveButton = saveButton;
+        this.setMaxStringLength(2048);
     }
     
     @Override
