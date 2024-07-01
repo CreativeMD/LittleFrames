@@ -1,6 +1,5 @@
 package team.creative.littleframes.client.display;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,9 +12,9 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 
 public class FrameVideoDisplay extends FrameDisplay {
     private static final int ACCEPTABLE_SYNC_TIME = 1000;
-
+    
     private static final List<FrameVideoDisplay> OPEN_DISPLAYS = new ArrayList<>();
-
+    
     public static void tick() {
         synchronized (OPEN_DISPLAYS) {
             for (FrameVideoDisplay display : OPEN_DISPLAYS) {
@@ -28,7 +27,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             }
         }
     }
-
+    
     public static void unload() {
         synchronized (OPEN_DISPLAYS) {
             for (FrameVideoDisplay display : OPEN_DISPLAYS)
@@ -36,7 +35,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             OPEN_DISPLAYS.clear();
         }
     }
-
+    
     public static FrameDisplay createVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         if (PlayerAPI.isReady()) {
             FrameVideoDisplay display = new FrameVideoDisplay(pos, url, volume, minDistance, maxDistance, loop);
@@ -46,18 +45,18 @@ public class FrameVideoDisplay extends FrameDisplay {
             return FramePictureDisplay.VLC_FAILED;
         }
     }
-
+    
     public SyncVideoPlayer player;
-
+    
     private final Vec3d pos;
     private boolean stream = false;
     private volatile float lastSetVolume;
     private long lastCorrectedTime = Long.MIN_VALUE;
-
+    
     public FrameVideoDisplay(Vec3d pos, String url, float volume, float minDistance, float maxDistance, boolean loop) {
         super();
         this.pos = pos;
-
+        
         player = new SyncVideoPlayer(Minecraft.getInstance());
         float tempVolume = getVolume(volume, minDistance, maxDistance);
         player.setVolume((int) tempVolume);
@@ -65,7 +64,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         player.setRepeatMode(loop);
         player.start(url); // <-- this method is ASYNC. doesn't need a new thread
     }
-
+    
     public int getVolume(float volume, float minDistance, float maxDistance) {
         if (player == null)
             return 0;
@@ -75,7 +74,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             maxDistance = minDistance;
             minDistance = temp;
         }
-
+        
         if (distance > minDistance)
             if (distance > maxDistance)
                 volume = 0;
@@ -83,21 +82,21 @@ public class FrameVideoDisplay extends FrameDisplay {
                 volume *= 1 - ((distance - minDistance) / (maxDistance - minDistance));
         return (int) (volume * 100F);
     }
-
+    
     @Override
     public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
             return;
-
+        
         volume = getVolume(volume, minDistance, maxDistance);
         if (volume != lastSetVolume) {
             player.setVolume((int) volume);
             lastSetVolume = volume;
         }
-
+        
         if (player.isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
-
+            
             if (player.getRepeatMode() != loop)
                 player.setRepeatMode(loop);
             long tickTime = 50;
@@ -109,7 +108,7 @@ public class FrameVideoDisplay extends FrameDisplay {
                 if (player.getDuration() > 0) {
                     if (player.isPlaying() != realPlaying)
                         player.setPauseMode(!realPlaying);
-
+                    
                     if (player.isSeekAble()) {
                         long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
                         if (time > player.getTime() && loop)
@@ -123,14 +122,14 @@ public class FrameVideoDisplay extends FrameDisplay {
             }
         }
     }
-
+    
     @Override
     public int prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
             return -1;
         return player.getGlTexture();
     }
-
+    
     public void free() {
         if (player != null) {
             var tempPlayer = player;
@@ -138,7 +137,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         }
         player = null;
     }
-
+    
     @Override
     public void release() {
         free();
@@ -146,7 +145,7 @@ public class FrameVideoDisplay extends FrameDisplay {
             OPEN_DISPLAYS.remove(this);
         }
     }
-
+    
     @Override
     public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
@@ -154,7 +153,7 @@ public class FrameVideoDisplay extends FrameDisplay {
         player.seekTo(MathAPI.tickToMs(tick));
         player.pause();
     }
-
+    
     @Override
     public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
         if (player == null)
@@ -162,17 +161,17 @@ public class FrameVideoDisplay extends FrameDisplay {
         player.seekTo(MathAPI.tickToMs(tick));
         player.play();
     }
-
+    
     @Override
     public int getWidth() {
         return player.getWidth();
     }
-
+    
     @Override
     public int getHeight() {
         return player.getHeight();
     }
-
+    
     @Override
     public boolean canTick() {
         return (player != null && player.isSafeUse());
