@@ -1,9 +1,10 @@
 package team.creative.littleframes.common.block;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -54,6 +55,11 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
     }
     
     @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
+    }
+    
+    @Override
     public BlockState rotate(BlockState state, LevelAccessor world, BlockPos pos, Rotation rotation) {
         return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
     }
@@ -94,7 +100,7 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
     }
     
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
         if (!level.isClientSide && LittleFrames.CONFIG.canInteract(player, level))
             GuiCreator.BLOCK_OPENER.open(player, pos);
         return InteractionResult.SUCCESS;

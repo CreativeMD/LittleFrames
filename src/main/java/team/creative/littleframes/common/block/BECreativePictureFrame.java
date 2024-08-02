@@ -6,14 +6,14 @@ import me.srrapero720.watermedia.api.image.ImageCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.loading.FMLPaths;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLPaths;
 import team.creative.creativecore.common.be.BlockEntityCreative;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -179,14 +179,8 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     }
     
     @Override
-    @OnlyIn(Dist.CLIENT)
-    public AABB getRenderBoundingBox() {
-        return getBox().getBB(getBlockPos());
-    }
-    
-    @Override
-    public void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    protected void saveAdditional(CompoundTag nbt, Provider provider) {
+        super.saveAdditional(nbt, provider);
         savePicture(nbt);
     }
     
@@ -235,8 +229,8 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     }
     
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(CompoundTag nbt, Provider provider) {
+        super.loadAdditional(nbt, provider);
         loadPicture(nbt);
     }
     

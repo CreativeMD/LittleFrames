@@ -6,6 +6,7 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -16,9 +17,10 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
@@ -38,6 +40,11 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
     @Override
     public boolean shouldRender(BECreativePictureFrame frame, Vec3 vec) {
         return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, frame.renderDistance);
+    }
+    
+    @Override
+    public AABB getRenderBoundingBox(BECreativePictureFrame frame) {
+        return frame.getBox().getBB(frame.getBlockPos());
     }
     
     @Override
@@ -83,24 +90,20 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         
         RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        BufferBuilder builder = tesselator.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         Matrix4f mat = pose.last().pose();
         for (BoxCorner corner : face.corners)
-            builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
-                    .getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
-        tesselator.end();
+            builder.addVertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).setUv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
+                    .getTexV()) != frame.flipY ? 1 : 0).setColor(255, 255, 255, 255);
         
         if (frame.bothSides) {
-            builder.begin(Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
-            
             for (int i = face.corners.length - 1; i >= 0; i--) {
                 BoxCorner corner = face.corners[i];
-                builder.vertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
-                        .getTexV()) != frame.flipY ? 1 : 0).color(255, 255, 255, 255).endVertex();
+                builder.addVertex(mat, box.get(corner.x), box.get(corner.y), box.get(corner.z)).setUv(corner.isFacing(face.getTexU()) != frame.flipX ? 1 : 0, corner.isFacing(face
+                        .getTexV()) != frame.flipY ? 1 : 0).setColor(255, 255, 255, 255);
             }
-            tesselator.end();
         }
+        BufferUploader.drawWithShader(builder.buildOrThrow());
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         pose.popPose();

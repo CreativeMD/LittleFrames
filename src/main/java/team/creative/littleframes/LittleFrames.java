@@ -5,13 +5,13 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.littleframes.client.LittleFramesClient;
@@ -31,17 +31,18 @@ public class LittleFrames {
     
     public static LittleFramesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleFrames.MODID);
-    public static final CreativeNetwork NETWORK = new CreativeNetwork(1, LOGGER, new ResourceLocation(LittleFrames.MODID, "main"));
+    public static final CreativeNetwork NETWORK = new CreativeNetwork(1, LOGGER, ResourceLocation.tryBuild(LittleFrames.MODID, "main"));
     
-    public LittleFrames() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LittleFramesClient.load(FMLJavaModLoadingContext.get().getModEventBus()));
+    public LittleFrames(IEventBus bus) {
+        bus.addListener(this::init);
+        if (FMLLoader.getDist() == Dist.CLIENT)
+            LittleFramesClient.load(bus);
         
-        LittleFramesRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleFramesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleFramesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleFramesRegistry.BLOCKS.register(bus);
+        LittleFramesRegistry.ITEMS.register(bus);
+        LittleFramesRegistry.BLOCK_ENTITIES.register(bus);
         
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::registerTabs);
+        bus.addListener(this::registerTabs);
     }
     
     private void init(final FMLCommonSetupEvent event) {
@@ -59,6 +60,6 @@ public class LittleFrames {
     
     private void registerTabs(BuildCreativeModeTabContentsEvent event) {
         if (event.getTabKey().equals(CreativeModeTabs.BUILDING_BLOCKS))
-            event.accept(LittleFramesRegistry.CREATIVE_PICTURE_FRAME.get());
+            event.accept(LittleFramesRegistry.CREATIVE_PICTURE_FRAME.value());
     }
 }

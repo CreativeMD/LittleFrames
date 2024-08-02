@@ -15,16 +15,16 @@ import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.model.data.ModelProperty;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.level.LevelEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelProperty;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
@@ -43,12 +43,12 @@ public class LittleFramesClient {
     }
     
     public static void setup(FMLClientSetupEvent event) {
-        MinecraftForge.EVENT_BUS.register(LittleFramesClient.class);
+        NeoForge.EVENT_BUS.register(LittleFramesClient.class);
         
         CreativeCoreClient.registerClientConfig(LittleFrames.MODID);
         
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"),
-            new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleFrames.MODID, "creative_pic_frame"),
+            new CreativeItemBoxModel(new ModelResourceLocation(ResourceLocation.withDefaultNamespace("stone"), "inventory")) {
                 
                 @Override
                 public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
@@ -56,7 +56,7 @@ public class LittleFramesClient {
                 }
             });
         
-        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleFrames.MODID, "creative_pic_frame"), new CreativeBlockModel() {
+        CreativeCoreClient.registerBlockModel(ResourceLocation.tryBuild(LittleFrames.MODID, "creative_pic_frame"), new CreativeBlockModel() {
             
             public final ModelProperty<Boolean> visibility = new ModelProperty<>();
             public final ModelData visible = ModelData.builder().with(visibility, true).build();
@@ -79,13 +79,12 @@ public class LittleFramesClient {
             }
         });
         
-        BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), x -> new CreativePictureFrameRenderer());
+        BlockEntityRenderers.register(LittleFramesRegistry.BE_CREATIVE_FRAME.value(), x -> new CreativePictureFrameRenderer());
     }
     
     @SubscribeEvent
-    public static void render(TickEvent.ClientTickEvent event) {
-        if (event.phase == TickEvent.Phase.START)
-            FrameVideoDisplay.tick();
+    public static void render(ClientTickEvent.Pre event) {
+        FrameVideoDisplay.tick();
     }
     
     @SubscribeEvent
