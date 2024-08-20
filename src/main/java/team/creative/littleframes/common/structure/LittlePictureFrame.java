@@ -19,6 +19,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
@@ -186,7 +187,7 @@ public class LittlePictureFrame extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         url = nbt.getString("url");
         if (nbt.contains("render"))
             renderDistance = nbt.getInt("render");
@@ -220,7 +221,7 @@ public class LittlePictureFrame extends LittleStructure {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putString("url", url);
         nbt.putInt("render", renderDistance);
         nbt.putFloat("alpha", alpha);
