@@ -1,3 +1,7 @@
+1.3.10
+Fixed rare crash when vlc is displaying an image
+Adapted LittleTiles v1.5.0-pre113
+
 1.3.9
 Updated to newer watermedia version
 
