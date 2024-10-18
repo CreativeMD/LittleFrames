@@ -6,7 +6,7 @@ license="LGPL-3.0-only"
 [[mods]]
     modId="littleframes"
     logoFile="littleframes.png"
-    version="1.3.9"
+    version="1.3.10"
     displayName="LittleFrames"
     displayURL="https://modrinth.com/mod/littlepictureframes"
     authors="CreativeMD"
@@ -15,14 +15,14 @@ license="LGPL-3.0-only"
 [[dependencies.littleframes]]
     modId="neoforge"
     type="required"
-    versionRange="[21.0,)"
+    versionRange="[21.1,)"
     ordering="NONE"
     side="BOTH"
 
 [[dependencies.littleframes]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21,1.22)"
+    versionRange="[1.21.1,1.22)"
     ordering="NONE"
     side="BOTH"
 
