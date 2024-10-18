@@ -112,8 +112,10 @@ public class FrameVideoDisplay extends FrameDisplay {
                     
                     if (player.isSeekAble()) {
                         long time = tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
-                        if (time > player.getTime() && loop)
-                            time %= player.getDuration();
+                        if (time > player.getTime() && loop) {
+                            long mediaDuration = player.getMediaInfoDuration();
+                            time = (time == 0 || mediaDuration == 0) ? 0 : Math.floorMod(time, player.getMediaInfoDuration());
+                        }
                         if (Math.abs(time - player.getTime()) > ACCEPTABLE_SYNC_TIME && Math.abs(time - lastCorrectedTime) > ACCEPTABLE_SYNC_TIME) {
                             lastCorrectedTime = time;
                             player.seekTo(time);
