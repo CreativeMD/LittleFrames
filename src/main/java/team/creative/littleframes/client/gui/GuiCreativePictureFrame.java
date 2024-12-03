@@ -1,7 +1,11 @@
 package team.creative.littleframes.client.gui;
 
-import me.srrapero720.watermedia.api.image.ImageCache;
-import me.srrapero720.watermedia.api.image.ImageFetch;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageCache;
+
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
@@ -47,7 +51,11 @@ public class GuiCreativePictureFrame extends GuiLayer {
     public final GuiSyncLocal<CompoundTag> SET_DATA = getSyncHolder().register("set_data", nbt -> {
         String url = nbt.getString("url");
         if (LittleFrames.CONFIG.canUse(getPlayer(), url)) {
-            frame.setURL(url);
+            try {
+                frame.setURL(new URI(url));
+            } catch (URISyntaxException e) {
+                LittleFrames.LOGGER.error("Failed to save url '{}'", url);
+            }
             float sizeX = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("x"));
             float sizeY = (float) Math.min(LittleFrames.CONFIG.sizeLimitation, nbt.getFloat("y"));
             int posX = nbt.getByte("posX");
@@ -76,19 +84,19 @@ public class GuiCreativePictureFrame extends GuiLayer {
                 frame.max.y = 1;
             }
             
-            frame.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInt("render"));
+            frame.data.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInt("render"));
             frame.rotation = nbt.getFloat("rotation");
             frame.visibleFrame = nbt.getBoolean("visibleFrame");
             frame.bothSides = nbt.getBoolean("bothSides");
-            frame.loop = nbt.getBoolean("loop");
+            frame.data.loop = nbt.getBoolean("loop");
             frame.flipX = nbt.getBoolean("flipX");
             frame.flipY = nbt.getBoolean("flipY");
-            frame.volume = nbt.getFloat("volume");
-            frame.minDistance = nbt.getFloat("min");
-            frame.maxDistance = nbt.getFloat("max");
-            frame.alpha = nbt.getFloat("transparency");
-            frame.brightness = nbt.getFloat("brightness");
-            frame.refreshCounter = frame.refreshInterval = nbt.getInt("refresh");
+            frame.data.volume(nbt.getFloat("volume"));
+            frame.data.minDistance = nbt.getFloat("min");
+            frame.data.maxDistance = nbt.getFloat("max");
+            frame.data.alpha = nbt.getFloat("transparency");
+            frame.data.brightness = nbt.getFloat("brightness");
+            frame.data.refreshCounter = frame.data.refreshInterval = nbt.getInt("refresh");
         }
         
         frame.markDirty();
@@ -166,7 +174,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
         align = Align.STRETCH;
         flow = GuiFlow.STACK_Y;
         
-        url = new GuiUrlTextfield(save, "url", frame.getRealURL());
+        url = new GuiUrlTextfield(save, "url", frame.data.getURIPath());
         url.setMaxStringLength(512);
         add(url);
         GuiLabel error = new GuiLabel("error").setDefaultColor(ColorUtils.RED);
@@ -177,9 +185,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
                     if (!LittleFrames.CONFIG.useVLC)
                         error.setTitle(Component.literal("Image not found"));
                 } else {
-                    if (e instanceof ImageFetch.GifDecodingException)
-                        error.setTranslate("download.exception.gif");
-                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                    if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
                         error.setTranslate("download.exception.forbidden");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
                         error.setTranslate("download.exception.notfound");
@@ -272,15 +278,15 @@ public class GuiCreativePictureFrame extends GuiLayer {
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("t_label").setTitle(Component.translatable("gui.creative_frame.transparency").append(":")));
-        right.add(new GuiSlider("transparency", frame.alpha, 0, 1).setExpandableX());
+        right.add(new GuiSlider("transparency", frame.data.alpha, 0, 1).setExpandableX());
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("b_label").setTitle(Component.translatable("gui.creative_frame.brightness").append(":")));
-        right.add(new GuiSlider("brightness", frame.brightness, 0, 1).setExpandableX());
+        right.add(new GuiSlider("brightness", frame.data.brightness, 0, 1).setExpandableX());
         
         table.addRow(new GuiRow(left = new GuiColumn(), right = new GuiColumn()));
         left.add(new GuiLabel("d_label").setTitle(Component.translatable("gui.creative_frame.distance").append(":")));
-        right.add(new GuiSteppedSlider("distance", frame.renderDistance, 5, 1024).setExpandableX());
+        right.add(new GuiSteppedSlider("distance", frame.data.renderDistance, 5, 1024).setExpandableX());
         
         GuiParent rendering = new GuiParent(GuiFlow.STACK_X);
         add(rendering);
@@ -295,22 +301,22 @@ public class GuiCreativePictureFrame extends GuiLayer {
         play.add(new GuiButtonIcon("pause", Icon.PAUSE, button -> PAUSE.send(EndTag.INSTANCE)));
         play.add(new GuiButtonIcon("stop", Icon.STOP, button -> STOP.send(EndTag.INSTANCE)));
         
-        play.add(new GuiCheckBox("loop", frame.loop).setTranslate("gui.creative_frame.loop"));
+        play.add(new GuiCheckBox("loop", frame.data.loop).setTranslate("gui.creative_frame.loop"));
         play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
-        play.add(new GuiSlider("volume", frame.volume, 0, 1));
+        play.add(new GuiSlider("volume", frame.data.volume(), 0, 1));
         
         GuiParent range = new GuiParent(GuiFlow.STACK_X);
         add(range);
         
         range.add(new GuiLabel("range_label").setTranslate("gui.creative_frame.range"));
-        range.add(new GuiSteppedSlider("range_min", (int) frame.minDistance, 0, 512).setExpandableX());
-        range.add(new GuiSteppedSlider("range_max", (int) frame.maxDistance, 0, 512).setExpandableX());
+        range.add(new GuiSteppedSlider("range_min", (int) frame.data.minDistance, 0, 512).setExpandableX());
+        range.add(new GuiSteppedSlider("range_max", (int) frame.data.maxDistance, 0, 512).setExpandableX());
         
         GuiParent refresh = new GuiParent();
         refresh.spacing = 10;
         add(refresh.setVAlign(VAlign.CENTER));
-        refresh.add(new GuiCheckBox("autoRefresh", frame.refreshInterval > 0).setTranslate("gui.creative_frame.autoReload"));
-        refresh.add(new GuiDuration("duration", frame.refreshInterval, false, true, true, true));
+        refresh.add(new GuiCheckBox("autoRefresh", frame.data.refreshInterval > 0).setTranslate("gui.creative_frame.autoReload"));
+        refresh.add(new GuiDuration("duration", frame.data.refreshInterval, false, true, true, true));
         
         GuiParent bottom = new GuiParent(GuiFlow.STACK_X);
         bottom.align = Align.RIGHT;
@@ -319,7 +325,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
         bottom.add(save);
         bottom.add(new GuiButton("reload", x -> {
             if (Screen.hasShiftDown())
-                ImageCache.reloadAll();
+                ImageAPI.reloadCache();
             else if (frame.cache != null)
                 frame.cache.reload();
         }).setTranslate("gui.creative_frame.reload").setTooltip(new TextBuilder().translate("gui.creative_frame.reloadtooltip").build()));

@@ -13,6 +13,12 @@ repositories {
         }
     }
     maven {
+        url "https://maven.su5ed.dev/releases"
+    }
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
         url "https://maven.blamejared.com"
     }
     maven { url 'https://jitpack.io' }
@@ -50,7 +56,7 @@ dependencies {
     implementation project(':LittleTiles')
     
     compileOnly "net.fabricmc:fabric-loader:${fabric_version}"
-    compileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    //compileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 }
 
 modDependencies = [

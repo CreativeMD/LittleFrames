@@ -1,10 +1,12 @@
 package team.creative.littleframes.client.display;
 
-import me.srrapero720.watermedia.api.image.ImageAPI;
-import me.srrapero720.watermedia.api.image.ImageCache;
-import me.srrapero720.watermedia.api.image.ImageRenderer;
-import me.srrapero720.watermedia.api.math.MathAPI;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageCache;
+import org.watermedia.api.image.ImageRenderer;
+import org.watermedia.api.math.MathAPI;
+
 import team.creative.creativecore.client.CreativeCoreClient;
+import team.creative.littleframes.common.data.LittleFrameData;
 
 public class FramePictureDisplay extends FrameDisplay {
     public static final FrameDisplay VLC_FAILED = new FramePictureDisplay(ImageAPI.failedVLC());
@@ -24,22 +26,22 @@ public class FramePictureDisplay extends FrameDisplay {
     }
     
     @Override
-    public void prepare(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {
-        long time = MathAPI.tickToMs(tick) + (playing ? (long) (CreativeCoreClient.getFrameTime() * 50) : 0);
+    public void prepare(LittleFrameData data, boolean playing) {
+        long time = MathAPI.tickToMs(data.tick) + (playing ? (long) (CreativeCoreClient.getFrameTime() * 50) : 0);
         long duration = image.duration;
-        if ((duration > 0) && (time > duration) && loop)
+        if ((duration > 0) && (time > duration) && data.loop)
             time %= duration;
         textureId = image.texture(time);
     }
     
     @Override
-    public void tick(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
+    public void tick(LittleFrameData data, boolean playing) {}
     
     @Override
-    public void pause(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
+    public void pause(LittleFrameData data, boolean playing) {}
     
     @Override
-    public void resume(String url, float volume, float minDistance, float maxDistance, boolean playing, boolean loop, int tick) {}
+    public void resume(LittleFrameData data, boolean playing) {}
     
     @Override
     public int texture() {

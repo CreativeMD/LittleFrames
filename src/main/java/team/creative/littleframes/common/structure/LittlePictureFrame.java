@@ -2,8 +2,12 @@ package team.creative.littleframes.common.structure;
 
 import static team.creative.littleframes.LittleFrames.LOGGER;
 
+import java.net.URI;
+
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+import org.watermedia.api.image.ImageAPI;
+import org.watermedia.api.image.ImageCache;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,14 +18,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
-import me.srrapero720.watermedia.api.image.ImageCache;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -42,7 +44,7 @@ import team.creative.littleframes.LittleTilesIntegration;
 import team.creative.littleframes.client.display.FrameDisplay;
 import team.creative.littleframes.client.display.FramePictureDisplay;
 import team.creative.littleframes.client.display.FrameVideoDisplay;
-import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.data.LittleFrameData;
 import team.creative.littleframes.common.packet.LittlePictureFramePacket;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -62,23 +64,9 @@ public class LittlePictureFrame extends LittleStructure {
     @StructureDirectional
     public Vec3f topRight;
     
-    private String url = "";
-    public float brightness = 1;
-    public float alpha = 1;
-    
-    public int renderDistance = 64;
-    
     public FitMode fitMode = FitMode.CROP;
     
-    public float volume = 1;
-    public float minDistance = 5;
-    public float maxDistance = 20;
-    
-    public boolean loop = true;
-    public int tick = 0;
-    
-    public int refreshInterval = -1;
-    public int refreshCounter = 0;
+    public LittleFrameData data;
     
     public boolean released = false;
     
@@ -94,31 +82,32 @@ public class LittlePictureFrame extends LittleStructure {
     
     @OnlyIn(Dist.CLIENT)
     public boolean isURLEmpty() {
-        return url.isEmpty();
+        return !data.hasURI();
     }
     
-    @OnlyIn(Dist.CLIENT)
-    public String getURL() {
-        return BECreativePictureFrame.replaceVariables(url);
-    }
-    
-    public String getRealURL() {
-        return url;
-    }
-    
-    public void setURL(String url) {
-        this.url = url;
+    public void setURL(URI url) {
+        this.data.setURI(url);
     }
     
     @OnlyIn(Dist.CLIENT)
     public FrameDisplay requestDisplay() {
-        String url = getURL();
+        if (!data.hasURI() && display != null) {
+            cleanDisplay();
+            return null;
+        }
+        
         if (released) {
             cache = null;
             return null;
         }
-        if (cache == null || !cache.url.equals(url)) {
-            cache = ImageCache.get(url, Minecraft.getInstance());
+        
+        if (cache == null && !data.hasURI()) {
+            this.cleanDisplay();
+            return null;
+        }
+        
+        if (cache == null || (data.hasURI() && !cache.uri.equals(data.getURI()))) {
+            cache = ImageAPI.getCache(data.getURI(), Minecraft.getInstance());
             cleanDisplay();
         }
         
@@ -127,7 +116,7 @@ public class LittlePictureFrame extends LittleStructure {
                 if (display != null)
                     return display;
                 if (cache.isVideo())
-                    return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(getStructurePos()), url, volume, minDistance, maxDistance, loop);
+                    return display = FrameVideoDisplay.createVideoDisplay(new Vec3d(getStructurePos()), data);
                 else
                     return display = new FramePictureDisplay(cache);
             }
@@ -182,62 +171,25 @@ public class LittlePictureFrame extends LittleStructure {
     public void stop() {
         if (getOutput(0).getState().any())
             getOutput(0).toggle();
-        tick = 0;
-        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), getOutput(0).getState().any(), tick), getStructureLevel(), getStructurePos());
+        data.stop();
+        LittleFrames.NETWORK.sendToClient(new LittlePictureFramePacket(getStructureLocation(), getOutput(0).getState().any(), data.tick), getStructureLevel(), getStructurePos());
     }
     
     @Override
     protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        url = nbt.getString("url");
-        if (nbt.contains("render"))
-            renderDistance = nbt.getInt("render");
-        else
-            renderDistance = 64;
-        if (nbt.contains("alpha"))
-            alpha = nbt.getFloat("alpha");
-        else
-            alpha = 1;
-        if (nbt.contains("brightness"))
-            brightness = nbt.getFloat("brightness");
-        else
-            brightness = 1;
-        
-        volume = nbt.getFloat("volume");
-        if (nbt.contains("min"))
-            minDistance = nbt.getFloat("min");
-        else
-            minDistance = 5;
-        if (nbt.contains("max"))
-            maxDistance = nbt.getFloat("max");
-        else
-            maxDistance = 20;
-        
-        tick = nbt.getInt("tick");
-        loop = nbt.getBoolean("loop");
         fitMode = FitMode.values()[nbt.getInt("fitMode")];
-        refreshInterval = nbt.contains("refresh") ? nbt.getInt("refresh") : -1;
-        if (refreshInterval > 0)
-            refreshCounter = refreshInterval;
+        if (nbt.contains("data"))
+            data = new LittleFrameData(nbt.getCompound("data"));
+        else if (nbt.contains("url"))
+            data = LittleFrameData.ofOldData(nbt);
+        else
+            data = new LittleFrameData();
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        nbt.putString("url", url);
-        nbt.putInt("render", renderDistance);
-        nbt.putFloat("alpha", alpha);
-        nbt.putFloat("brightness", brightness);
-        
-        nbt.putFloat("volume", volume);
-        nbt.putFloat("min", minDistance);
-        nbt.putFloat("max", maxDistance);
-        
-        nbt.putInt("tick", tick);
-        nbt.putBoolean("loop", loop);
         nbt.putInt("fitMode", fitMode.ordinal());
-        if (refreshInterval < 0)
-            nbt.remove("refresh");
-        else
-            nbt.putInt("refresh", refreshInterval);
+        nbt.put("data", data.save());
     }
     
     @Override
@@ -254,7 +206,7 @@ public class LittlePictureFrame extends LittleStructure {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void renderTick(PoseStack pose, MultiBufferSource buffer, BlockPos pos, float partialTickTime) {
-        if (isURLEmpty() || alpha == 0) {
+        if (isURLEmpty() || data.alpha == 0) {
             if (display != null)
                 display.release();
             return;
@@ -264,13 +216,12 @@ public class LittlePictureFrame extends LittleStructure {
         if (display == null)
             return;
         
-        display.prepare(getURL(), volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), minDistance, maxDistance, getOutput(0).getState().any(), loop,
-            tick);
+        display.prepare(data, getOutput(0).getState().any());
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.setShaderColor(brightness, brightness, brightness, alpha);
+        RenderSystem.setShaderColor(data.brightness, data.brightness, data.brightness, data.alpha);
         int texture = display.texture();
         RenderSystem.bindTexture(texture);
         RenderSystem.setShaderTexture(0, texture);
@@ -312,7 +263,7 @@ public class LittlePictureFrame extends LittleStructure {
     @Override
     @OnlyIn(Dist.CLIENT)
     public double getMaxRenderDistance() {
-        return renderDistance;
+        return data.renderDistance;
     }
     
     @Override
@@ -327,19 +278,19 @@ public class LittlePictureFrame extends LittleStructure {
         if (isClient()) {
             FrameDisplay display = requestDisplay();
             if (display != null && display.canTick())
-                display.tick(url, volume, minDistance, maxDistance, getOutput(0).getState().any(), loop, tick);
+                display.tick(data, getOutput(0).getState().any());
             
-            if (refreshInterval > 0) {
-                if (refreshCounter <= 0) {
-                    refreshCounter = refreshInterval;
+            if (data.refreshInterval > 0) {
+                if (data.refreshCounter <= 0) {
+                    data.refreshCounter = data.refreshInterval;
                     if (cache != null)
                         cache.reload();
                 } else
-                    refreshCounter--;
+                    data.refreshCounter--;
             }
         }
         if (getOutput(0).getState().any())
-            tick++;
+            data.tick++;
     }
     
     @Override
