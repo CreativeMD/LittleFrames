@@ -26,12 +26,12 @@ public class CreativePictureFramePacket extends CreativePacket {
         BlockEntity be = player.level().getBlockEntity(pos);
         if (be instanceof BECreativePictureFrame frame) {
             frame.playing = playing;
-            frame.tick = tick;
+            frame.data.tick = tick;
             if (frame.display != null) {
                 if (playing)
-                    frame.display.resume(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+                    frame.display.resume(frame.data, frame.playing);
                 else
-                    frame.display.pause(frame.getURL(), frame.volume, frame.minDistance, frame.maxDistance, frame.playing, frame.loop, frame.tick);
+                    frame.display.pause(frame.data, frame.playing);
             }
         }
     }

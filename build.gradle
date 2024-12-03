@@ -17,6 +17,12 @@ repositories {
         }
     }
     maven {
+        url "https://maven.su5ed.dev/releases"
+    }
+    maven {
+        url = "https://api.modrinth.com/maven"
+    }
+    maven {
         url "https://maven.blamejared.com"
     }
 }
@@ -102,7 +108,7 @@ dependencies {
     minecraftLibrary fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.20-git-b21cfd8+mc1.20.1")
 
     // DEPENDENCIES
-    implementation "com.github.WaterMediaTeam.watermedia:build:${watermedia_version}"
+    implementation "com.github.WaterMediaTeam:watermedia:${watermedia_version}"
     implementation project(':CreativeCore')
     implementation project(':LittleTiles')
 }

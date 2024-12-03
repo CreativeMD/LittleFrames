@@ -11,11 +11,9 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -37,12 +35,12 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
     
     @Override
     public boolean shouldRender(BECreativePictureFrame frame, Vec3 vec) {
-        return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, frame.renderDistance);
+        return Vec3.atCenterOf(frame.getBlockPos()).closerThan(vec, frame.data.renderDistance);
     }
     
     @Override
     public void render(BECreativePictureFrame frame, float partialTicks, PoseStack pose, MultiBufferSource buffer, int combinedLight, int combinedOverlay) {
-        if (frame.isURLEmpty() || frame.alpha == 0) {
+        if (frame.isURLEmpty() || frame.data.alpha == 0) {
             if (frame.display != null)
                 frame.display.release();
             return;
@@ -52,14 +50,13 @@ public class CreativePictureFrameRenderer implements BlockEntityRenderer<BECreat
         if (display == null)
             return;
         
-        display.prepare(frame.getURL(), frame.volume * Minecraft.getInstance().options.getSoundSourceVolume(SoundSource.MASTER), frame.minDistance, frame.maxDistance,
-            frame.playing, frame.loop, frame.tick);
+        display.prepare(frame.data, frame.playing);
         
         RenderSystem.enableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-        RenderSystem.setShaderColor(frame.brightness, frame.brightness, frame.brightness, frame.alpha);
+        RenderSystem.setShaderColor(frame.data.brightness, frame.data.brightness, frame.data.brightness, frame.data.alpha);
         int texture = display.texture();
         
         if (texture == -1)
