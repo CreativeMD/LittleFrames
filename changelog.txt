@@ -1,3 +1,6 @@
+1.4.1
+Adapted to CreativeCore 2.12.26
+
 1.4.0
 Added support for watermedia 2.1.x
 
