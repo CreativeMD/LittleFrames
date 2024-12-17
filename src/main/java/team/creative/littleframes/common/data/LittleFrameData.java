@@ -118,7 +118,7 @@ public class LittleFrameData {
         CompoundTag nbt = new CompoundTag();
         if (uri != null)
             nbt.putString("u", uri.toString());
-        nbt.putInt("r", renderDistance);
+        nbt.putInt("d", renderDistance);
         nbt.putFloat("a", alpha);
         nbt.putFloat("b", brightness);
         
