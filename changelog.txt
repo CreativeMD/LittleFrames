@@ -1,3 +1,6 @@
+1.4.2
+Fixed not saving render distance
+
 1.4.1
 Adapted to CreativeCore 2.12.26
 
