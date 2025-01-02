@@ -120,7 +120,6 @@ public class GuiLittlePictureFrame extends GuiLayer {
         flow = GuiFlow.STACK_Y;
         
         url = new GuiUrlTextfield(save, "url", frame.data.getURIPath());
-        url.setMaxStringLength(512);
         add(url);
         GuiLabel error = new GuiLabel("error").setDefaultColor(ColorUtils.RED);
         if (frame.isClient() && frame.cache != null) {
