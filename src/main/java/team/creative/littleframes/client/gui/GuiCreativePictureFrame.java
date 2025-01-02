@@ -184,7 +184,9 @@ public class GuiCreativePictureFrame extends GuiLayer {
                     if (!LittleFrames.CONFIG.useVLC)
                         error.setTitle(Component.literal("Image not found"));
                 } else {
-                    if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
+                    if (e.getMessage() == null)
+                        error.setTranslate("download.exception.invalid");
+                    else if (e.getMessage().startsWith("Server returned HTTP response code: 403"))
                         error.setTranslate("download.exception.forbidden");
                     else if (e.getMessage().startsWith("Server returned HTTP response code: 404"))
                         error.setTranslate("download.exception.notfound");
