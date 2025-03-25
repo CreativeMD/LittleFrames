@@ -14,19 +14,19 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
-import team.creative.creativecore.common.gui.controls.parent.GuiRow;
-import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiDuration;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.parent.GuiColumn;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.parent.GuiRow;
+import team.creative.creativecore.common.gui.control.parent.GuiTable;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiButtonIcon;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiDuration;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
@@ -81,7 +81,7 @@ public class GuiLittlePictureFrame extends GuiLayer {
             GuiTextfield url = get("url");
             GuiSteppedSlider renderDistance = get("distance");
             
-            GuiStateButtonMapped<FitMode> fit = get("fit");
+            GuiStateButton<FitMode> fit = get("fit");
             
             GuiSlider transparency = get("transparency");
             GuiSlider brightness = get("brightness");
@@ -94,7 +94,7 @@ public class GuiLittlePictureFrame extends GuiLayer {
             GuiCheckBox autoRefresh = get("autoRefresh");
             GuiDuration duration = get("duration");
             
-            nbt.putInt("fit", fit.getState());
+            nbt.putInt("fit", fit.selected().ordinal());
             
             nbt.putInt("render", (int) renderDistance.getValue());
             
@@ -141,7 +141,7 @@ public class GuiLittlePictureFrame extends GuiLayer {
             }
         }
         add(error);
-        GuiStateButtonMapped<FitMode> button = new GuiStateButtonMapped<FitMode>("fit", new TextMapBuilder<FitMode>().addComponent(FitMode.values(), x -> Component.translatable(
+        GuiStateButton<FitMode> button = new GuiStateButton<FitMode>("fit", new TextMapBuilder<FitMode>().addComponent(FitMode.values(), x -> Component.translatable(
             "gui.little_frame.fitmode." + x.name())));
         button.select(frame.fitMode);
         add(button);

@@ -4,8 +4,8 @@ import java.util.List;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.style.GuiStyle;
 import team.creative.creativecore.common.gui.style.display.StyleDisplay;
 import team.creative.creativecore.common.util.text.TextBuilder;

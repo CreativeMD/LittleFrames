@@ -14,25 +14,25 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
-import team.creative.creativecore.common.gui.controls.parent.GuiRow;
-import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiCounterDecimal;
-import team.creative.creativecore.common.gui.controls.simple.GuiDuration;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.parent.GuiColumn;
+import team.creative.creativecore.common.gui.control.parent.GuiRow;
+import team.creative.creativecore.common.gui.control.parent.GuiTable;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiButtonIcon;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiCounterDecimal;
+import team.creative.creativecore.common.gui.control.simple.GuiDuration;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.creativecore.common.util.text.TextListBuilder;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littleframes.LittleFrames;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
 
@@ -120,8 +120,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiCounterDecimal sizeX = get("sizeX");
             GuiCounterDecimal sizeY = get("sizeY");
             
-            GuiStateButton buttonPosX = get("posX");
-            GuiStateButton buttonPosY = get("posY");
+            GuiStateButton<Integer> buttonPosX = get("posX");
+            GuiStateButton<Integer> buttonPosY = get("posY");
             GuiSlider rotation = get("rotation");
             
             GuiCheckBox flipX = get("flipX");
@@ -142,8 +142,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiCheckBox autoRefresh = get("autoRefresh");
             GuiDuration duration = get("duration");
             
-            nbt.putByte("posX", (byte) buttonPosX.getState());
-            nbt.putByte("posY", (byte) buttonPosY.getState());
+            nbt.putByte("posX", buttonPosX.selected().byteValue());
+            nbt.putByte("posY", buttonPosY.selected().byteValue());
             
             nbt.putFloat("rotation", (float) rotation.getValue());
             
@@ -263,10 +263,12 @@ public class GuiCreativePictureFrame extends GuiLayer {
         GuiParent align = new GuiParent(GuiFlow.STACK_X);
         add(align);
         
-        align.add(new GuiStateButton("posX", frame.min.x == 0 ? 0 : frame.max.x == 1 ? 2 : 1, new TextListBuilder().addTranslated("gui.creative_frame.posx.", "left", "center",
-            "right")));
-        align.add(new GuiStateButton("posY", frame.min.y == 0 ? 0 : frame.max.y == 1 ? 2 : 1, new TextListBuilder().addTranslated("gui.creative_frame.posy.", "top", "center",
-            "bottom")));
+        align.add(new GuiStateButton<Integer>("posX", frame.min.x == 0 ? 0 : frame.max.x == 1 ? 2 : 1, new TextMapBuilder<Integer>().addComponent(0, Component.translatable(
+            "gui.creative_frame.posx.left")).addComponent(1, Component.translatable("gui.creative_frame.posx.center")).addComponent(2, Component.translatable(
+                "gui.creative_frame.posx.right"))));
+        align.add(new GuiStateButton<Integer>("posY", frame.min.y == 0 ? 0 : frame.max.y == 1 ? 2 : 1, new TextMapBuilder<Integer>().addComponent(0, Component.translatable(
+            "gui.creative_frame.posy.top")).addComponent(1, Component.translatable("gui.creative_frame.posy.center")).addComponent(2, Component.translatable(
+                "gui.creative_frame.posy.bottom"))));
         
         GuiTable table = new GuiTable();
         add(table);
