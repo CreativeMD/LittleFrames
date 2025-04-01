@@ -1,3 +1,6 @@
+1.4.4
+Adapted to CreativeCore 2.13.0
+
 1.4.3
 Fixed crash when error message has no message in gui
 Removed url length restriction of 512 (now it is 2048)

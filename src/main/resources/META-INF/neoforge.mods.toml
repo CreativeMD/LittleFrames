@@ -6,7 +6,7 @@ license="LGPL-3.0-only"
 [[mods]]
     modId="littleframes"
     logoFile="littleframes.png"
-    version="1.4.3"
+    version="1.4.4"
     displayName="LittleFrames"
     displayURL="https://modrinth.com/mod/littlepictureframes"
     authors="CreativeMD"
@@ -31,7 +31,7 @@ license="LGPL-3.0-only"
    type="required"
    ordering="NONE"
    side="BOTH"
-   versionRange="2.12.26"
+   versionRange="2.13.0"
 
 [[dependencies.littleframes]]
    modId="watermedia"
