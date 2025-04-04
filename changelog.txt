@@ -1,3 +1,6 @@
+1.4.5
+Added playbackSpeed option
+
 1.4.4
 Adapted to CreativeCore 2.13.0
 
