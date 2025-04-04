@@ -58,6 +58,8 @@ public class LittleFrameData {
     public int refreshInterval = -1;
     public int refreshCounter = 0;
     
+    public double playbackSpeed = 1;
+    
     public LittleFrameData() {}
     
     public LittleFrameData(CompoundTag nbt) {
@@ -85,6 +87,8 @@ public class LittleFrameData {
         
         tick = nbt.getInt("t");
         loop = nbt.getBoolean("l");
+        
+        playbackSpeed = nbt.contains("speed") ? nbt.getDouble("speed") : 1;
         
         refreshInterval = nbt.contains("r") ? nbt.getInt("r") : -1;
         if (refreshInterval > 0)
@@ -128,6 +132,9 @@ public class LittleFrameData {
         
         nbt.putInt("t", tick);
         nbt.putBoolean("l", loop);
+        
+        nbt.putDouble("speed", playbackSpeed);
+        
         if (refreshInterval < 0)
             nbt.remove("r");
         else

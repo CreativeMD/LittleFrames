@@ -63,6 +63,7 @@ public class GuiLittlePictureFrame extends GuiLayer {
             frame.data.maxDistance = nbt.getFloat("max");
             frame.data.alpha = nbt.getFloat("transparency");
             frame.data.brightness = nbt.getFloat("brightness");
+            frame.data.playbackSpeed = nbt.getDouble("speed");
             frame.data.refreshCounter = frame.data.refreshInterval = nbt.getInt("refresh");
         }
         
@@ -94,6 +95,8 @@ public class GuiLittlePictureFrame extends GuiLayer {
             GuiCheckBox autoRefresh = get("autoRefresh");
             GuiDuration duration = get("duration");
             
+            GuiSlider speed = get("speed");
+            
             nbt.putInt("fit", fit.selected().ordinal());
             
             nbt.putInt("render", (int) renderDistance.getValue());
@@ -107,6 +110,8 @@ public class GuiLittlePictureFrame extends GuiLayer {
             nbt.putFloat("max", max.getIntValue());
             
             nbt.putString("url", url.getText());
+            
+            nbt.putDouble("speed", Math.max(0.1, speed.getValue()));
             
             nbt.putInt("refresh", autoRefresh.value ? duration.getDuration() : -1);
             
@@ -171,7 +176,10 @@ public class GuiLittlePictureFrame extends GuiLayer {
         play.add(new GuiButtonIcon("stop", Icon.STOP, x -> STOP.send(EndTag.INSTANCE)));
         
         add(new GuiCheckBox("loop", frame.data.loop).setTranslate("gui.creative_frame.loop"));
-        add(new GuiLabeledControl("gui.creative_frame.volume", new GuiSlider("volume", frame.data.volume(), 0, 1).setExpandableX()));
+        GuiParent playOther = new GuiParent(GuiFlow.STACK_X);
+        add(playOther);
+        playOther.add(new GuiLabeledControl("gui.creative_frame.volume", new GuiSlider("volume", frame.data.volume(), 0, 1).setExpandableX()));
+        playOther.add(new GuiLabeledControl("gui.creative_frame.speed", new GuiSliderSingleDigit("speed", frame.data.playbackSpeed, 0.1, 2).setExpandableX()));
         
         GuiParent range = new GuiParent();
         add(range);

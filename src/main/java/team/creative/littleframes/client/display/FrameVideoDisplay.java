@@ -53,6 +53,7 @@ public class FrameVideoDisplay extends FrameDisplay {
     private final Vec3d pos;
     private boolean stream = false;
     private volatile float lastSetVolume;
+    private volatile float lastPlaybackSpeed;
     private long lastCorrectedTime = Long.MIN_VALUE;
     
     public FrameVideoDisplay(Vec3d pos, LittleFrameData data) {
@@ -63,6 +64,8 @@ public class FrameVideoDisplay extends FrameDisplay {
         float tempVolume = getVolume(data);
         player.setVolume((int) tempVolume);
         lastSetVolume = tempVolume;
+        lastPlaybackSpeed = (float) data.playbackSpeed;
+        player.setSpeed(lastPlaybackSpeed);
         player.setRepeatMode(data.loop);
         player.start(data.getURI()); // <-- this method is ASYNC. doesn't need a new thread
     }
@@ -97,6 +100,12 @@ public class FrameVideoDisplay extends FrameDisplay {
             lastSetVolume = volume;
         }
         
+        float speed = (float) data.playbackSpeed;
+        if (speed != lastPlaybackSpeed) {
+            player.setSpeed(speed);
+            lastPlaybackSpeed = speed;
+        }
+        
         if (player.isValid()) {
             boolean realPlaying = playing && !Minecraft.getInstance().isPaused();
             
@@ -113,7 +122,7 @@ public class FrameVideoDisplay extends FrameDisplay {
                         player.setPauseMode(!realPlaying);
                     
                     if (player.isSeekAble()) {
-                        long time = data.tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0);
+                        long time = (long) ((data.tick * tickTime + (realPlaying ? (long) (CreativeCoreClient.getFrameTime() * tickTime) : 0)) * lastPlaybackSpeed);
                         if (time > player.getTime() && data.loop) {
                             long mediaDuration = player.getMediaInfoDuration();
                             time = (time == 0 || mediaDuration == 0) ? 0 : Math.floorMod(time, player.getMediaInfoDuration());

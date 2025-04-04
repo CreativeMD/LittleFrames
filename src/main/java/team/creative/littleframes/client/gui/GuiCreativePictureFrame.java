@@ -15,6 +15,7 @@ import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.control.parent.GuiColumn;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.control.parent.GuiRow;
 import team.creative.creativecore.common.gui.control.parent.GuiTable;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
@@ -96,6 +97,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
             frame.data.maxDistance = nbt.getFloat("max");
             frame.data.alpha = nbt.getFloat("transparency");
             frame.data.brightness = nbt.getFloat("brightness");
+            frame.data.playbackSpeed = nbt.getDouble("speed");
             frame.data.refreshCounter = frame.data.refreshInterval = nbt.getInt("refresh");
         }
         
@@ -107,7 +109,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
     }
     
     public GuiCreativePictureFrame(BECreativePictureFrame frame, int scaleSize) {
-        super("creative_frame", 200, 210);
+        super("creative_frame", 200, 230);
         this.frame = frame;
         this.scaleMultiplier = 1F / (scaleSize);
     }
@@ -142,6 +144,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             GuiCheckBox autoRefresh = get("autoRefresh");
             GuiDuration duration = get("duration");
             
+            GuiSlider speed = get("speed");
+            
             nbt.putByte("posX", buttonPosX.selected().byteValue());
             nbt.putByte("posY", buttonPosY.selected().byteValue());
             
@@ -165,6 +169,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             nbt.putString("url", url.getText());
             nbt.putFloat("x", Math.max(0.1F, (float) sizeX.getValue()));
             nbt.putFloat("y", Math.max(0.1F, (float) sizeY.getValue()));
+            
+            nbt.putDouble("speed", Math.max(0.1, speed.getValue()));
             
             nbt.putInt("refresh", autoRefresh.value ? duration.getDuration() : -1);
             SET_DATA.send(nbt);
@@ -305,8 +311,11 @@ public class GuiCreativePictureFrame extends GuiLayer {
         play.add(new GuiButtonIcon("stop", Icon.STOP, button -> STOP.send(EndTag.INSTANCE)));
         
         play.add(new GuiCheckBox("loop", frame.data.loop).setTranslate("gui.creative_frame.loop"));
-        play.add(new GuiLabel("v_label").setTranslate("gui.creative_frame.volume"));
-        play.add(new GuiSlider("volume", frame.data.volume(), 0, 1));
+        
+        GuiParent playOther = new GuiParent(GuiFlow.STACK_X);
+        add(playOther);
+        playOther.add(new GuiLabeledControl("gui.creative_frame.volume", new GuiSlider("volume", frame.data.volume(), 0, 1).setExpandableX()));
+        playOther.add(new GuiLabeledControl("gui.creative_frame.speed", new GuiSliderSingleDigit("speed", frame.data.playbackSpeed, 0.1, 2).setExpandableX()));
         
         GuiParent range = new GuiParent(GuiFlow.STACK_X);
         add(range);
