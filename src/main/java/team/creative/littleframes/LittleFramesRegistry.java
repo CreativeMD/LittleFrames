@@ -39,7 +39,7 @@ public class LittleFramesRegistry {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, LittleFrames.MODID);
     
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BECreativePictureFrame>> BE_CREATIVE_FRAME = registerBlockEntity("creative_pic_frame",
-        () -> BlockEntityType.Builder.of(BECreativePictureFrame::new, CREATIVE_PICTURE_FRAME.value()));
+        () -> BlockEntityType.Builder.<BECreativePictureFrame>of(BECreativePictureFrame::new, CREATIVE_PICTURE_FRAME.value()));
     
     public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
         return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));
