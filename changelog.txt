@@ -1,3 +1,6 @@
+1.4.6
+Added ability to pause creative frame with redstone signal
+
 1.4.5
 Added playbackSpeed option
 
