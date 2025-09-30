@@ -124,4 +124,17 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
         return null;
     }
     
+    @Override
+    protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block p_55669_, BlockPos otherPos, boolean p_55671_) {
+        if (level.isClientSide)
+            return;
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof BECreativePictureFrame frame && frame.playing == level.hasNeighborSignal(pos)) {
+            if (frame.playing)
+                frame.pause();
+            else
+                frame.play();
+        }
+    }
+    
 }
