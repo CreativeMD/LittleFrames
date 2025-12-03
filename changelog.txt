@@ -1,3 +1,6 @@
+1.4.7
+Adapted to LittleTiles 1.6.0-pre188
+
 1.4.6
 Added ability to pause creative frame with redstone signal
 
