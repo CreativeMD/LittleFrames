@@ -27,6 +27,23 @@ repositories {
         name "CaffeineMC"
         url "https://maven.caffeinemc.net/releases" // or /snapshots
     }
+    exclusiveContent { // Sable
+        forRepository {
+            maven {
+                url = "https://maven.ryanhcode.dev/releases"
+                name = "RyanHCode Maven"
+            }
+        }
+        filter {
+            includeGroup("dev.ryanhcode.sable")
+            includeGroup("dev.ryanhcode.sable-companion")
+        }
+    }
+    maven {
+        name = 'BlameJared Maven (CrT / Bookshelf)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 }
 
 group= "team.creative" + project.mod_id
