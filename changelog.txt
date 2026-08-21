@@ -1,3 +1,7 @@
+1.4.8
+Replaced model with vanilla ones
+Added block variant for invisible frame
+
 1.4.7
 Adapted to LittleTiles 1.6.0-pre188
 
