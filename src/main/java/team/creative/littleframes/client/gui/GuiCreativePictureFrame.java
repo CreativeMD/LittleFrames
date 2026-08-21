@@ -87,7 +87,6 @@ public class GuiCreativePictureFrame extends GuiLayer {
             
             frame.data.renderDistance = Math.min(LittleFrames.CONFIG.maxRenderDistance, nbt.getInt("render"));
             frame.rotation = nbt.getFloat("rotation");
-            frame.visibleFrame = nbt.getBoolean("visibleFrame");
             frame.bothSides = nbt.getBoolean("bothSides");
             frame.data.loop = nbt.getBoolean("loop");
             frame.flipX = nbt.getBoolean("flipX");
@@ -100,8 +99,8 @@ public class GuiCreativePictureFrame extends GuiLayer {
             frame.data.playbackSpeed = nbt.getDouble("speed");
             frame.data.refreshCounter = frame.data.refreshInterval = nbt.getInt("refresh");
         }
-        
-        frame.markDirty();
+        if (!frame.setVisible(nbt.getBoolean("visibleFrame")))
+            frame.markDirty();
     });
     
     public GuiCreativePictureFrame(BECreativePictureFrame frame) {
@@ -300,7 +299,7 @@ public class GuiCreativePictureFrame extends GuiLayer {
         GuiParent rendering = new GuiParent(GuiFlow.STACK_X);
         add(rendering);
         
-        rendering.add(new GuiCheckBox("visibleFrame", frame.visibleFrame).setTranslate("gui.creative_frame.visibleFrame"));
+        rendering.add(new GuiCheckBox("visibleFrame", frame.isVisible()).setTranslate("gui.creative_frame.visibleFrame"));
         rendering.add(new GuiCheckBox("bothSides", frame.bothSides).setTranslate("gui.creative_frame.bothSides"));
         
         GuiParent play = new GuiParent(GuiFlow.STACK_X);

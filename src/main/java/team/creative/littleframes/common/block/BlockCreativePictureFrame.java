@@ -50,8 +50,11 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
         return box;
     }
     
-    public BlockCreativePictureFrame() {
+    public final boolean invisible;
+    
+    public BlockCreativePictureFrame(boolean invisible) {
         super(BlockBehaviour.Properties.of().explosionResistance(2.5F).destroyTime(2.0F).noOcclusion());
+        this.invisible = invisible;
     }
     
     @Override
@@ -113,6 +116,8 @@ public class BlockCreativePictureFrame extends BaseEntityBlock implements BlockG
     
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        if (invisible)
+            return new BECreativePictureFrameInvisible(pos, state);
         return new BECreativePictureFrame(pos, state);
     }
     

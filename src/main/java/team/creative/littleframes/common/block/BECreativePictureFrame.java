@@ -14,6 +14,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -40,7 +41,6 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public boolean flipX = false;
     public boolean flipY = false;
     
-    public boolean visibleFrame = true;
     public boolean bothSides = false;
     
     public boolean playing = true;
@@ -48,6 +48,8 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     public LittleFrameData data = new LittleFrameData();
     
     private boolean released = false;
+    
+    private boolean shouldConvert = false;
     
     @OnlyIn(Dist.CLIENT)
     public ImageCache cache;
@@ -57,6 +59,10 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     
     public BECreativePictureFrame(BlockPos pos, BlockState state) {
         super(LittleFramesRegistry.BE_CREATIVE_FRAME.get(), pos, state);
+    }
+    
+    protected BECreativePictureFrame(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -184,13 +190,27 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         LittleFrames.NETWORK.sendToClient(new CreativePictureFramePacket(worldPosition, playing, data.tick), level, worldPosition);
     }
     
+    public boolean setVisible(boolean visible) {
+        if (visible != isVisible()) {
+            CompoundTag nbt = new CompoundTag();
+            saveAdditional(nbt, level.registryAccess());
+            Direction facing = getBlockState().getValue(BlockCreativePictureFrame.FACING);
+            BlockState newState = visible ? LittleFramesRegistry.CREATIVE_PICTURE_FRAME.value().defaultBlockState() : LittleFramesRegistry.CREATIVE_PICTURE_FRAME_INVISIBLE.value()
+                    .defaultBlockState();
+            level.setBlockAndUpdate(worldPosition, newState.setValue(BlockCreativePictureFrame.FACING, facing));
+            if (level.getBlockEntity(worldPosition) instanceof BECreativePictureFrame f)
+                f.loadAdditional(nbt, level.registryAccess());
+            return true;
+        }
+        return false;
+    }
+    
     protected void savePicture(CompoundTag nbt) {
         nbt.putFloat("minx", min.x);
         nbt.putFloat("miny", min.y);
         nbt.putFloat("maxx", max.x);
         nbt.putFloat("maxy", max.y);
         nbt.putFloat("rotation", rotation);
-        nbt.putBoolean("visibleFrame", visibleFrame);
         nbt.putBoolean("bothSides", bothSides);
         nbt.putBoolean("flipX", flipX);
         nbt.putBoolean("flipY", flipY);
@@ -210,7 +230,6 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         max.x = nbt.getFloat("maxx");
         max.y = nbt.getFloat("maxy");
         rotation = nbt.getFloat("rotation");
-        visibleFrame = nbt.getBoolean("visibleFrame");
         bothSides = nbt.getBoolean("bothSides");
         flipX = nbt.getBoolean("flipX");
         flipY = nbt.getBoolean("flipY");
@@ -222,6 +241,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
             data = LittleFrameData.ofOldData(nbt);
         else
             data = new LittleFrameData();
+        
+        if (nbt.contains("visibleFrame"))
+            shouldConvert = !nbt.getBoolean("visibleFrame");
     }
     
     @Override
@@ -232,6 +254,10 @@ public class BECreativePictureFrame extends BlockEntityCreative {
     
     public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof BECreativePictureFrame be) {
+            if (be.shouldConvert) {
+                be.setVisible(false);
+                return;
+            }
             if (level.isClientSide) {
                 FrameDisplay display = be.requestDisplay();
                 if (display != null && display.canTick())
@@ -263,5 +289,9 @@ public class BECreativePictureFrame extends BlockEntityCreative {
         if (isClient() && display != null)
             release();
         super.onChunkUnloaded();
+    }
+    
+    public boolean isVisible() {
+        return true;
     }
 }

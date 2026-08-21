@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import team.creative.littleframes.common.block.BECreativePictureFrame;
+import team.creative.littleframes.common.block.BECreativePictureFrameInvisible;
 import team.creative.littleframes.common.block.BlockCreativePictureFrame;
 
 public class LittleFramesRegistry {
@@ -26,7 +27,8 @@ public class LittleFramesRegistry {
     
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(BuiltInRegistries.BLOCK, LittleFrames.MODID);
     
-    public static final Holder<Block> CREATIVE_PICTURE_FRAME = register("creative_pic_frame", () -> new BlockCreativePictureFrame());
+    public static final Holder<Block> CREATIVE_PICTURE_FRAME = register("creative_pic_frame", () -> new BlockCreativePictureFrame(false));
+    public static final Holder<Block> CREATIVE_PICTURE_FRAME_INVISIBLE = register("creative_pic_frame_invisible", () -> new BlockCreativePictureFrame(true));
     
     private static <T extends Block> DeferredHolder<Block, ? extends T> register(String name, Supplier<? extends T> sup) {
         var ret = BLOCKS.register(name, sup);
@@ -40,6 +42,10 @@ public class LittleFramesRegistry {
     
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BECreativePictureFrame>> BE_CREATIVE_FRAME = registerBlockEntity("creative_pic_frame",
         () -> BlockEntityType.Builder.<BECreativePictureFrame>of(BECreativePictureFrame::new, CREATIVE_PICTURE_FRAME.value()));
+    
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BECreativePictureFrameInvisible>> BE_CREATIVE_FRAME_INVISIBLE = registerBlockEntity(
+        "creative_pic_frame_invisible", () -> BlockEntityType.Builder.<BECreativePictureFrameInvisible>of(BECreativePictureFrameInvisible::new, CREATIVE_PICTURE_FRAME_INVISIBLE
+                .value()));
     
     public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
         return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));

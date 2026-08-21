@@ -1,7 +1,26 @@
 {
     "variants": {
-        "": {
+        "facing=down": {
+            "model": "littleframes:block/creative_pic_frame_up",
+            "x": 180
+        },
+        "facing=east": {
             "model": "littleframes:block/creative_pic_frame"
+        },
+        "facing=north": {
+            "model": "littleframes:block/creative_pic_frame",
+            "y": 270
+        },
+        "facing=south": {
+            "model": "littleframes:block/creative_pic_frame",
+            "y": 90
+        },
+        "facing=up": {
+            "model": "littleframes:block/creative_pic_frame_up"
+        },
+        "facing=west": {
+            "model": "littleframes:block/creative_pic_frame",
+            "y": 180
         }
     }
 }

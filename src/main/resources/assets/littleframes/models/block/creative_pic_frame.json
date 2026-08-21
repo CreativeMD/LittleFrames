@@ -1,5 +1,22 @@
 {
-    "loader": "creativecore:rendered",
-    "block": "littleframes:creative_pic_frame",
-    "item": "littleframes:creative_pic_frame"
+    "parent": "block/block",
+    "textures": {
+        "all": "minecraft:block/oak_planks",
+        "particle": "#all"
+    },
+    "elements": [
+        {
+            "from": [0, 0, 0],
+            "to": [0.031, 16, 16],
+            "color": 7,
+            "faces": {
+                "north": {"uv": [2.969, 0, 3, 16], "texture": "#all"},
+                "east": {"uv": [0, 0, 16, 16], "texture": "#all"},
+                "south": {"uv": [0, 0, 0.031, 16], "texture": "#all"},
+                "west": {"uv": [0, 0, 16, 16], "texture": "#all"},
+                "up": {"uv": [0, 0, 0.031, 16], "texture": "#all"},
+                "down": {"uv": [0, 0, 0.031, 16], "texture": "#all"}
+            }
+        }
+    ]
 }
